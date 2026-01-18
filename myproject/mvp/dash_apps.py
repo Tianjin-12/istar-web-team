@@ -18,10 +18,10 @@ from datetime import timedelta,datetime
 from django.urls import reverse
 # 创建DjangoDash实例，名称必须与模板中的name属性匹配
 app = DjangoDash('DashboardApp', external_stylesheets=[dbc.themes.BOOTSTRAP,"https://use.fontawesome.com/releases/v5.15.4/css/all.css",
-                     "/static/css/style.css"],
-                 suppress_callback_exceptions=True,
-                 serve_locally=True,
-                 meta_tags=[{"name": "viewport", "content": "width=device-width"}])
+                      "/static/css/style.css"],
+                  suppress_callback_exceptions=True,
+                  serve_locally=True)
+
 # --- 1. 多语言配置 ---
 TRANSLATIONS = {
     'zh': {
@@ -53,6 +53,7 @@ TRANSLATIONS = {
         'download': 'Export Report', 'lang_label': '中'
     }
 }
+
 def fetch_backend_data(brand_name=None, keyword_name=None):
     # API端点URL
     base_url = os.environ.get("https://istar-geo.com",'http://localhost:8000')
@@ -108,7 +109,7 @@ def fetch_backend_data(brand_name=None, keyword_name=None):
         # 其他异常
         print(f"处理数据时发生异常: {str(e)}")
         return {"no_data": True, "brand_name": brand_name, "keyword_name": keyword_name}
-
+ 
 
 def _convert_to_web_format(df,brand_name):
     # 处理趋势图数据
@@ -161,7 +162,7 @@ def _convert_to_web_format(df,brand_name):
         brand_stats = brand_stats.sort_values('total_score', ascending=False).reset_index(drop=True)
         
         # 添加排名列（从1开始）
-        brand_stats['rank'] = range(1, len(brand_stats) + 1)
+        brand_stats['rank'] = range(1, len(brand_stats) +1)
         
         # 重命名列以匹配期望的输出格式
         ranking_data = brand_stats.rename(columns={
@@ -175,8 +176,9 @@ def _convert_to_web_format(df,brand_name):
     # 处理饼图数据
     pie_labels = brand_stats['brand_name'].tolist()
     pie_values = brand_stats['total_score'].tolist()
-    return trend_data, ranking_data, pie_labels, pie_values,latest_r_brand_amount,latest_link_amount,latest_nr_brand_amount
+    return trend_data, ranking_data, pie_labels, pie_values,latest_r_brand_amount,latest_link_amount,latest_nr_brand_amount 
 
+ 
 
 def _get_default_data():
     # 生成默认日期范围
@@ -203,24 +205,22 @@ def _get_default_data():
     latest_r_brand_amount = 0
     latest_nr_brand_amount = 0
     latest_link_amount = 0
-    return trend_data, rank_data, BrandsP, values,latest_r_brand_amount,latest_link_amount,latest_nr_brand_amount
+    return trend_data, rank_data, BrandsP, values,latest_r_brand_amount,latest_link_amount,latest_nr_brand_amount 
 # --- 2. 布局设计 ---
-app.layout =html.Div([
-    dcc.Location(id="refreshment",refresh=False),
+app.layout = html.Div([
+    dcc.Location(id="refreshment", refresh=False),
     dcc.Store(id='lang-store', data='zh'),
-    dcc.Store(id='user-store', data={'authenticated': False, 'username': None, 'email': None}),
-    dcc.Store(id='login-state', data=False),  # 存储是否登录
-
+    
     # === A. 顶部导航栏 (已升级品牌展示) ===
     dbc.Navbar(
         dbc.Container([
             dbc.Row([
-                # 1. Logo
+                #1. Logo
                 dbc.Col(
-                    html.Img(src="/assets/logo.png", className="navbar-logo"),
+                    html.Img(src="/static/images/logo.png", className="navbar-logo"),
                     width="auto"
                 ),
-                # 2. 品牌文字区
+                #2. 品牌文字区
                 dbc.Col([
                     html.H4(
                         "Istar GEO Evaluator",
@@ -237,8 +237,8 @@ app.layout =html.Div([
                         style={"fontSize": "0.75rem"}
                     )
                 ], className="ps-2 d-flex flex-column justify-content-center"),
-
-                # 3. 菜单链接
+ 
+                #3. 菜单链接
                 dbc.Col(
                     dbc.Nav([
                         dbc.NavItem(dbc.NavLink(
@@ -262,7 +262,7 @@ app.layout =html.Div([
                     width=True
                 ),
             ], align="center", className="flex-grow-1"),
-
+            
             # 右侧：语言 + 登录
     dbc.Row([
         dbc.Col(
@@ -272,7 +272,23 @@ app.layout =html.Div([
             width="auto"
         ),
         dbc.Col(
-            html.Div(id="auth-button-container"),
+            html.Div(id="login-button-container", children=[
+                html.A(
+                    dbc.Button(
+                        "登录",
+                        color="dark",
+                        outline=True,
+                        className="rounded-pill fw-bold px-4 btn-sm"
+                    ),
+                    href="/accounts/login/",
+                    className="text-decoration-none",
+                    id="login-button"
+                )
+            ]),
+            width="auto"
+        ),
+        dbc.Col(
+            html.Div(id="user-info-container", children=[]),
             width="auto"
         )
     ], align="center", className="g-0")
@@ -281,7 +297,7 @@ app.layout =html.Div([
     ),
     # === C. 主要内容区域 ===
     dbc.Container([
-
+ 
         # --- 搜索控制台 ---
         dbc.Card([
             dbc.CardBody([
@@ -297,7 +313,7 @@ app.layout =html.Div([
                             className="form-control-premium"
                         )
                     ], width=12, md=4),
-
+ 
                     # 核心关键词
                     dbc.Col([
                         html.Label(
@@ -309,7 +325,7 @@ app.layout =html.Div([
                             className="form-control-premium"
                         )
                     ], width=12, md=4),
-
+ 
                     # 按钮 (底部对齐)
                     dbc.Col([
                         html.Label(" ", className="d-block mb-1"),
@@ -329,10 +345,10 @@ app.layout =html.Div([
                 ], className="g-3 align-items-end")
             ], className="p-4")
         ], className="premium-card mb-5 border-0 shadow-sm"),
-
+ 
         # 添加下载组件
         dcc.Download(id="download-dataframe-csv"),
-
+ 
         dcc.Loading(
             id="loading",
             type="cube",
@@ -356,7 +372,7 @@ app.layout =html.Div([
                         ])
                     ], className="premium-card h-100 delay-1"),
                         width=12, lg=4, className="mb-4"),
-
+ 
                     dbc.Col(dbc.Card([
                         dbc.CardBody([
                             html.Div(
@@ -373,7 +389,7 @@ app.layout =html.Div([
                         ])
                     ], className="premium-card h-100 delay-2"),
                         width=12, lg=4, className="mb-4"),
-
+ 
                     dbc.Col(dbc.Card([
                         dbc.CardBody([
                             html.Div(
@@ -389,9 +405,9 @@ app.layout =html.Div([
                             ])
                         ])
                     ], className="premium-card h-100 delay-3"),
-                        width=12, lg=4, className="mb-4"),
+                        width=12, lg=4, className="mb-4")
                 ]),
-
+ 
                 # 2. 图表区
                 dbc.Row([
                     dbc.Col(dbc.Card([
@@ -407,7 +423,7 @@ app.layout =html.Div([
                             )
                         )
                     ], className="premium-card h-100"), width=12, lg=8, className="mb-4"),
-
+ 
                     dbc.Col(dbc.Card([
                         dbc.CardHeader(
                             id="title-pie",
@@ -422,7 +438,7 @@ app.layout =html.Div([
                         )
                     ], className="premium-card h-100"), width=12, lg=4, className="mb-4")
                 ]),
-
+ 
                 # 3. 排行榜
                 dbc.Row([
                     dbc.Col(dbc.Card([
@@ -436,42 +452,138 @@ app.layout =html.Div([
             ]
         )
     ], fluid=True, className="px-lg-5 pb-5"),
-
-    # 全局定时器 (自动刷新)
+ 
     dcc.Interval(id="interval-trigger", interval=120 * 1000, n_intervals=0),
-    dcc.Interval(id="auth-check-interval", interval=5 * 1000, n_intervals=0),
-    # 用户信息模态框
-dbc.Modal(
-    [
-        dbc.ModalHeader(dbc.ModalTitle("用户信息")),
-        dbc.ModalBody([
-            html.Div([
-                html.P([
-                    html.Strong("用户名: "),
-                    html.Span(id="modal-username")
-                ]),
-                html.P([
-                    html.Strong("邮箱: "),
-                    html.Span(id="modal-email")
-                ])
-            ])
-        ]),
-        dbc.ModalFooter([
-            dbc.Button("退出登录", id="logout-button", color="danger", className="me-2"),
-            dbc.Button("关闭", id="close-user-modal", className="ms-auto")
-        ])
-    ],
-    id="user-modal",
-    is_open=False,
-    centered=True,
-    size="sm"
-),
-# 隐藏的 DataTable 防止 Import unused 报错
-html.Div(dash_table.DataTable(id='hidden'), style={'display': 'none'}),
-# 用于接收退出登录JavaScript的隐藏div
-html.Div(id='logout-redirect', style={'display': 'none'})
+    # 隐藏的 DataTable 防止 Import unused 报错
+    html.Div(dash_table.DataTable(id='hidden'), style={'display': 'none'}),
+    # 用于接收退出登录JavaScript的隐藏div
+    html.Div(id='logout-redirect', style={'display': 'none'}),
+    # 客户端脚本：登录状态检查和按钮更新
+    html.Script("""
+        (function() {
+            // ========== 1. Toast 功能 ==========
+            function showToast(message, duration) {
+                const toast = document.getElementById('toast');
+                const messageElement = document.getElementById('toast-message');
+                
+                messageElement.textContent = message;
+                toast.classList.add('show');
+                
+                setTimeout(function() {
+                    hideToast();
+                }, duration || 5000);
+            }
+            
+            function hideToast() {
+                const toast = document.getElementById('toast');
+                toast.style.animation = 'slideOut 0.3s ease-out forwards';
+                setTimeout(function() {
+                    toast.classList.remove('show');
+                    toast.style.animation = '';
+                }, 300);
+            }
+            
+            // ========== 2. 检查URL参数 ==========
+            function checkUrlParams() {
+                const params = new URLSearchParams(window.location.search);
+                const loginSuccess = params.get('login_success');
+                const registerSuccess = params.get('register_success');
+                const username = params.get('username');
+                
+                if (loginSuccess === 'true' && username) {
+                    showToast('欢迎回来，' + username + '！');
+                    localStorage.setItem('authState', JSON.stringify({
+                        authenticated: true,
+                        username: username
+                    }));
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                } else if (registerSuccess === 'true' && username) {
+                    showToast('注册成功，欢迎 ' + username + '！');
+                    localStorage.setItem('authState', JSON.stringify({
+                        authenticated: true,
+                        username: username
+                    }));
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                }
+            }
+            
+            // ========== 3. 更新按钮显示 ==========
+            function updateAuthButtons(authenticated, username) {
+                const loginButton = document.getElementById('login-button');
+                const userContainer = document.getElementById('user-info-container');
+                
+                if (authenticated && username) {
+                    if (loginButton) {
+                        loginButton.style.display = 'none';
+                    }
+                    if (userContainer) {
+                        userContainer.innerHTML = '<a href="/accounts/profile/" class="text-decoration-none"><button class="btn btn-outline-dark btn-sm rounded-pill fw-bold px-4">' + username + '</button></a>';
+                    }
+                } else {
+                    if (loginButton) {
+                        loginButton.style.display = 'block';
+                    }
+                    if (userContainer) {
+                        userContainer.innerHTML = '';
+                    }
+                }
+            }
+            
+            // ========== 4. 从localStorage恢复登录状态 ==========
+            function loadAuthState() {
+                try {
+                    const authState = localStorage.getItem('authState');
+                    if (authState) {
+                        const data = JSON.parse(authState);
+                        if (data.authenticated && data.username) {
+                            updateAuthButtons(true, data.username);
+                        }
+                    }
+                } catch (error) {
+                    console.log('加载登录状态失败:', error);
+                }
+            }
+            
+            // ========== 5. 服务器登录状态检查 ==========
+            async function checkServerAuthStatus() {
+                try {
+                    const response = await fetch('/accounts/api/auth-check/');
+                    const data = await response.json();
+                    
+                    if (data.authenticated && data.username) {
+                        localStorage.setItem('authState', JSON.stringify({
+                            authenticated: true,
+                            username: data.username
+                        }));
+                        updateAuthButtons(true, data.username);
+                    } else {
+                        localStorage.removeItem('authState');
+                        updateAuthButtons(false, null);
+                    }
+                } catch (error) {
+                    console.log('检查服务器登录状态失败:', error);
+                    loadAuthState();
+                }
+            }
+            
+            // ========== 6. 初始化 ==========
+            window.addEventListener('DOMContentLoaded', function() {
+                // 1. 检查URL参数（登录/注册成功）
+                checkUrlParams();
+                
+                // 2. 从localStorage恢复登录状态
+                loadAuthState();
+                
+                // 3. 延迟检查服务器状态（避免页面刚加载时的冲突）
+                setTimeout(checkServerAuthStatus, 1000);
+                
+                // 4. 每60秒检查一次服务器状态
+                setInterval(checkServerAuthStatus, 60000);
+            });
+        })();
+    """)
 ])
-#交互
+
 @app.callback(
     [Output('nav-dash', 'children'), Output('nav-rank', 'children'),
      Output('nav-wiki', 'children'), Output('nav-setting', 'children'),
@@ -498,7 +610,6 @@ def update_language(is_en):
         t['chart_trend'], t['chart_pie'], t['chart_rank'],
         lang
     )
-
 # C. 数据图表渲染 (监听自动刷新 OR 手动点击分析)
 @app.callback(
     [Output('val-1', 'children'), Output('bad-1', 'children'),
@@ -539,7 +650,7 @@ def update_metrics(n_interval, n_click, search_brand,search_keyword):
                           external_link=True),
                 html.Div([
                     html.Small("提示：创建订单后系统将自动开始数据收集和分析", 
-                             className="text-muted mt-2")
+                             className="text-muted mt-2"),
                 ])
             ])
         ], className="mb-4")
@@ -644,7 +755,6 @@ def update_metrics(n_interval, n_click, search_brand,search_keyword):
      State('platform-filter', 'value')],
 )
 
-# 添加 dcc.Download 组件到布局中，用于处理文件下载
 @app.callback(
     Output("download-dataframe-csv", "data"),
     Input("btn-download", "n_clicks"),
@@ -672,109 +782,4 @@ def export_csv(n_clicks, search_brand, search_keyword):
         df = pd.DataFrame({'Info': ['Unexpected data format']})
     
     # 返回CSV数据以供下载
-    return dcc.send_data_frame(df.to_csv, "dashboard_data.csv", index=False)
-
-# 检查登录状态的回调函数
-@app.callback(
-    Output('user-store', 'data'),
-    [Input('auth-check-interval', 'n_intervals'),
-     Input('refreshment','pathname')]
-)
-def check_user_status(n_intervals, pathname):
-    try:
-        # 调用API检查登录状态
-        url = 'http://localhost:8000/api/accounts/auth-check/'
-        print(f"正在检查登录状态，URL: {url}")
-        response = requests.get(url)
-        print(f"响应状态码: {response.status_code}")
-        print(f"响应内容: {response.text}")
-        
-        if response.status_code == 200:
-            data = response.json()
-            print(f"返回的数据: {data}")
-            return data
-    except Exception as e:
-        print(f"检查登录状态时出错: {str(e)}")
-        import traceback
-        traceback.print_exc()
-    
-    # 如果出错，返回未登录状态
-    print("返回默认未登录状态")
-    return {'authenticated': False, 'username': None, 'email': None}
-
-# 根据登录状态显示不同的按钮
-@app.callback(
-    Output('auth-button-container', 'children'),
-    [Input('user-store', 'data')]
-)
-def update_auth_button(user_data):
-    if user_data and user_data.get('authenticated'):
-        # 用户已登录，显示用户名按钮
-        return html.A(
-            dbc.Button(
-                user_data.get('username'),
-                color="dark",
-                outline=True,
-                className="rounded-pill fw-bold px-4 btn-sm",
-                id="user-info-button"
-            ),
-            href="#",
-            id="user-info-link",
-            className="text-decoration-none",
-            style={"display": "block"}  # 确保按钮可见
-        )
-    else:
-        # 用户未登录，显示登录按钮，但仍然包含user-info-link ID
-        return html.Div([
-            html.A(
-                dbc.Button(
-                    "登录",
-                    color="dark",
-                    outline=True,
-                    className="rounded-pill fw-bold px-4 btn-sm"
-                ),
-                href="/api/accounts/login/",
-                target="_blank",
-                className="text-decoration-none",
-                id = "login-button"
-            ),
-            # 添加一个隐藏的user-info-link元素，确保ID存在
-            html.Div(id="user-info-link", style={"display": "none"})
-        ])
-    
-# 控制用户信息模态框的显示
-@app.callback(
-    [Output('user-modal', 'is_open'),
-     Output('modal-username', 'children'),
-     Output('modal-email', 'children')],
-    [Input('user-info-link', 'n_clicks'),
-     Input('close-user-modal', 'n_clicks'),
-     Input('logout-button', 'n_clicks')],
-    [State('user-store', 'data'),
-     State('user-modal', 'is_open')]
-)
-def toggle_user_modal(user_info_clicks, close_clicks, logout_clicks, user_data, is_open):
-    ctx = dash.callback_context
-    if not ctx.triggered:
-        return False, "", ""
-    
-    trigger_id = ctx.triggered[0]['prop_id'].split('.')[0]
-    
-    # 点击用户信息按钮，打开模态框
-    if trigger_id == 'user-info-link' and user_info_clicks:
-        if user_data and user_data.get('authenticated'):
-            return True, user_data.get('username', ''), user_data.get('email', '')
-        return False, "", ""
-    
-    # 点击关闭按钮，关闭模态框
-    elif trigger_id == 'close-user-modal' and close_clicks:
-        return False, "", ""
-    
-    # 点击退出登录按钮，关闭模态框并执行退出登录
-    elif trigger_id == 'logout-button' and logout_clicks:
-        # 这里我们只是关闭模态框，实际的退出登录逻辑将在下一个回调中处理
-        return False, "", ""
-    
-    # 默认情况下，保持当前状态
-    return is_open, dash.no_update, dash.no_update
-
+    return dcc.send_data_frame(df.to_csv, "dashboard_data.csv", index=False)        

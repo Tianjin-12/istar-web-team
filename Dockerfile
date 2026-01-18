@@ -19,7 +19,7 @@ RUN apt-get update \
         && rm -rf /var/lib/apt/lists/*
 
 # 安装Node.js (Dash需要)
-RUN curl -fsSL https://mirrors.aliyun.com/nodejs/release_18.x | bash - \
+RUN curl -fsSL https://mirrors.aliyun.com/nodesource/setup_18.x | bash - \
     && apt-get install -y nodejs
 
 # 复制requirements.txt并安装Python依赖
@@ -27,17 +27,12 @@ COPY requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
 
 # 安装Playwright浏览器
+RUN pip install playwright
 RUN playwright install chromium
 RUN playwright install-deps
 
 # 复制项目文件
 COPY . /app/
-
-# 创建staticfiles目录
-RUN mkdir -p /app/staticfiles
-
-# 收集静态文件
-RUN python /app/myproject/manage.py collectstatic --noinput
 
 # 暴露端口
 EXPOSE 8000

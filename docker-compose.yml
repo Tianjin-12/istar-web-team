@@ -1,4 +1,3 @@
-version: '3.8'
 
 services:
   db:
@@ -32,7 +31,12 @@ services:
       - db
       - redis
     environment:
-      - DATABASE_URL=postgres://postgres:mvp123@db:5432/mvpdb
+      - DOCKER_ENV=1
+      - POSTGRES_DB=mvpdb
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=mvp123
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
 
@@ -45,7 +49,12 @@ services:
       - db
       - redis
     environment:
-      - DATABASE_URL=postgres://postgres:mvp123@db:5432/mvpdb
+      - DOCKER_ENV=1
+      - POSTGRES_DB=mvpdb
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=mvp123
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
 
@@ -58,7 +67,12 @@ services:
       - db
       - redis
     environment:
-      - DATABASE_URL=postgres://postgres:mvp123@db:5432/mvpdb
+      - DOCKER_ENV=1
+      - POSTGRES_DB=mvpdb
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=mvp123
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
 

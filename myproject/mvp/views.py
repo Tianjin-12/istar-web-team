@@ -6,6 +6,8 @@ from rest_framework import viewsets
 from .models import Mention_percentage
 from .serializers import Mention_percentageSerializer
 import json
+import os
+from django.conf import settings
 from django.utils.dateparse import parse_datetime
 from django.db.models import Avg
 from rest_framework.response import Response
@@ -68,7 +70,7 @@ def login_required_new_tab(function=None, redirect_field_name=REDIRECT_FIELD_NAM
                         if (loginWindow.closed) {{
                             clearInterval(checkInterval);
                             // 检查用户是否已登录
-                            fetch('/api/check-auth/')
+                            fetch('api/accounts/auth_check/')
                                 .then(response => response.json())
                                 .then(data => {{
                                     if (data.authenticated) {{
@@ -175,31 +177,27 @@ def toggle_light(request, order_id):
     """
     try:
         order = Order.objects.get(id=order_id, user=request.user)
-        
-        if order.light_status:
-            # 灯泡亮着，点击后熄灭
-            order.light_status = False
-            order.light_clicks -= 1
+
+        if order.is_light_on:
+            order.is_light_on = False
+            order.click_count -= 1
             message = f"订单 #{order.id} 的灯泡已熄灭"
         else:
-            # 灯泡熄灭，点击后点亮
-            order.light_status = True
-            order.light_clicks += 1
+            order.is_light_on = True
+            order.click_count += 1
             message = f"订单 #{order.id} 的灯泡已点亮"
-            
+
         order.save()
-        
-        # 发送通知
+
         send_notification(
             user_id=request.user.id,
-            message=message,
-            notification_type='light_toggle'
+            message=message
         )
-        
+
         return JsonResponse({
             'success': True,
-            'light_status': order.light_status,
-            'light_clicks': order.light_clicks,
+            'is_light_on': order.is_light_on,
+            'click_count': order.click_count,
             'message': message
         })
     except Order.DoesNotExist:
@@ -225,7 +223,8 @@ def dashboard_data_api(request):
             keyword = request.GET.get('keyword', '')
             days = int(request.GET.get('days', 30))
               # 默认获取30天的数据   
-            with open ("brand_config.json","w",encoding="utf-8") as f:
+            config_path = os.path.join(settings.BASE_DIR, 'brand_config.json')
+            with open(config_path, "w", encoding="utf-8") as f:
                 json.dump({"brand_name":brand_name,"keyword":keyword},f,ensure_ascii=False)
             cache_key = f"dashboard_data_{brand_name}_{keyword}_{days}"
             # 尝试从缓存中获取数据
@@ -309,13 +308,31 @@ def unread_notification_count(request):
 
 @login_required_new_tab
 def mark_notification_read(request, notification_id):
-    """
-    标记通知为已读
-    """
-    try:
-        notification = Notification.objects.get(id=notification_id, user=request.user)
-        notification.is_read = True
-        notification.save()
-        return JsonResponse({'success': True})
-    except Notification.DoesNotExist:
-        return JsonResponse({'success': False, 'error': '通知不存在'})
+  """
+  标记通知为已读
+  """
+  try:
+    notification = Notification.objects.get(id=notification_id, user=request.user)
+    notification.is_read = True
+    notification.save()
+    return JsonResponse({'success': True})
+  except Notification.DoesNotExist:
+    return JsonResponse({'success': False, 'error': '通知不存在'})
+
+
+@csrf_exempt
+@login_required
+def notification_list_api(request):
+  """返回 JSON 格式的通知列表"""
+  notifications = Notification.objects.filter(user=request.user).order_by('-created_at')[:10]
+  data = [
+    {
+      'id': n.id,
+      'message': n.message,
+      'created_at': n.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+      'is_read': n.is_read,
+      'order_id': n.order.id if n.order else None
+    }
+    for n in notifications
+  ]
+  return JsonResponse({'data': data}, safe=False)

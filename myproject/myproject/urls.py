@@ -19,9 +19,9 @@ from django.urls import path,include
 from mvp.views import dashboard_view
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('api/', include('mvp.urls')),
-    path('', dashboard_view, name='dashboard'), 
-    path('dash/', include('django_plotly_dash.urls')),
-   
+  path('admin/', admin.site.urls),
+  path('api/', include('mvp.urls')),
+  path('accounts/', include('accounts.urls')),
+  path('', dashboard_view, name='dashboard'),
+  path('dash/', include('django_plotly_dash.urls')),
 ]

@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import corsheaders
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -26,10 +27,16 @@ SECRET_KEY = 'django-insecure-7p3w8+k79nvvmlm&g0x3wb&v^k$qycsg*ts2x1%_b7916@_9i=
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+    "https://istar-geo.com",
+]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -37,16 +44,25 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    
-    
-]
+    ]
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_ORIGINS = [
+       "http://localhost:8000",
+       "http://127.0.0.1:8000",
+       "https://istar-geo.com",
+   ]
+
 
 ROOT_URLCONF = 'myproject.urls'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'mvp/templates'),],
+        'DIRS': [
+            os.path.join(BASE_DIR, 'templates'),
+            os.path.join(BASE_DIR, 'mvp/templates'),
+            os.path.join(BASE_DIR, 'accounts/templates'),
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -98,12 +114,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework',  # Django REST Framework
+    'rest_framework',
+    'accounts',
     'mvp',
     "django_plotly_dash",
     "django_celery_beat",
     "myproject",
-    'widget_tweaks',                                                                                                                                                                                                                                                                                                                                                                                                # 我们的应用
+    'widget_tweaks',
+    'corsheaders'
 ]
 
 # Password validation
@@ -175,7 +193,9 @@ PLOTLY_DASH = {
     "http_route": "dash/",
     "http_poke_interval": 1000,
     "cache_timeout": 300,
-    "serve_locally": True,# 本地开发时设置为True，部署时设置为False     
+    "serve_locally": True,
+    "sandbox": "allow-downloads allow-scripts allow-forms allow-top-navigation",
+    "insert_templates": True,
 }
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
@@ -183,10 +203,23 @@ AUTHENTICATION_BACKENDS = [
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 LOGIN_URL = '/accounts/login/'
+# 本地内存缓存配置（开发环境）
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',  # 唯一标识符
+        'TIMEOUT': 60*60*24*2,  # 默认缓存2 day（秒）
+        'OPTIONS': {
+            'MAX_ENTRIES': 1000  # 最大缓存条目数
+        }
+    }
+}
+# 会话存储引擎
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
-SESSION_COOKIE_AGE = 60 * 60 * 24 * 14  # 2周的秒数
+SESSION_CACHE_ALIAS = 'default'
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 14
+SESSION_COOKIE_SAMESITE = 'Lax'
 SECURE_BROWSER_XSS_FILTER = False
 SECURE_CONTENT_TYPE_NOSNIFF = False
-SESSION_COOKIE_SECURE = False         # 开发环境为 False，生产环境为 True
+SESSION_COOKIE_SECURE = False
 SESSION_COOKIE_HTTPONLY = True
-ALLOWED_HOSTS = ['*']
