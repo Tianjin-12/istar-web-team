@@ -19,7 +19,7 @@ services:
   redis:
     image: redis:7-alpine
     ports:
-      - "6379:6379"
+      - "6380:6380"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -49,8 +49,8 @@ services:
       - POSTGRES_PASSWORD=mvp123
       - POSTGRES_HOST=db
       - POSTGRES_PORT=5432
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6380/0
+      - CELERY_RESULT_BACKEND=redis://redis:6380/1
 
   celery:
     build: .
@@ -69,8 +69,8 @@ services:
       - POSTGRES_PASSWORD=mvp123
       - POSTGRES_HOST=db
       - POSTGRES_PORT=5432
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6380/0
+      - CELERY_RESULT_BACKEND=redis://redis:6380/1
 
   celery-beat:
     build: .
@@ -89,8 +89,8 @@ services:
       - POSTGRES_PASSWORD=mvp123
       - POSTGRES_HOST=db
       - POSTGRES_PORT=5432
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6380/0
+      - CELERY_RESULT_BACKEND=redis://redis:6380/1
 
 volumes:
   postgres_data:
