@@ -21,13 +21,13 @@ brand_path = 'result.txt'
 link_path='link.txt'
 
 # 读取品牌配置
-with open('brand_config.json', 'r', encoding='utf-8') as f:
+with open('myproject\\brand_config.json', 'r', encoding='utf-8') as f:
     brand_config = json.load(f)
 
 # 获取单个品牌名称和网站
-brand_name = brand_config['brands'][0]['brand_name']
-website = brand_config['brands'][0]['website']
-keyword = brand_config['brands'][0]['keyword']
+brand_name = brand_config['brand_name']
+website = brand_config['link']
+keyword = brand_config['keyword']
 
 # 读取result.txt内容
 with open(brand_path, 'r', encoding='utf-8') as f:

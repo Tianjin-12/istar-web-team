@@ -31,6 +31,7 @@ TRANSLATIONS = {
         # 搜索区
         'lbl_brand': '监测对象', 'ph_brand': '品牌名称 (如: Nike)',
         'lbl_kw': '核心关键词', 'ph_kw': '关键词 (如: 蓝牙耳机)',
+        'lbl_link': '链接地址', 'ph_link': '请输入链接地址 (如: https://example.com)',
         'btn_start': '开始分析',
         # KPI & 图表
         'kpi_vis': '核心品牌提及概率(推荐性任务)', 'kpi_sent': '链接提及概率',
@@ -45,6 +46,7 @@ TRANSLATIONS = {
         # Search Section
         'lbl_brand': 'Target Brand', 'ph_brand': 'e.g. Nike',
         'lbl_kw': 'Keywords', 'ph_kw': 'e.g. Wireless Earbuds',
+        'lbl_link': 'Link URL', 'ph_link': 'Enter link URL (e.g., https://example.com)',
         'btn_start': 'Analyze',
         # KPI & Charts
         'kpi_vis': 'Core Brand Mention percentage(recommend task)', 'kpi_sent': 'Link Mention percentage',
@@ -54,7 +56,7 @@ TRANSLATIONS = {
     }
 }
 
-def fetch_backend_data(brand_name=None, keyword_name=None):
+def fetch_backend_data(brand_name=None, keyword_name=None,link_name=None):
     # API端点URL
     base_url = os.environ.get("https://istar-geo.com",'http://localhost:8000')
     api_url = f"{base_url}/api/dashboard-data/"
@@ -64,6 +66,8 @@ def fetch_backend_data(brand_name=None, keyword_name=None):
         params['brand_name'] = brand_name
     if keyword_name:
         params['keyword'] = keyword_name
+    if link_name:
+        params['link'] = link_name
     params['days'] = 30  # 默认获取30天的数据
     
     try:
@@ -81,7 +85,7 @@ def fetch_backend_data(brand_name=None, keyword_name=None):
                 
                 if not api_data:
                     # 如果没有数据，返回特殊标记
-                    return {"no_data": True, "brand_name": brand_name, "keyword_name": keyword_name}
+                    return {"no_data": True, "brand_name": brand_name, "keyword_name": keyword_name,"link_name": link_name}
                 
                 # 将API数据转换为DataFrame
                 df = pd.DataFrame(api_data)
@@ -91,24 +95,24 @@ def fetch_backend_data(brand_name=None, keyword_name=None):
                 return df
             elif data.get('status') == 'no_data':
                 # API返回没有数据的标记
-                return {"no_data": True, "brand_name": data.get('brand_name', brand_name), "keyword_name": data.get('keyword_name', keyword_name)}
+                return {"no_data": True, "brand_name": data.get('brand_name', brand_name), "keyword_name": data.get('keyword_name', keyword_name),"link_name":data.get("link_name",link_name)}
             else:
                 # API返回错误
                 print(f"API返回错误: {data.get('error', '未知错误')}")
-                return {"no_data": True, "brand_name": brand_name, "keyword_name": keyword_name}
+                return {"no_data": True, "brand_name": brand_name, "keyword_name": keyword_name,"link_name":link_name}
         else:
             # HTTP错误
             print(f"HTTP错误 {response.status_code}: {response.text}")
-            return {"no_data": True, "brand_name": brand_name, "keyword_name": keyword_name}
+            return {"no_data": True, "brand_name": brand_name, "keyword_name": keyword_name,"link_name":link_name}
             
     except requests.exceptions.RequestException as e:
         # 网络请求异常
         print(f"网络请求异常: {str(e)}")
-        return {"no_data": True, "brand_name": brand_name, "keyword_name": keyword_name}
+        return {"no_data": True, "brand_name": brand_name, "keyword_name": keyword_name,"link_name":link_name}
     except Exception as e:
         # 其他异常
         print(f"处理数据时发生异常: {str(e)}")
-        return {"no_data": True, "brand_name": brand_name, "keyword_name": keyword_name}
+        return {"no_data": True, "brand_name": brand_name, "keyword_name": keyword_name,"link_name":link_name}
  
 
 def _convert_to_web_format(df,brand_name):
@@ -323,6 +327,14 @@ app.layout = html.Div([
                         dbc.Input(
                             id="input-search-kw",
                             className="form-control-premium"
+                        ),
+                        html.Label(
+                            id="lbl-search-link",
+                            className="small fw-bold text-secondary mb-1"
+                        ),
+                        dbc.Input(
+                            id="input-search-link",
+                            className="form-control-premium"
                         )
                     ], width=12, md=4),
  
@@ -452,12 +464,42 @@ app.layout = html.Div([
             ]
         )
     ], fluid=True, className="px-lg-5 pb-5"),
- 
+
     dcc.Interval(id="interval-trigger", interval=120 * 1000, n_intervals=0),
     # 隐藏的 DataTable 防止 Import unused 报错
     html.Div(dash_table.DataTable(id='hidden'), style={'display': 'none'}),
     # 用于接收退出登录JavaScript的隐藏div
     html.Div(id='logout-redirect', style={'display': 'none'}),
+
+    # 用于控制跳转的Location组件
+    dcc.Location(id="redirect-location", refresh=False),
+
+    # 无订单提示模态窗口
+    dbc.Modal(
+        [
+            dbc.ModalHeader(dbc.ModalTitle("提示", className="fw-bold")),
+            dbc.ModalBody(
+                html.Div([
+                    html.P(id="no-order-message", className="mb-3"),
+                    html.P(id="no-order-detail", className="text-muted small mb-3"),
+                    dcc.Link(
+                        dbc.Button("创建订单", color="primary", className="w-100", size="lg"),
+                        href="/api/redirect-to-create-order/",
+                        id="create-order-link"
+                    )
+                ])
+            ),
+            dbc.ModalFooter(
+                dbc.Button("取消", id="close-no-order-modal", color="secondary", className="w-100", n_clicks=0)
+            )
+        ],
+        id="no-order-modal",
+        is_open=False,
+        backdrop="static",
+        centered=True,
+        size="lg"
+    ),
+
     # 客户端脚本：登录状态检查和按钮更新
     html.Script("""
         (function() {
@@ -591,6 +633,8 @@ app.layout = html.Div([
      Output('input-search-brand', 'placeholder'),
      Output('lbl-search-kw', 'children'),
      Output('input-search-kw', 'placeholder'),
+     Output('lbl-search-link', 'children'),
+     Output('input-search-link', 'placeholder'),
      Output('btn-analyze', 'children'),
      Output('btn-download', 'children'),
      Output('label-kpi-1', 'children'), Output('label-kpi-2', 'children'),
@@ -605,7 +649,8 @@ def update_language(is_en):
     t = TRANSLATIONS[lang]
     return (
         t['nav_dash'], t['nav_rank'], t['nav_wiki'], t['nav_setting'],
-        t['lbl_brand'], t['ph_brand'], t['lbl_kw'], t['ph_kw'], t['btn_start'],t['download'],
+        t['lbl_brand'], t['ph_brand'], t['lbl_kw'], t['ph_kw'], t['lbl_link'], t['ph_link'],
+        t['btn_start'], t['download'],
         t['kpi_vis'], t['kpi_sent'], t['kpi_rev'],
         t['chart_trend'], t['chart_pie'], t['chart_rank'],
         lang
@@ -616,49 +661,52 @@ def update_language(is_en):
      Output('val-2', 'children'), Output('bad-2', 'children'),
      Output('val-3', 'children'), Output('bad-3', 'children'),
      Output('chart-trend', 'figure'), Output('chart-pie', 'figure'),
-     Output('rank-container', 'children')],
-    [Input('interval-trigger', 'n_intervals'),
-     Input('btn-analyze', 'n_clicks')],
-    [State('input-search-brand', 'value'),State('input-search-kw', 'value')]
+     Output('rank-container', 'children'),
+     Output('no-order-modal', 'is_open'),
+     Output('no-order-message', 'children'),
+     Output('no-order-detail', 'children'),
+     Output('create-order-link', 'href')],
+     [Input('interval-trigger', 'n_intervals'),
+      Input('btn-analyze', 'n_clicks'),
+      Input('close-no-order-modal', 'n_clicks')],
+    [State('input-search-brand', 'value'),State('input-search-kw', 'value'),State('input-search-link', 'value')]
 )
-def update_metrics(n_interval, n_click, search_brand,search_keyword):
+def update_metrics(n_interval, n_click, close_click, search_brand, search_keyword, search_link):
     # 检查是否是点击了分析按钮
     ctx = dash.callback_context
     if not ctx.triggered:
-        return dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update, dash.no_update
-    
+        return (dash.no_update, dash.no_update, dash.no_update, dash.no_update,
+                dash.no_update, dash.no_update, dash.no_update, dash.no_update,
+                dash.no_update, False, "", "", dash.no_update)
+
     trigger_id = ctx.triggered[0]['prop_id'].split('.')[0]
-    
+
+    # 如果点击的是取消按钮，关闭Modal
+    if trigger_id == 'close-no-order-modal.n_clicks':
+        return (dash.no_update, dash.no_update, dash.no_update, dash.no_update,
+                dash.no_update, dash.no_update, dash.no_update, dash.no_update,
+                dash.no_update, False, "", "", dash.no_update)
+
     # 获取数据
-    data = fetch_backend_data(brand_name=search_brand, keyword_name=search_keyword)
-    
-    # 检查是否没有数据
-    if isinstance(data, dict) and data.get("no_data"):
+    data = fetch_backend_data(brand_name=search_brand, keyword_name=search_keyword, link_name=search_link)
+
+    # 检查是否没有订单
+    if isinstance(data, dict) and data.get("no_order"):
         brand_name = data.get("brand_name", "")
-        keyword_name = data.get("keyword_name", "")
-        
-        # 返回一个特殊的UI，提示用户创建订单
-        no_data_message = dbc.Card([
-            dbc.CardBody([
-                html.H4("暂无数据", className="card-title"),
-                html.P(f"数据库中没有找到关于 '{brand_name}' 和 '{keyword_name}' 的数据。", className="card-text"),
-                html.P("请先创建订单以开始数据分析。", className="card-text"),
-                dbc.Button("创建订单", 
-                          color="primary", 
-                          href=f"/api/redirect-to-create-order/?brand_name={brand_name}&keyword_name={keyword_name}",
-                          className="mt-3",
-                          external_link=True),
-                html.Div([
-                    html.Small("提示：创建订单后系统将自动开始数据收集和分析", 
-                             className="text-muted mt-2"),
-                ])
-            ])
-        ], className="mb-4")
-        
-        # 返回空数据和提示信息
-        return "0%", "", "0%", "", "0%", "", go.Figure(), go.Figure(), no_data_message
-    # 触发 fetch_data，传入搜索词 
-    trend, rank, pie_l, pie_v ,latest_r_brand_amount,latest_link_amount,latest_nr_brand_amount = _convert_to_web_format(fetch_backend_data(brand_name=search_brand,keyword_name=search_keyword),search_brand)
+        keyword_name = data.get("keyword", "")
+        create_order_href = f"/api/redirect-to-create-order/?brand_name={brand_name}&keyword_name={keyword_name}"
+
+        # 打开Modal，显示无订单提示
+        return (
+            "0%", "", "0%", "", "0%", "",
+            go.Figure(), go.Figure(), "",
+            True,  # 打开Modal
+            f"系统中暂无关于 '{brand_name}' 和 '{keyword_name}' 的订单数据。",
+            f"品牌：{brand_name} | 关键词：{keyword_name}",
+            create_order_href
+        )
+    # 触发 fetch_data，传入搜索词
+    trend, rank, pie_l, pie_v ,latest_r_brand_amount,latest_link_amount,latest_nr_brand_amount = _convert_to_web_format(fetch_backend_data(brand_name=search_brand,keyword_name=search_keyword,link_name=search_link),search_brand)
 
     def badge(v):
         change = np.random.randint(-10, 20)
@@ -736,35 +784,22 @@ def update_metrics(n_interval, n_click, search_brand,search_keyword):
     
     v1, b1 = badge(latest_r_brand_amount)
     v2, b2 = badge(latest_link_amount)
-    v3, b3 = badge(latest_nr_brand_amount) 
+    v3, b3 = badge(latest_nr_brand_amount)
 
-    return v1, b1, v2, b2, v3, b3, fig1, fig2, ranks
-    
-@app.callback(
-    [Output('kpi-mentions', 'children'),
-     Output('kpi-links', 'children'),
-     Output('kpi-top', 'children'),
-     Output('kpi-ratio', 'children'),
-     Output('trend-chart', 'figure'),
-     Output('pie-chart', 'figure'),
-     Output('data-table', 'data'),
-     Output('data-table', 'columns')],
-    [Input('submit-button', 'n_clicks')],
-    [State('input-brand', 'value'),
-     State('input-keyword', 'value'),
-     State('platform-filter', 'value')],
-)
+    return v1, b1, v2, b2, v3, b3, fig1, fig2, ranks, False, "", "", dash.no_update, dash.no_update
+
 
 @app.callback(
     Output("download-dataframe-csv", "data"),
     Input("btn-download", "n_clicks"),
     [State('input-search-brand', 'value'),
-     State('input-search-kw', 'value')],
+     State('input-search-kw', 'value'),
+     State('input-search-link','value')],
     prevent_initial_call=True,
 )
-def export_csv(n_clicks, search_brand, search_keyword):
+def export_csv(n_clicks, search_brand, search_keyword,search_link):
     # 获取真实数据
-    df = fetch_backend_data(brand_name=search_brand, keyword_name=search_keyword)
+    df = fetch_backend_data(brand_name=search_brand, keyword_name=search_keyword,link_name=search_link)
     
     # 检查返回的数据类型
     if isinstance(df, list) and len(df) > 0 and df[0] == 404:
@@ -782,4 +817,4 @@ def export_csv(n_clicks, search_brand, search_keyword):
         df = pd.DataFrame({'Info': ['Unexpected data format']})
     
     # 返回CSV数据以供下载
-    return dcc.send_data_frame(df.to_csv, "dashboard_data.csv", index=False)        
+    return dcc.send_data_frame(df.to_csv, "dashboard_data.csv", index=False)

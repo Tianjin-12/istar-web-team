@@ -16,7 +16,6 @@ urlpatterns = [
     path('dashboard/', dashboard_view, name='dashboard'),
     path('orders/', views.order_list, name='order_list'),
     path('orders/create/', views.create_order, name='create_order'),
-    path('orders/<int:order_id>/toggle-light/', views.toggle_light, name='toggle_light'),
     path('notifications/', views.notification_list, name='notification_list'),
     path('api/notifications/', views.notification_list_api, name='notification_list_api'),
     path('unread_notification_count/', views.unread_notification_count, name='unread_notification_count'),

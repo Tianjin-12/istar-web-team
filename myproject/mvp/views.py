@@ -32,6 +32,7 @@ from django.shortcuts import resolve_url
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
+from django.db.models import Count, Max
 
 
 
@@ -136,16 +137,19 @@ class RegisteringView(CreateView):
     
 @login_required_new_tab
 def order_list(request):
-    """显示所有订单的列表"""
-    orders = Order.objects.all().order_by('-created_at')
-    return render(request, 'mvp/order_list.html', {'orders': orders})
+    """显示按品牌-关键词分组的订单统计"""
+    order_groups = Order.objects.values('brand', 'keyword').annotate(
+        order_count=Count('id'),
+        latest_created=Max('created_at')
+    ).order_by('-order_count', '-latest_created')
+    return render(request, 'mvp/order_list.html', {'order_groups': order_groups})
 
 @login_required_new_tab
 def create_order(request):
     """创建新订单"""
     if request.method == 'POST':
         keyword = request.POST.get('keyword')
-        brand = request.POST.get('brand') 
+        brand = request.POST.get('brand')
         if keyword and brand:
             # 创建订单
             order = Order.objects.create(
@@ -153,11 +157,7 @@ def create_order(request):
                 keyword=keyword,
                 brand=brand,
                 status='pending')
-            # 启动异步任务处理订单
-            task = process_order.delay(order.id)
-            order.task_id = task.id
-            order.save()
-            messages.success(request, f"订单 {order.id} 已创建，正在处理中...")
+            
         else:
             messages.error(request, "请提供关键词和品牌词")
     # 获取预填的品牌和关键词（如果有）
@@ -169,41 +169,8 @@ def create_order(request):
     })
 
 
-@login_required_new_tab
-@require_POST
-def toggle_light(request, order_id):
-    """
-    切换订单的灯泡状态
-    """
-    try:
-        order = Order.objects.get(id=order_id, user=request.user)
-
-        if order.is_light_on:
-            order.is_light_on = False
-            order.click_count -= 1
-            message = f"订单 #{order.id} 的灯泡已熄灭"
-        else:
-            order.is_light_on = True
-            order.click_count += 1
-            message = f"订单 #{order.id} 的灯泡已点亮"
-
-        order.save()
-
-        send_notification(
-            user_id=request.user.id,
-            message=message
-        )
-
-        return JsonResponse({
-            'success': True,
-            'is_light_on': order.is_light_on,
-            'click_count': order.click_count,
-            'message': message
-        })
-    except Order.DoesNotExist:
-        return JsonResponse({'success': False, 'error': '订单不存在'})
 class Mention_percentageViewSet(viewsets.ModelViewSet):
-    """品牌提及百分比API视图集"""
+    """提及百分比API视图集"""
     queryset = Mention_percentage.objects.all()
     serializer_class = Mention_percentageSerializer
     
@@ -221,11 +188,13 @@ def dashboard_data_api(request):
         try:
             brand_name = request.GET.get('brand_name', '')
             keyword = request.GET.get('keyword', '')
+            link = request.GET.get('link','')
+
             days = int(request.GET.get('days', 30))
               # 默认获取30天的数据   
             config_path = os.path.join(settings.BASE_DIR, 'brand_config.json')
             with open(config_path, "w", encoding="utf-8") as f:
-                json.dump({"brand_name":brand_name,"keyword":keyword},f,ensure_ascii=False)
+                json.dump({"brand_name":brand_name,"keyword":keyword,"link":link},f,ensure_ascii=False)
             cache_key = f"dashboard_data_{brand_name}_{keyword}_{days}"
             # 尝试从缓存中获取数据
             cached_data = cache.get(cache_key)
@@ -234,18 +203,23 @@ def dashboard_data_api(request):
             # 计算日期范围
             end_date = datetime.now()
             start_date = end_date - timedelta(days=days)
+            # 检查Order表中是否有该(brand, keyword)组合
+            has_order = Order.objects.filter(
+                keyword__icontains=keyword,
+                brand__icontains=brand_name
+            ).exists()
+            if not has_order:
+                # 如果没有订单，返回特殊标记
+                return JsonResponse({
+                    'no_order': True,
+                    'brand_name': brand_name,
+                    'keyword': keyword,
+                    'status': 'no_order'
+                })
             # 查询提及数据
             mention_query = Mention_percentage.objects.filter(
                 created_at__range=[start_date, end_date],keyword_name__icontains=keyword
             )
-            if not mention_query.exists():
-                # 如果没有数据，返回特殊标记
-                return JsonResponse({
-                    'no_data': True, 
-                    'brand_name': brand_name, 
-                    'keyword_name': keyword,
-                    'status': 'no_data'
-                })
             data = {
                 'r_brand_amount': list(mention_query.values_list('r_brand_amount', flat=True)),
                 'nr_brand_amount': list(mention_query.values_list('nr_brand_amount', flat=True)),
@@ -282,11 +256,11 @@ def redirect_to_create_order(request):
     """从Dash应用重定向到订单创建页面，并预填品牌和关键词"""
     brand_name = request.GET.get('brand_name', '')
     keyword_name = request.GET.get('keyword_name', '')
-    
+
     # 将品牌和关键词保存到session中，以便在创建订单页面使用
     request.session['prefilled_brand'] = brand_name
     request.session['prefilled_keyword'] = keyword_name
-    
+
     # 重定向到订单创建页面
     return redirect('mvp:create_order')
 

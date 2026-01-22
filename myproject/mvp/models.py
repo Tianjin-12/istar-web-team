@@ -35,8 +35,6 @@ class Order(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', verbose_name="状态")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="创建时间")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="更新时间")
-    is_light_on = models.BooleanField(default=False, verbose_name="灯泡状态")
-    click_count = models.IntegerField(default=0, verbose_name="点击次数")
     task_id = models.CharField(max_length=255, blank=True, null=True, verbose_name="任务ID")
     
     class Meta:

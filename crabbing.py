@@ -86,13 +86,13 @@ def crabbing(browser, index, question):
             else:
                 # 等待页面加载
                 page1.wait_for_timeout(2000)
-                # 查找链接元素
-                link_url = page1.query_selector_all("//div[@class='dc433409']/a")
-                print(f"找到 {len(link_url)} 个链接元素")
+                # 查找链接s元素
+                links_found = page1.query_selector_all("//div[@class='dc433409']/a")
+                print(f"找到 {len(links_found)} 个链接元素")
             
-            # 提取每个元素的 href 属性
+            # 提取每个元素的 href 属性found
             links_written = 0
-            for i, element in enumerate(link_url):
+            for i, element in enumerate(links_found):
                 try:
                     href = element.get_attribute("href")
                     print(f"链接 {i}: {href}")

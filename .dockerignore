@@ -52,5 +52,3 @@ link.txt
 *.xlsx
 *.csv
 
-# Docker
-docker-entrypoint.sh
