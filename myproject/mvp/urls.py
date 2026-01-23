@@ -10,6 +10,7 @@ from .views import (
 app_name = 'mvp'
 router = DefaultRouter()
 router.register(r'brand-percentages', Mention_percentageViewSet)
+#注意前面是有一个api/的
 urlpatterns = [
     path('', include(router.urls)),
     path('dashboard-data/', dashboard_data_api, name='dashboard-data'),

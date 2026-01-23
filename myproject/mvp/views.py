@@ -137,30 +137,50 @@ class RegisteringView(CreateView):
     
 @login_required_new_tab
 def order_list(request):
-    """显示按品牌-关键词分组的订单统计"""
-    order_groups = Order.objects.values('brand', 'keyword').annotate(
-        order_count=Count('id'),
-        latest_created=Max('created_at')
-    ).order_by('-order_count', '-latest_created')
-    return render(request, 'mvp/order_list.html', {'order_groups': order_groups})
+    """显示当前用户的订单列表"""
+    orders = Order.objects.filter(
+        user=request.user
+    ).select_related('user').order_by('-created_at')
+    return render(request, 'mvp/order_list.html', {'orders': orders})
 
 @login_required_new_tab
 def create_order(request):
     """创建新订单"""
     if request.method == 'POST':
-        keyword = request.POST.get('keyword')
-        brand = request.POST.get('brand')
-        if keyword and brand:
-            # 创建订单
-            order = Order.objects.create(
-                user=request.user,
-                keyword=keyword,
-                brand=brand,
-                status='pending')
-            
-        else:
-            messages.error(request, "请提供关键词和品牌词")
-    # 获取预填的品牌和关键词（如果有）
+        keyword = request.POST.get('keyword', '').strip()
+        brand = request.POST.get('brand', '').strip()
+
+        if not keyword or not brand:
+            return JsonResponse({
+                'success': False,
+                'message': '请提供关键词和品牌词'
+            })
+
+        existing_order = Order.objects.filter(
+            user=request.user,
+            keyword__iexact=keyword,
+            brand__iexact=brand
+        ).first()
+
+        if existing_order:
+            return JsonResponse({
+                'success': False,
+                'message': f'您已经创建过品牌"{brand}"和关键词"{keyword}"的订单'
+            })
+
+        order = Order.objects.create(
+            user=request.user,
+            keyword=keyword,
+            brand=brand,
+            status='pending'
+        )
+
+        return JsonResponse({
+            'success': True,
+            'message': '订单创建成功',
+            'order_id': order.id
+        })
+
     prefilled_brand = request.session.pop('prefilled_brand', '')
     prefilled_keyword = request.session.pop('prefilled_keyword', '')
     return render(request, 'mvp/create_order.html', {
@@ -190,8 +210,8 @@ def dashboard_data_api(request):
             keyword = request.GET.get('keyword', '')
             link = request.GET.get('link','')
 
-            days = int(request.GET.get('days', 30))
-              # 默认获取30天的数据   
+            days = int(request.GET.get('days', 60))
+              # 默认获取60天的数据   
             config_path = os.path.join(settings.BASE_DIR, 'brand_config.json')
             with open(config_path, "w", encoding="utf-8") as f:
                 json.dump({"brand_name":brand_name,"keyword":keyword,"link":link},f,ensure_ascii=False)

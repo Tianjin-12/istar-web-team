@@ -96,6 +96,9 @@ def fetch_backend_data(brand_name=None, keyword_name=None,link_name=None):
             elif data.get('status') == 'no_data':
                 # API返回没有数据的标记
                 return {"no_data": True, "brand_name": data.get('brand_name', brand_name), "keyword_name": data.get('keyword_name', keyword_name),"link_name":data.get("link_name",link_name)}
+            elif data.get('status') == 'no_order':
+                # API返回没有订单的标记
+                return {"no_order": True, "brand_name": data.get('brand_name', brand_name), "keyword": data.get('keyword', keyword_name)}
             else:
                 # API返回错误
                 print(f"API返回错误: {data.get('error', '未知错误')}")
@@ -482,16 +485,14 @@ app.layout = html.Div([
                 html.Div([
                     html.P(id="no-order-message", className="mb-3"),
                     html.P(id="no-order-detail", className="text-muted small mb-3"),
-                    dcc.Link(
+                    html.A(
                         dbc.Button("创建订单", color="primary", className="w-100", size="lg"),
                         href="/api/redirect-to-create-order/",
-                        id="create-order-link"
+                        id="create-order-link",
+                        className="text-decoration-none"
                     )
                 ])
             ),
-            dbc.ModalFooter(
-                dbc.Button("取消", id="close-no-order-modal", color="secondary", className="w-100", n_clicks=0)
-            )
         ],
         id="no-order-modal",
         is_open=False,
@@ -667,11 +668,11 @@ def update_language(is_en):
      Output('no-order-detail', 'children'),
      Output('create-order-link', 'href')],
      [Input('interval-trigger', 'n_intervals'),
-      Input('btn-analyze', 'n_clicks'),
-      Input('close-no-order-modal', 'n_clicks')],
+      Input('btn-analyze', 'n_clicks')],
+
     [State('input-search-brand', 'value'),State('input-search-kw', 'value'),State('input-search-link', 'value')]
 )
-def update_metrics(n_interval, n_click, close_click, search_brand, search_keyword, search_link):
+def update_metrics(n_interval, n_click, search_brand, search_keyword, search_link):
     # 检查是否是点击了分析按钮
     ctx = dash.callback_context
     if not ctx.triggered:
@@ -680,12 +681,6 @@ def update_metrics(n_interval, n_click, close_click, search_brand, search_keywor
                 dash.no_update, False, "", "", dash.no_update)
 
     trigger_id = ctx.triggered[0]['prop_id'].split('.')[0]
-
-    # 如果点击的是取消按钮，关闭Modal
-    if trigger_id == 'close-no-order-modal.n_clicks':
-        return (dash.no_update, dash.no_update, dash.no_update, dash.no_update,
-                dash.no_update, dash.no_update, dash.no_update, dash.no_update,
-                dash.no_update, False, "", "", dash.no_update)
 
     # 获取数据
     data = fetch_backend_data(brand_name=search_brand, keyword_name=search_keyword, link_name=search_link)
@@ -786,7 +781,7 @@ def update_metrics(n_interval, n_click, close_click, search_brand, search_keywor
     v2, b2 = badge(latest_link_amount)
     v3, b3 = badge(latest_nr_brand_amount)
 
-    return v1, b1, v2, b2, v3, b3, fig1, fig2, ranks, False, "", "", dash.no_update, dash.no_update
+    return v1, b1, v2, b2, v3, b3, fig1, fig2, ranks, False, "", "", dash.no_update
 
 
 @app.callback(

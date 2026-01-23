@@ -16,6 +16,21 @@ RUN apt-get update \
         build-essential \
         curl \
         gnupg \
+        xz-utils \
+        libnss3 \
+        libnspr4 \
+        libatk1.0-0 \
+        libatk-bridge2.0-0 \
+        libcups2 \
+        libdrm2 \
+        libdbus-1-3 \
+        libxkbcommon0 \
+        libxcomposite1 \
+        libxdamage1 \
+        libxfixes3 \
+        libxrandr2 \
+        libgbm1 \
+        libasound2 \
         && rm -rf /var/lib/apt/lists/*
 
 # 安装Node.js (Dash需要)
@@ -30,7 +45,6 @@ RUN pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple -r re
 RUN pip install playwright
 ENV PLAYWRIGHT_DOWNLOAD_HOST=https://npmmirror.com/mirrors/playwright/
 RUN playwright install chromium
-RUN playwright install-deps chromium
 
 
 # 复制项目文件
