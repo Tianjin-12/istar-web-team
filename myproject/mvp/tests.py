@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
 from .models import Order
-from .tasks import schedule_order_processing, process_order, collect_and_save_results, cleanup_backend
+from .tasks import cleanup_backend
 from .redis_client import get_redis_client
 import json
 

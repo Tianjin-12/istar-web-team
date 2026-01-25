@@ -247,8 +247,6 @@ def crabbing(browser, index, question):
     
     # 收集链接
     links = collect_url()
-    
-    return answer_text, links
 
     # 如果需要更多回答，可以点击继续生成
     num = 1  # 爬取次数为num+1次
@@ -282,57 +280,6 @@ def crabbing(browser, index, question):
     return answer_text, all_links
 
 
-# 主程序
-def main():
-    # 创建浏览器实例（只创建一次）
-    with sync_playwright() as p:
-        browser = p.chromium.launch_persistent_context(
-            executable_path=r'C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe',
-            user_data_dir=r"C:\Users\meiho\AppData\Local\Microsoft\Edge\User Data\MVP",
-            headless=False,
-            no_viewport=True,
-            args=['--start-maximized']
-        )
-
-        # 初始化页面
-        page_list_aa = browser.pages
-        if len(page_list_aa) == 0:
-            page1 = browser.new_page()
-        else:
-            page1 = page_list_aa[0]
-
-        # 加载stealth脚本并访问网站
-        js_data = open('stealth.min.js', 'r', encoding="utf-8").read()
-        page1.add_init_script(js_data)
-        page1.goto('https://chat.deepseek.com')
-        page1.wait_for_timeout(3000)
-
-        # 准备问题数据
-        with open("question_bank.csv", "r", encoding="utf-8-sig") as r, \
-                open("droped_questions.csv", "w", encoding="utf-8-sig") as w:
-            next(r)
-            w.writelines(r)
-
-        # 处理所有问题
-        with open("droped_questions.csv", "r", encoding="utf-8-sig") as f:
-            reader = csv.reader(f)
-            for row in reader:
-                try:
-                    if len(row) >= 4:  # 确保行有足够的列
-                        crabbing(browser, row[0], row[3])
-                        print(f"已完成问题 {row[0]} 的处理")
-                    else:
-                        print(f"跳过无效行: {row}")
-                except Exception as e:
-                    print(f"处理问题 {row[0]} 时出现错误: {e}")
-                    continue
-
-        print("所有问题处理完成！")
-        page1.wait_for_timeout(3000)
-
- 
-if __name__ == "__main__":
-    main()
 
 # ========================================
 # 数据库版本主函数

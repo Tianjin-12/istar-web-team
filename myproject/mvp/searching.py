@@ -19,13 +19,7 @@ from mvp.models import ZhihuQuestion
 logger = logging.getLogger(__name__)
 
 def searching(keyword, base_dir=None):
-    """
-    搜索知乎问题并保存到Excel文件
-    
-    Args:
-        keyword (str): 搜索关键词
-        base_dir (str, optional): 项目基础目录,用于定位文件
-    """
+   
     try:
         # 如果没有提供base_dir,则使用当前工作目录
         if base_dir is None:
@@ -222,5 +216,3 @@ def searching_with_db(keyword, use_cache=True):
         logger.error(traceback.format_exc())
         raise e
 
-if __name__ == "__main__":
-    searching("新能源汽车")

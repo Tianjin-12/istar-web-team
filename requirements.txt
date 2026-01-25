@@ -37,3 +37,8 @@ openpyxl>=3.1
 python-dotenv>=1.0
 django-widget-tweaks>=1.5.0
 django-cors-headers>=4.9.0
+
+# 监控与高可用
+celery-redbeat>=2.0
+pybreaker>=1.0
+flower>=2.0

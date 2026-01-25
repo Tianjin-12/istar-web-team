@@ -226,7 +226,6 @@ class Order(models.Model):
 | 任务名 | 功能 | 超时时间 | 重试次数 | 队列 |
 |--------|------|----------|----------|------|
 | group_orders_by_keyword | 订单分组 | 60秒 | 2 | fast |
-| check_cache_status | 检查缓存 | 30秒 | 1 | fast |
 | search_questions | 搜索知乎 | 600秒 | 2 | slow |
 | build_question_bank | 构建问题库 | 1200秒 | 2 | ml |
 | collect_ai_answers | 收集AI回答 | 3600秒 | 2 | browser |

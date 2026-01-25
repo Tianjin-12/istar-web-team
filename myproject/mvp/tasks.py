@@ -18,86 +18,48 @@ from datetime import datetime, timedelta
 
 @shared_task(name='mvp.schedule_order_processing')
 def schedule_order_processing():
-    """凌晨0点触发: 按关键词分组订单并启动任务链"""
-    pending_orders = Order.objects.filter(status='pending')
-    
-    # 按关键词分组
-    keyword_groups = {}
-    for order in pending_orders:
-        keyword = order.keyword
-        if keyword not in keyword_groups:
-            keyword_groups[keyword] = []
-        keyword_groups[keyword].append(order)
-    
-    # 对每个关键词启动任务链
-    total_tasks = 0
-    for keyword, orders in keyword_groups.items():
-        # 启动关键词级任务链
-        chain(
-            check_cache_status.s(keyword),
-            search_questions.s(keyword),
-            build_question_bank.s(keyword),
-            collect_ai_answers.s(keyword),
-            score_questions.s(keyword),
-            analyze_orders_by_keyword.s(keyword, [o.id for o in orders])
-        ).apply_async()
+    try:
+        pending_orders = Order.objects.filter(status='pending')
         
-        # 更新订单状态
-        Order.objects.filter(id__in=[o.id for o in orders]).update(
-            status='processing',
-            current_stage='searching'
-        )
+        # 按关键词分组
+        keyword_groups = {}
+        for order in pending_orders:
+            keyword = order.keyword
+            if keyword not in keyword_groups:
+                keyword_groups[keyword] = []
+            keyword_groups[keyword].append(order)
         
-        total_tasks += 1
-    
-    return f"已启动 {total_tasks} 个关键词的任务链"
-
-# ========================================
-# 阶段2: 缓存检查
-# ========================================
-
-@shared_task(name='mvp.check_cache_status')
-def check_cache_status(keyword):
-    """检查各阶段缓存状态"""
-    # 检查知乎问题缓存(7天)
-    threshold_7d = datetime.now() - timedelta(days=7)
-    has_zhihu = ZhihuQuestion.objects.filter(
-        keyword=keyword,
-        created_at__gte=threshold_7d
-    ).exists()
-    
-    # 检查问题库缓存(7天)
-    has_question_bank = QuestionBank.objects.filter(
-        keyword=keyword,
-        created_at__gte=threshold_7d
-    ).exists()
-    
-    # 检查AI回答缓存(1天)
-    threshold_1d = datetime.now() - timedelta(days=1)
-    today = datetime.now().date()
-    has_answers = AIAnswer.objects.filter(
-        keyword=keyword,
-        answer_date=today,
-        created_at__gte=threshold_1d
-    ).exists()
-    
-    # 检查评分缓存(1天)
-    has_scores = QuestionScore.objects.filter(
-        keyword=keyword,
-        answer_date=today,
-        created_at__gte=threshold_1d
-    ).exists()
-    
-    cache_status = {
-        'zhihu': has_zhihu,
-        'question_bank': has_question_bank,
-        'answers': has_answers,
-        'scores': has_scores
-    }
-    
-    print(f"缓存状态[{keyword}]: {cache_status}")
-    
-    return cache_status
+        # 对每个关键词启动任务链
+        total_tasks = 0
+        for keyword, orders in keyword_groups.items():
+            try:
+                # 启动任务链
+                chain(
+                    search_questions.s(keyword),
+                    build_question_bank.s(keyword),
+                    collect_ai_answers.s(keyword),
+                    score_questions.s(keyword),
+                    analyze_orders_by_keyword.s(keyword, [o.id for o in orders])
+                ).apply_async()
+                
+                # 更新订单状态（只有任务链启动成功才更新）
+                Order.objects.filter(id__in=[o.id for o in orders]).update(
+                    status='processing',
+                    current_stage='searching'
+                )
+                
+                total_tasks += 1
+                
+            except Exception as e:
+                # 单个关键词任务启动失败，不影响其他关键词
+                print(f"关键词 {keyword} 任务启动失败: {str(e)}")
+                continue
+        
+        return f"已启动 {total_tasks} 个关键词的任务链"
+        
+    except Exception as e:
+        print(f"schedule_order_processing 执行失败: {str(e)}")
+        return f"任务启动失败: {str(e)}"
 
 # ========================================
 # 阶段3: 搜索知乎问题(7天缓存)
@@ -191,11 +153,11 @@ def collect_ai_answers(keyword):
         result = collect_answers_with_db(keyword)
         
         # 更新任务日志
-        task_log.status = 'completed'
         task_log.completed_at = timezone.now()
         task_log.duration = int((task_log.completed_at - task_log.started_at).total_seconds())
-        task_log.save()
-        
+        if result == True:
+            task_log.status = 'completed'
+            task_log.save()
         return {'status': 'success'}
         
     except Exception as e:
@@ -248,26 +210,59 @@ def score_questions(keyword):
 def analyze_orders_by_keyword(keyword, order_ids):
     """批量分析关键词关联的所有订单"""
     from .summary import analyze_with_db
+    from mvp.models import Mention_percentage
+    from django.utils import timezone
+    from datetime import timedelta
     
     results = []
-    
+    # 先获取所有订单的品牌信息，避免重复查询
+    orders = list(Order.objects.filter(id__in=order_ids))
+    brand_set = set(order.brand for order in orders)  
+    # 检查每个品牌是否已有今天的分析结果
+    brand_result_cache = {}
+    today = timezone.now().date()
+    yesterday = today - timedelta(days=1)
+    for brand in brand_set:
+        # 查询今天或昨天的分析结果
+        existing_result = Mention_percentage.objects.filter(
+            keyword_name=keyword,
+            brand_name=brand,
+            created_at__date__gte=yesterday
+        ).order_by('-created_at').first()
+        
+        if existing_result:
+            brand_result_cache[brand] = existing_result.id
+            print(f"✓ 发现已有分析结果: keyword={keyword}, brand={brand}, result_id={existing_result.id}")
+        else:
+            brand_result_cache[brand] = None
+            print(f"✗ 需要新建分析结果: keyword={keyword}, brand={brand}")
     for order_id in order_ids:
+        order = None
         try:
             # 获取订单
             order = Order.objects.get(id=order_id)
             
             # 更新订单状态
-            order.current_stage = 'analyzing'
+            order.current_stage = 'analyzing' 
             order.save()
             
-            # 执行分析
-            result_id = analyze_with_db(keyword, order.brand)
+            # 检查是否已有分析结果
+            if order.brand in brand_result_cache and brand_result_cache[order.brand]:
+                # ✓ 使用现有结果
+                result_id = brand_result_cache[order.brand]
+                is_cached = True
+                print(f"订单 {order_id}: 使用缓存 result_id={result_id}")
+            else:
+                # ✗ 执行分析
+                result_id = analyze_with_db(keyword, order.brand)
+                is_cached = False
+                print(f"订单 {order_id}: 执行分析 result_id={result_id}")
             
             # 更新订单状态
             order.status = 'completed'
             order.current_stage = 'completed'
             order.progress_percentage = 100
-            order.is_cached = True  # 标记使用缓存
+            order.is_cached = is_cached
             order.save()
             
             # 发送通知
@@ -283,11 +278,20 @@ def analyze_orders_by_keyword(keyword, order_ids):
                 'result_id': result_id
             })
             
+        except Order.DoesNotExist:
+            # 订单不存在
+            results.append({
+                'order_id': order_id,
+                'status': 'failed',
+                'error': f'订单 {order_id} 不存在'
+            })
+            
         except Exception as e:
             # 更新订单状态
-            order.status = 'failed'
-            order.last_error = str(e)
-            order.save()
+            if order:
+                order.status = 'failed'
+                order.last_error = str(e)
+                order.save()
             
             results.append({
                 'order_id': order_id,
@@ -347,7 +351,7 @@ def archive_old_data():
     )
     
     # 导出为CSV
-    filename = f"C:\\Users\\meiho\\OneDrive\\Desktop\\MVP2\\archive\\tasks\\{datetime.now().strftime('%Y-%m')}.csv"
+    filename = f"C:\\Users\\meiho\\OneDrive\\Desktop\\MVP2\\monthlylog\\{datetime.now().strftime('%Y-%m')}.csv"
     import os
     os.makedirs(os.path.dirname(filename), exist_ok=True)
     
@@ -368,78 +372,32 @@ def archive_old_data():
     old_logs.delete()
     
     return {'archived': count, 'filename': filename}
-
-# ========================================
-# 兼容性: 保留原有函数(但为空实现)
-# ========================================
-
-# 兼容性函数: process_order(不再使用,由 schedule_order_processing 替代)
-@shared_task(name='mvp.process_order')
-def process_order(order_id):
-    """兼容性函数: 不再使用,由 schedule_order_processing 替代"""
-    return {'status': 'deprecated', 'message': '请使用 schedule_order_processing 替代'}
-
-# ========================================
-# 保留原有辅助任务
-# ========================================
-
-@shared_task
-def collect_and_save_results(results):
-    """chord回调: 收集结果并同步重复订单状态"""
-    redis_client = get_redis_client()
-
-    orders_to_update = []
-
-    for result in results:
-        order_id = result['order_id']
-        status = result['status']
-
-        redis_key = f"order_mapping:{order_id}"
-        duplicate_ids = redis_client.get(redis_key)
-
-        if duplicate_ids:
-            duplicate_ids = json.loads(duplicate_ids)
-
-            for dup_id in duplicate_ids:
-                try:
-                    order = Order.objects.get(id=dup_id)
-                    if status == "success":
-                        order.status = 'completed'
-                    else:
-                        order.status = 'failed'
-                    orders_to_update.append(order)
-                except Order.DoesNotExist:
-                    pass
-
-            redis_client.delete(redis_key)
-
-    if orders_to_update:
-        Order.objects.bulk_update(orders_to_update, ['status'])
-
-    return f"已同步 {len(orders_to_update)} 个重复订单状态"
-
-
 @shared_task
 def cleanup_backend():
     """凌晨4点触发: 清理未完成任务和缓存"""
-    processing_orders = Order.objects.filter(status='processing')
-    count = processing_orders.update(status='failed')
-
-    from celery import current_app
-    inspect = current_app.control.inspect()
-    active_tasks = inspect.active()
-
-    if active_tasks:
-        for worker_name, tasks in active_tasks.items():
-            for task in tasks:
-                AsyncResult(task['id']).revoke(terminate=False)
-
-    redis_client = get_redis_client()
-    mapping_keys = redis_client.keys("order_mapping:*")
-    if mapping_keys:
-        redis_client.delete(*mapping_keys)
-
-    return f"已标记 {count} 个处理中的订单为失败，并清理任务队列"
+    try:
+        processing_orders = Order.objects.filter(status='processing')
+        count = processing_orders.update(status='failed')
+        from celery import current_app
+        inspect = current_app.control.inspect()
+        active_tasks = inspect.active()
+        if active_tasks:
+            for worker_name, tasks in active_tasks.items():
+                for task in tasks:
+                    AsyncResult(task['id']).revoke(terminate=False)
+        redis_client = get_redis_client()
+        if redis_client is None:
+            print("警告: 无法获取 Redis 客户端，跳过缓存清理")
+            return f"已标记 {count} 个处理中的订单为失败"
+        
+        mapping_keys = redis_client.keys("order_mapping:*")
+        if mapping_keys:
+            redis_client.delete(*mapping_keys)
+        return f"已标记 {count} 个处理中的订单为失败，并清理任务队列"
+        
+    except Exception as e:
+        print(f"cleanup_backend 执行失败: {str(e)}")
+        return f"清理失败: {str(e)}"
 
 
 @shared_task(name='mvp.send_notification')

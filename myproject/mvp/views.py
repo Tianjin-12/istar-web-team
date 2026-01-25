@@ -17,7 +17,6 @@ from django.shortcuts import render, redirect
 from django.views.decorators.http import require_POST
 from django.contrib import messages
 from .models import Order
-from .tasks import process_order, send_notification
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.models import User
 from django.urls import reverse_lazy

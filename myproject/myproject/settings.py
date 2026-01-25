@@ -23,12 +23,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-7p3w8+k79nvvmlm&g0x3wb&v^k$qycsg*ts2x1%_b7916@_9i='
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-7p3w8+k79nvvmlm&g0x3wb&v^k$qycsg*ts2x1%_b7916@_9i=')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',')
 
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:8000",
@@ -82,31 +82,21 @@ WSGI_APPLICATION = 'myproject.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-# 根据是否在Docker环境中运行来设置不同的数据库配置
-if os.environ.get('DOCKER_ENV'):
-    # Docker环境配置
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.environ.get('POSTGRES_DB', 'mvpdb'),
-            'USER': os.environ.get('POSTGRES_USER', 'postgres'),
-            'PASSWORD': os.environ.get('POSTGRES_PASSWORD', 'mvp123'),
-            'HOST': os.environ.get('POSTGRES_HOST', 'db'),
-            'PORT': os.environ.get('POSTGRES_PORT', '5432'),
-        }
+# 数据库配置
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('POSTGRES_DB', 'mvpdb'),
+        'USER': os.environ.get('POSTGRES_USER', 'postgres'),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD', 'mvp123'),
+        'HOST': os.environ.get('POSTGRES_HOST', 'localhost'),
+        'PORT': os.environ.get('POSTGRES_PORT', '5432'),
+        'CONN_MAX_AGE': 600,
+        'OPTIONS': {
+            'connect_timeout': 10,
+        },
     }
-else:
-    # 本地开发环境配置
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'mvpdb',
-            'USER': 'postgres',
-            'PASSWORD': 'mvp123',
-            'HOST': 'localhost',
-            'PORT': '5432',
-        }
-    }
+}
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -182,12 +172,18 @@ X_FRAME_OPTIONS = 'ALLOWALL'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Celery配置
-CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://redis:6380/0')
-CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'redis://redis:6380/1')
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6380/0')
+CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'redis://localhost:6380/1')
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TIMEZONE = 'Asia/Shanghai'
+CELERY_TIMEZONE = os.environ.get('TIME_ZONE', 'Asia/Shanghai')
+
+# Celery Beat 定时任务配置（如果使用 django-celery-beat，则使用 DatabaseScheduler）
+if os.environ.get('USE_REDBEAT', 'False') == 'True':
+    CELERY_BEAT_SCHEDULER = 'redbeat.RedBeatScheduler'
+else:
+    CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 
 # Celery任务队列配置
 CELERY_TASK_DEFAULT_QUEUE = 'normal'
@@ -213,6 +209,11 @@ CELERY_TASK_ROUTES = {
 CELERY_TASK_ACKS_LATE = True
 CELERY_TASK_REJECT_ON_WORKER_LOST = True
 CELERY_WORKER_PREFETCH_MULTIPLIER = 1
+
+# RedBeat 配置（分布式 Beat 调度器）
+CELERY_BEAT_SCHEDULER = 'redbeat.RedBeatScheduler'
+CELERY_REDBEAT_REDIS_URL = os.environ.get('CELERY_REDBEAT_REDIS_URL', 'redis://localhost:6380/1')
+CELERY_REDBEAT_LOCK_TIMEOUT = 30
 
 PLOTLY_DASH = {
     "ws_route": "dpd/ws/channel",
@@ -249,3 +250,56 @@ SECURE_BROWSER_XSS_FILTER = False
 SECURE_CONTENT_TYPE_NOSNIFF = False
 SESSION_COOKIE_SECURE = False
 SESSION_COOKIE_HTTPONLY = True
+
+# 日志配置
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': os.environ.get('DJANGO_LOG_FILE', '/var/log/myproject/django.log'),
+            'formatter': 'verbose',
+        },
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+    },
+    'root': {
+        'handlers': ['console', 'file'] if not DEBUG else ['console'],
+        'level': 'INFO',
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'file'] if not DEBUG else ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'mvp': {
+            'handlers': ['console', 'file'] if not DEBUG else ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
+}
+
+# 安全配置（生产环境）
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_BROWSER_XSS_FILTER = True
+    X_FRAME_OPTIONS = 'DENY'
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
