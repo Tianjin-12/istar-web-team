@@ -12,6 +12,3 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 
 # 自动发现Django应用中的任务
 app.autodiscover_tasks()
-
-# 使用数据库存储定时任务
-app.conf.beat_scheduler = 'django_celery_beat.schedulers:DatabaseScheduler'

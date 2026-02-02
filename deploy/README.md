@@ -408,6 +408,8 @@ sudo supervisorctl start myproject:*
 sudo supervisorctl stop myproject:*
 
 # 重启所有服务
+sudo supervisorctl reread
+sudo supervisorctl update
 sudo supervisorctl restart myproject:*
 
 # 查看单个服务日志
