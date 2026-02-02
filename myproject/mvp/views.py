@@ -1,5 +1,4 @@
 from django_plotly_dash.models import StatelessApp
-from django_plotly_dash.util import serve_locally
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import viewsets
@@ -8,29 +7,16 @@ from .serializers import Mention_percentageSerializer
 import json
 import os
 from django.conf import settings
-from django.utils.dateparse import parse_datetime
-from django.db.models import Avg
-from rest_framework.response import Response
-from datetime import datetime, timedelta
+from datetime import datetime,timedelta
 from django.core.cache import cache
 from django.shortcuts import render, redirect
-from django.views.decorators.http import require_POST
-from django.contrib import messages
 from .models import Order
-from django.contrib.auth import login, authenticate, logout
-from django.contrib.auth.models import User
-from django.urls import reverse_lazy
-from django.views.generic.edit import CreateView
-from .forms import CustomUserCreationForm 
-from django.contrib.auth.forms import AuthenticationForm
 from functools import wraps
 from urllib.parse import urlparse, urlencode
-from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.shortcuts import resolve_url
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.http import require_http_methods
 from django.db.models import Count, Max
 
 
@@ -55,85 +41,15 @@ def login_required_new_tab(function=None, redirect_field_name=REDIRECT_FIELD_NAM
             login_url_with_next = f"{resolved_login_url}?{urlencode(query_params)}"
             
             # 返回一个包含JavaScript的响应，在新标签页中打开登录页面并监听登录状态
-            html = f"""
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>Redirecting to Login</title>
-            </head>
-            <body>
-                <script>
-                    // 打开登录页面
-                    var loginWindow = window.open('{login_url_with_next}', '_blank');
-                    // 定期检查登录窗口是否关闭
-                    var checkInterval = setInterval(function() {{
-                        if (loginWindow.closed) {{
-                            clearInterval(checkInterval);
-                            // 检查用户是否已登录
-                            fetch('api/accounts/auth_check/')
-                                .then(response => response.json())
-                                .then(data => {{
-                                    if (data.authenticated) {{
-                                        window.location.reload();
-                                    }}
-                                }})
-                                .catch(error => {{
-                                    console.error('Error checking auth status:', error);
-                                }});
-                        }}
-                    }}, 1000);
-                </script>
-            </body>
-            </html>
-            """
+            with open('/var/www/myproject/mvp/listening.html', encoding='utf-8') as f:
+                html = f.read()
             return HttpResponse(html)
         return _wrapper_view
     if function:
         return decorator(function)
     return decorator
 
-@csrf_exempt
-def logout_view(request):
-    """处理退出登录请求"""
-    from django.contrib.auth import logout
-    logout(request)
-    return JsonResponse({'success': True})
 
-@csrf_exempt
-def auth_check(request):
-    if request.user.is_authenticated:
-        return JsonResponse({
-            'authenticated': True,
-            'username': request.user.username,
-            'email': request.user.email
-        })
-    else:
-        return JsonResponse({
-            'authenticated': False,
-            'username': None,
-            'email': None
-        })
-
-
-
-class RegisteringView(CreateView):
-    model = User
-    form_class = CustomUserCreationForm
-    template_name = 'registration/register.html'
-    success_url = '/'  # 注册成功后重定向的URL
-    
-    def form_valid(self, form):
-        # 调用父类的form_valid方法创建用户
-        response = super().form_valid(form)
-        # 自动登录新注册的用户
-        login(self.request, self.object)
-        return response
-    
-    def form_invalid(self, form):
-        # 添加调试信息
-        print("表单验证失败:", form.errors)
-        return super().form_invalid(form)
-    
 @login_required_new_tab
 def order_list(request):
     """显示当前用户的订单列表"""

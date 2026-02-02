@@ -179,11 +179,8 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = os.environ.get('TIME_ZONE', 'Asia/Shanghai')
 
-# Celery Beat 定时任务配置（如果使用 django-celery-beat，则使用 DatabaseScheduler）
-if os.environ.get('USE_REDBEAT', 'False') == 'True':
-    CELERY_BEAT_SCHEDULER = 'redbeat.RedBeatScheduler'
-else:
-    CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+# Celery Beat 定时任务配置
+CELERY_BEAT_SCHEDULER = 'redbeat.RedBeatScheduler'
 
 # Celery任务队列配置
 CELERY_TASK_DEFAULT_QUEUE = 'normal'
@@ -192,7 +189,6 @@ CELERY_TASK_DEFAULT_ROUTING_KEY = 'task.default'
 
 # 任务路由配置
 CELERY_TASK_ROUTES = {
-    'mvp.check_cache_status': {'queue': 'fast'},
     'mvp.send_notification': {'queue': 'fast'},
     'mvp.search_questions': {'queue': 'slow'},
     'mvp.build_question_bank': {'queue': 'ml'},
@@ -211,7 +207,6 @@ CELERY_TASK_REJECT_ON_WORKER_LOST = True
 CELERY_WORKER_PREFETCH_MULTIPLIER = 1
 
 # RedBeat 配置（分布式 Beat 调度器）
-CELERY_BEAT_SCHEDULER = 'redbeat.RedBeatScheduler'
 CELERY_REDBEAT_REDIS_URL = os.environ.get('CELERY_REDBEAT_REDIS_URL', 'redis://localhost:6380/1')
 CELERY_REDBEAT_LOCK_TIMEOUT = 30
 
@@ -221,7 +216,6 @@ PLOTLY_DASH = {
     "http_poke_interval": 1000,
     "cache_timeout": 300,
     "serve_locally": True,
-    "sandbox": "allow-downloads allow-scripts allow-forms allow-top-navigation",
     "insert_templates": True,
 }
 AUTHENTICATION_BACKENDS = [
@@ -292,14 +286,4 @@ LOGGING = {
     },
 }
 
-# 安全配置（生产环境）
-if not DEBUG:
-    SECURE_SSL_REDIRECT = True
-    SECURE_HSTS_SECONDS = 31536000
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_HSTS_PRELOAD = True
-    SECURE_CONTENT_TYPE_NOSNIFF = True
-    SECURE_BROWSER_XSS_FILTER = True
-    X_FRAME_OPTIONS = 'DENY'
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
+#if no debug：
