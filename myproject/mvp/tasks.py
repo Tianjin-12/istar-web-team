@@ -308,8 +308,10 @@ def analyze_orders_by_keyword(keyword, order_ids):
 @shared_task(name='mvp.cleanup_old_data')
 def cleanup_old_data():
     """清理过期数据"""
+    from django.utils import timezone
+    
     # 删除7天前的知乎问题
-    threshold_7d = datetime.now() - timedelta(days=7)
+    threshold_7d = timezone.now() - timedelta(days=7)
     deleted_zhihu = ZhihuQuestion.objects.filter(
         created_at__lt=threshold_7d
     ).delete()
@@ -320,7 +322,7 @@ def cleanup_old_data():
     ).delete()
     
     # 删除1天前的AI回答和链接
-    threshold_1d = datetime.now() - timedelta(days=1)
+    threshold_1d = timezone.now() - timedelta(days=1)
     deleted_answers = AIAnswer.objects.filter(
         created_at__lt=threshold_1d
     ).delete()
@@ -342,8 +344,11 @@ def cleanup_old_data():
 def archive_old_data():
     """归档任务日志(1个月)"""
     import csv
+    import os
+    from django.conf import settings
+    from django.utils import timezone
     
-    threshold_1m = datetime.now() - timedelta(days=30)
+    threshold_1m = timezone.now() - timedelta(days=30)
     
     # 查询1个月前的任务日志
     old_logs = TaskLog.objects.filter(
@@ -351,13 +356,17 @@ def archive_old_data():
     )
     
     # 导出为CSV
-    filename = f"C:\\Users\\meiho\\OneDrive\\Desktop\\MVP2\\monthlylog\\{datetime.now().strftime('%Y-%m')}.csv"
-    import os
-    os.makedirs(os.path.dirname(filename), exist_ok=True)
+    log_dir = os.path.join(settings.BASE_DIR, 'logs')
+    os.makedirs(log_dir, exist_ok=True)
+    
+    filename = os.path.join(
+        log_dir,
+        f"{timezone.now().strftime('%Y-%m')}.csv"
+    )
     
     with open(filename, 'w', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
-        writer.writerow(['id', 'order_id', 'task_type', 'status', 'retry_count', 
+        writer.writerow(['id', 'order_id', 'task_type', 'status', 'retry_count',
                         'error_message', 'started_at', 'completed_at', 'duration'])
         
         for log in old_logs:

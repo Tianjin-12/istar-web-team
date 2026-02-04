@@ -3,7 +3,7 @@ AI可见度评估系统 - 订单处理流程优化技术文档
 1.1 技术栈
 | 层级 | 技术组件 | 版本 |
 | Web框架 | Django | 4.2 |
-| 数据库 | PostgreSQL | 15 |
+| 数据库 | PostgreSQL | 16 |
 | 消息队列 | Redis | 7-alpine |
 | 任务队列 | Celery | 5.3 |
 | 任务调度 | django-celery-beat | 2.5 |
@@ -17,7 +17,7 @@ AI可见度评估系统 - 订单处理流程优化技术文档
 │  服务器直接部署（基于 Supervisor）
 │  进程管理: Supervisor
 │  Services:
-│  • PostgreSQL 15 (端口 5432) - 系统服务
+│  • PostgreSQL 16 (端口 5432) - 系统服务
 │  • Redis 7 (端口 6380) - 系统服务
 │  • Gunicorn Web (端口 8000) - Supervisor 管理
 │  • Celery Worker - Supervisor 管理（多进程）
@@ -209,7 +209,7 @@ class Order(models.Model):
         │         │         │
         ▼         ▼         ▼
 │   Stage 2: 关键词级任务链              
-│   chain(check_cache()                   
+│   chain(                  
 │     search_questions()  [7天缓存]       
 │     build_question_bank() [7天缓存]
 │     collect_ai_answers() [每日更新]
@@ -329,7 +329,7 @@ CELERY_REDBEAT_LOCK_TIMEOUT = 30
 │         服务器部署（Supervisor）           │
 ├─────────────────────────────────────────┤
 │  Beat 节点1    Beat 节点2                │
-│  (主/备)       (备节点)                   │
+│  (主)       (备节点)                   │
 │       └──────────┬──────────┘             │
 │                  ▼                        │
 │            Redis (存储调度状态)           │

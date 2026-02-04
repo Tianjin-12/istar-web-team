@@ -17,8 +17,7 @@ import requests
 from datetime import timedelta,datetime
 from django.urls import reverse
 # 创建DjangoDash实例，名称必须与模板中的name属性匹配
-app = DjangoDash('DashboardApp', external_stylesheets=[dbc.themes.BOOTSTRAP,"https://use.fontawesome.com/releases/v5.15.4/css/all.css",
-                      "/static/css/style.css"],
+app = DjangoDash('DashboardApp', external_stylesheets=["/static/css/bootstrap.min.css","/static/css/bootstrap-icons.css",  "/static/css/style.css"],
                   suppress_callback_exceptions=True,
                   serve_locally=True)
 

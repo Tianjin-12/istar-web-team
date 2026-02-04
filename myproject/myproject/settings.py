@@ -180,7 +180,7 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = os.environ.get('TIME_ZONE', 'Asia/Shanghai')
 
 # Celery Beat 定时任务配置
-CELERY_BEAT_SCHEDULER = 'redbeat.RedBeatScheduler'
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers.DatabaseScheduler'
 
 # Celery任务队列配置
 CELERY_TASK_DEFAULT_QUEUE = 'normal'
@@ -206,9 +206,9 @@ CELERY_TASK_ACKS_LATE = True
 CELERY_TASK_REJECT_ON_WORKER_LOST = True
 CELERY_WORKER_PREFETCH_MULTIPLIER = 1
 
-# RedBeat 配置（分布式 Beat 调度器）
-CELERY_REDBEAT_REDIS_URL = os.environ.get('CELERY_REDBEAT_REDIS_URL', 'redis://localhost:6380/1')
-CELERY_REDBEAT_LOCK_TIMEOUT = 30
+# RedBeat 配置已禁用，改用 DatabaseScheduler
+# CELERY_REDBEAT_REDIS_URL = os.environ.get('CELERY_REDBEAT_REDIS_URL', 'redis://localhost:6380/1')
+# CELERY_REDBEAT_LOCK_TIMEOUT = 30
 
 PLOTLY_DASH = {
     "ws_route": "dpd/ws/channel",
@@ -246,6 +246,7 @@ SESSION_COOKIE_SECURE = False
 SESSION_COOKIE_HTTPONLY = True
 
 # 日志配置
+'''
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -285,5 +286,5 @@ LOGGING = {
         },
     },
 }
-
+'''
 #if no debug：

@@ -73,7 +73,7 @@ def save_links_to_db(answer, links):
 # ========================================
 
 def crabbing(browser, index, question):
-    send_ds="//div[@class='_7436101 ds-icon-button ds-icon-button--l ds-icon-button--sizing-container']/div[@class='ds-icon-button__hover-bg']"
+    send_ds="//div[@class='_7436101 ds-icon-button ds-icon-button--l ds-icon-button--sizing-container']"
     def wait():
         last_text = ""
         same_count = 0
@@ -208,7 +208,7 @@ def crabbing(browser, index, question):
     textarea.fill(question)
 
     # 处理深度思考按钮
-    button_selector = "//div[@class='ec4f5d61']/button[1]"
+    button_selector = "//div[@class='ec4f5d61']/div[1]"
     button = page1.locator(button_selector)
     class_name = button.get_attribute("class")
 
@@ -219,7 +219,7 @@ def crabbing(browser, index, question):
         print("深度思考按钮已处于关闭状态，无需点击")
 
     # 处理联网搜索按钮
-    button_selector2 = "//div[@class='ec4f5d61']/button[2]"
+    button_selector2 = "//div[@class='ec4f5d61']/div[2]"
     button2 = page1.locator(button_selector2)
     class_name2 = button2.get_attribute("class")
 

@@ -415,8 +415,7 @@ sudo supervisorctl restart myproject:*
 # 查看单个服务日志
 sudo supervisorctl tail -f gunicorn
 sudo supervisorctl tail -f celery-worker
-sudo supervisorctl tail -f celery-beat-1
-sudo supervisorctl tail -f celery-beat-2
+sudo supervisorctl tail -f celery-beat
 sudo supervisorctl tail -f flower
 
 # 重新加载配置
@@ -451,8 +450,8 @@ sudo tail -f /var/log/gunicorn/myproject.log
 sudo tail -f /var/log/celery/worker.log
 
 # Celery Beat 日志
-sudo tail -f /var/log/celery/beat1.log
-sudo tail -f /var/log/celery/beat2.log
+sudo tail -f /var/log/celery/beat.log
+
 
 # Flower 日志
 sudo tail -f /var/log/flower/flower.log
@@ -469,7 +468,7 @@ sudo tail -f /var/log/nginx/error.log
 
 ### Flower (Celery 监控)
 
-访问地址: http://your-server-ip:5555 或 https://istar-geo.com/flower/
+访问地址: http://42.193.136.148:5555 或 https://istar-geo.com/flower/
 
 功能：
 - 实时查看任务执行状态
@@ -502,6 +501,7 @@ sudo supervisorctl update
 ### 2. 数据库连接失败
 
 ```bash
+记得每次migrate后都要刷新 PostgreSQL 缓存：
 # 检查 PostgreSQL 是否运行
 sudo systemctl status postgresql
 
