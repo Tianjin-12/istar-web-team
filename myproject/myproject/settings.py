@@ -18,6 +18,10 @@ import os
 BASE_DIR = Path(__file__).resolve().parent.parent
 #指的是：C:\Users\meiho\OneDrive\Desktop\MVP2\myproject
 
+# 加载.env文件
+from dotenv import load_dotenv
+load_dotenv(os.path.join(BASE_DIR.parent, '.env'))
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -137,9 +141,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'zh-hans'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Shanghai'
 
 USE_I18N = True
 
@@ -207,6 +211,24 @@ CELERY_TASK_REJECT_ON_WORKER_LOST = True
 CELERY_WORKER_PREFETCH_MULTIPLIER = 1
 
 # RedBeat 配置已禁用，改用 DatabaseScheduler
+
+# 邮件配置
+EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
+EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.163.com')
+EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 465))
+EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'False') == 'True'
+EMAIL_USE_SSL = os.environ.get('EMAIL_USE_SSL', 'True') == 'True'
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '19515309293@163.com')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', '19515309293@163.com')
+EMAIL_SUBJECT_PREFIX = os.environ.get('EMAIL_SUBJECT_PREFIX', '【品牌AI可见度】')
+EMAIL_TIMEOUT = 30
+
+# 开发环境邮件后端切换（如果需要使用真实邮件，在.env中设置EMAIL_USE_REAL=True）
+EMAIL_USE_REAL = os.environ.get('EMAIL_USE_REAL', 'False') == 'True'
+if DEBUG and not EMAIL_USE_REAL:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
 # CELERY_REDBEAT_REDIS_URL = os.environ.get('CELERY_REDBEAT_REDIS_URL', 'redis://localhost:6380/1')
 # CELERY_REDBEAT_LOCK_TIMEOUT = 30
 
@@ -224,17 +246,34 @@ AUTHENTICATION_BACKENDS = [
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 LOGIN_URL = '/accounts/login/'
-# 本地内存缓存配置（开发环境）
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'unique-snowflake',  # 唯一标识符
-        'TIMEOUT': 60*60*24*2,  # 默认缓存2 day（秒）
-        'OPTIONS': {
-            'MAX_ENTRIES': 1000  # 最大缓存条目数
+# Redis缓存配置（如果Redis不可用，自动回退到本地缓存）
+try:
+    import redis
+    redis_client = redis.Redis(host=os.environ.get('REDIS_HOST', 'localhost'), port=int(os.environ.get('REDIS_PORT', 6380)), db=2)
+    redis_client.ping()  # 测试连接
+    CACHES = {
+        'default': {
+            'BACKEND': 'django_redis.cache.RedisCache',
+            'LOCATION': f"redis://{os.environ.get('REDIS_HOST', 'localhost')}:{os.environ.get('REDIS_PORT', 6380)}/2",
+            'OPTIONS': {
+                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+                'SOCKET_CONNECT_TIMEOUT': 5,
+                'SOCKET_TIMEOUT': 5,
+                'CONNECTION_POOL_KWARGS': {'max_connections': 50}
+            },
+            'TIMEOUT': 300,
+            'KEY_PREFIX': 'mvp'
         }
     }
-}
+except Exception:
+    # Redis不可用，使用本地缓存
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'mvp-cache',
+            'TIMEOUT': 300,
+        }
+    }
 # 会话存储引擎
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 SESSION_CACHE_ALIAS = 'default'

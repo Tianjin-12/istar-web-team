@@ -7,7 +7,7 @@ from .serializers import Mention_percentageSerializer
 import json
 import os
 from django.conf import settings
-from datetime import datetime,timedelta
+from datetime import datetime, timedelta
 from django.core.cache import cache
 from django.shortcuts import render, redirect
 from .models import Order
@@ -60,48 +60,48 @@ def order_list(request):
 
 @login_required_new_tab
 def create_order(request):
-    """创建新订单"""
-    if request.method == 'POST':
-        keyword = request.POST.get('keyword', '').strip()
-        brand = request.POST.get('brand', '').strip()
+  """创建新订单"""
+  if request.method == 'POST':
+    keyword = request.POST.get('keyword', '').strip()
+    brand = request.POST.get('brand', '').strip()
 
-        if not keyword or not brand:
-            return JsonResponse({
-                'success': False,
-                'message': '请提供关键词和品牌词'
-            })
+    if not keyword or not brand:
+      return JsonResponse({
+        'success': False,
+        'message': '请提供关键词和品牌词'
+      })
 
-        existing_order = Order.objects.filter(
-            user=request.user,
-            keyword__iexact=keyword,
-            brand__iexact=brand
-        ).first()
+    existing_order = Order.objects.filter(
+      user=request.user,
+      keyword__iexact=keyword,
+      brand__iexact=brand
+    ).first()
 
-        if existing_order:
-            return JsonResponse({
-                'success': False,
-                'message': f'您已经创建过品牌"{brand}"和关键词"{keyword}"的订单'
-            })
+    if existing_order:
+      return JsonResponse({
+        'success': False,
+        'message': f'您已经创建过品牌"{brand}"和关键词"{keyword}"的订单'
+      })
 
-        order = Order.objects.create(
-            user=request.user,
-            keyword=keyword,
-            brand=brand,
-            status='pending'
-        )
+    order = Order.objects.create(
+      user=request.user,
+      keyword=keyword,
+      brand=brand,
+      status='pending'
+    )
 
-        return JsonResponse({
-            'success': True,
-            'message': '订单创建成功',
-            'order_id': order.id
-        })
-
-    prefilled_brand = request.session.pop('prefilled_brand', '')
-    prefilled_keyword = request.session.pop('prefilled_keyword', '')
-    return render(request, 'mvp/create_order.html', {
-        'prefilled_brand': prefilled_brand,
-        'prefilled_keyword': prefilled_keyword
+    return JsonResponse({
+      'success': True,
+      'message': '订单创建成功',
+      'order_id': order.id
     })
+
+  prefilled_brand = request.session.pop('prefilled_brand', '')
+  prefilled_keyword = request.session.pop('prefilled_keyword', '')
+  return render(request, 'mvp/create_order.html', {
+    'prefilled_brand': prefilled_brand,
+    'prefilled_keyword': prefilled_keyword
+  })
 
 
 class Mention_percentageViewSet(viewsets.ModelViewSet):
@@ -183,7 +183,7 @@ def dashboard_view(request):
             app_name='DashboardApp'
         )
     
-    return render(request, 'mvp/dashboard.html')
+    return render(request, 'mvp/dashboard_brand.html')
 
 from .models import Notification
 @login_required_new_tab
@@ -235,13 +235,34 @@ def notification_list_api(request):
   """返回 JSON 格式的通知列表"""
   notifications = Notification.objects.filter(user=request.user).order_by('-created_at')[:10]
   data = [
-    {
-      'id': n.id,
-      'message': n.message,
-      'created_at': n.created_at.strftime('%Y-%m-%d %H:%M:%S'),
-      'is_read': n.is_read,
-      'order_id': n.order.id if n.order else None
-    }
-    for n in notifications
-  ]
+     {
+       'id': n.id,
+       'message': n.message,
+       'created_at': n.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+       'is_read': n.is_read,
+       'order_id': n.order.id if n.order else None
+     }
+     for n in notifications
+     ]
   return JsonResponse({'data': data}, safe=False)
+
+# 新页面视图函数
+@login_required_new_tab
+def geo_evaluate_view(request):
+    """GEO服务商评估页面"""
+    return render(request, 'mvp/geo_evaluate.html')
+
+@login_required_new_tab
+def ai_toxic_view(request):
+    """AI投毒检测页面"""
+    return render(request, 'mvp/ai_toxic.html')
+
+@login_required_new_tab
+def cgeo_wiki_view(request):
+    """CGEO知识库页面"""
+    return render(request, 'mvp/cgeo_wiki.html')
+
+@login_required_new_tab
+def about_view(request):
+    """关于我们页面"""
+    return render(request, 'mvp/about.html')

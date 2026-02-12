@@ -1,0 +1,67 @@
+{% load static %}
+{% load plotly_dash %}
+<nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #344767;">
+  <div class="container">
+    <a class="navbar-brand d-flex align-items-center" href="/dashboard/yinlbrand/" style="color: white; text-decoration: none;">
+      <img src="{% static 'images/logo.png' %}" alt="Logo" height="32" style="margin-right: 10px;">
+      <div style="display: flex; flex-direction: column; line-height: 1.2;">
+        <strong style="font-size: 1.1rem;">Istar GEO Evaluator</strong>
+        <small style="font-size: 0.7rem; opacity: 0.8;">不止是仪表盘，我们要做GEO生态的建构者！</small>
+      </div>
+    </a>
+    
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="/dashboard/brand/" id="nav-brand" style="color: white; font-weight: 500;">
+            品牌AI可见度
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/dashboard/geo-evaluate/" id="nav-geo" style="color: white;">
+            GEO服务商
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/dashboard/ai-toxic/" id="nav-ai-toxic" style="color: white;">
+            AI投毒
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/dashboard/cgeo-wiki/" id="nav-cgeo" style="color: white;">
+            CGEO知识库
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/dashboard/about/" id="nav-about" style="color: white;">
+            关于我们
+          </a>
+        </li>
+      </ul>
+      
+      <div class="d-flex align-items-center ms-3">
+        <div class="form-check form-switch me-3">
+          <input class="form-check-input" type="checkbox" id="lang-switch-checkbox">
+          <label class="form-check-label" for="lang-switch" style="color: white;">EN</label>
+        </div>
+        <div id="auth-buttons">
+          {% if user.is_authenticated %}
+          <a href="/accounts/profile/" class="text-decoration-none">
+            <button class="btn btn-outline-dark btn-sm rounded-pill fw-bold px-4" id="user-button">
+            {{ user.username }}
+          </button>
+          </a>
+          {% else %}
+          <a href="/accounts/login/" class="btn btn-outline-light btn-sm rounded-pill fw-bold px-4" id="login-button">
+            登录
+          </a>
+          {% endif %}
+        </div>      
+      </div>
+    </div>
+  </div>
+</nav>

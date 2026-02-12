@@ -1,0 +1,486 @@
+{% extends 'mvp/base.html' %}
+
+{% load static %}
+
+{% block title %}GEO服务商评估 - {% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4" style="max-width: 1400px;">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="btn-group" role="group">
+      <input type="radio" class="btn-check" name="sortMethod" id="sort-tag" autocomplete="off" checked>
+      <label class="btn btn-outline-primary" for="sort-tag" onclick="switchSort('tag')">
+        按标签排序
+      </label>
+      <input type="radio" class="btn-check" name="sortMethod" id="sort-alphabet" autocomplete="off">
+      <label class="btn btn-outline-primary" for="sort-alphabet" onclick="switchSort('alphabet')">
+        按首字母排序
+      </label>
+    </div>
+    <div class="text-end">
+      <p class="fw-bold mb-1" style="font-size: 1.2rem;">
+        已经收录<span id="brand-count" class="mx-1" style="font-size: 1.8rem; color: #cb0c9f; font-weight: 800;">10</span>个品牌，
+        <span style="font-size: 1rem; font-weight: normal;">可点击查看详情</span>
+      </p>
+      <p class="text-muted mb-0" style="font-size: 0.85rem;">截至2026年2月13日</p>
+    </div>
+  </div>
+
+  <div id="card-grid" class="g-4 row">
+  </div>
+</div>
+
+<div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-xl">
+    <div class="modal-content" style="border-radius: 24px; border: none;">
+      <div class="modal-header border-0 pb-0">
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-4">
+        <div class="container-fluid">
+          <div class="row g-4">
+            <div class="col-lg-3 text-center">
+              <img id="modal-logo" src="" alt="企业Logo" class="img-fluid mb-3" style="max-height: 120px; border-radius: 16px;">
+              <h4 id="modal-name" class="fw-bold mb-2"></h4>
+              <p id="modal-note" class="text-muted small mb-3"></p>
+            </div>
+            <div class="col-lg-9">
+              <div class="row">
+                <div class="col-md-6">
+                  <canvas id="modal-radar-chart" height="400"></canvas>
+                </div>
+                <div class="col-md-6">
+                  <h6 class="fw-bold mb-3">标签</h6>
+                  <div id="modal-tags" class="mb-4"></div>
+                  
+                  <h6 class="fw-bold mb-2">了解程度</h6>
+                  <div class="progress mb-4" style="height: 24px; border-radius: 12px;">
+                    <div id="modal-progress" class="progress-bar" role="progressbar" style="width: 0%;"></div>
+                  </div>
+                  <p id="modal-progress-text" class="text-end small text-muted mb-4"></p>
+                  
+                  <h6 class="fw-bold mb-2">报价估计</h6>
+                  <div id="modal-price" class="display-6 fw-bold text-primary mb-4"></div>
+                  
+                  <h6 class="fw-bold mb-2">链接</h6>
+                  <div class="d-flex flex-column gap-2 mb-4">
+                    <a id="modal-website" href="#" target="_blank" class="text-decoration-none">
+                      <span class="text-primary">官方网站</span>
+                    </a>
+                    <a id="modal-qcc" href="#" target="_blank" class="text-decoration-none">
+                      <span class="text-primary">企查查</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="mt-4 pt-3 border-top">
+                <h6 class="fw-bold mb-2">简介</h6>
+                <div id="modal-description" class="text-muted" style="min-height: 80px;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer border-0 justify-content-center pb-4">
+        <a href="/dashboard/about/" target="_blank" class="text-decoration-none">
+          <span class="text-muted small" style="border-bottom: 1px dashed #adb5bd;">
+            数据有缺漏和错误？请在这里反馈
+          </span>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.brand-card {
+  background: #ffffff;
+  border: none;
+  border-radius: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  height: 100%;
+}
+
+.brand-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12);
+}
+
+.brand-card img.brand-logo {
+  max-height: 80px;
+  max-width: 100%;
+  object-fit: contain;
+  border-radius: 12px;
+  transition: transform 0.2s;
+}
+
+.brand-card:hover img.brand-logo {
+  transform: scale(1.05);
+}
+
+.brand-card .card-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+  color: #2d3748;
+}
+
+.brand-card .card-text {
+  font-size: 0.75rem;
+  color: #718096;
+}
+
+.brand-card .radar-container {
+  position: relative;
+}
+
+.brand-card canvas {
+  max-height: 120px;
+}
+
+.brand-card .tags-container {
+  min-height: 60px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+}
+
+.brand-card .tag-img {
+  height: 24px;
+  border-radius: 4px;
+}
+
+.card-fade-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.card-fade-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.progress-bar-low { background: linear-gradient(90deg, #fc8181 0%, #f56565 100%); }
+.progress-bar-medium { background: linear-gradient(90deg, #f6ad55 0%, #ed8936 100%); }
+.progress-bar-high { background: linear-gradient(90deg, #68d391 0%, #48bb78 100%); }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+<script>
+const brandData = [
+  {
+    id: 1,
+    name: '智云科技',
+    note: '专注于AI与云计算服务',
+    logo: "{% static 'images/logo.png' %}",
+    tags: [{ name: 'AI服务', color: '#667eea' }, { name: '云计算', color: '#764ba2' }],
+    radar: [85, 90, 78, 88, 92, 80],
+    understand: 85,
+    price: '50-100万',
+    website: 'https://example.com',
+    qcc: 'https://qcc.com',
+    description: '智云科技是一家领先的人工智能和云计算服务提供商，拥有强大的技术团队和丰富的项目经验。'
+  },
+  {
+    id: 2,
+    name: '数字创想',
+    note: '全方位数字化转型方案',
+    logo: "{% static 'images/logo.png' %}",
+    tags: [{ name: '数字化转型', color: '#4299e1' }, { name: '数据分析', color: '#3182ce' }],
+    radar: [75, 82, 85, 80, 78, 88],
+    understand: 75,
+    price: '30-80万',
+    website: 'https://example.com',
+    qcc: 'https://qcc.com',
+    description: '数字创想致力于为企业提供全方位的数字化转型解决方案，助力企业实现可持续发展。'
+  },
+  {
+    id: 3,
+    name: '云图科技',
+    note: '数据可视化专家',
+    logo: "{% static 'images/logo.png' %}",
+    tags: [{ name: '数据可视化', color: '#38b2ac' }, { name: 'BI工具', color: '#319795' }],
+    radar: [80, 85, 82, 75, 88, 85],
+    understand: 70,
+    price: '20-50万',
+    website: 'https://example.com',
+    qcc: 'https://qcc.com',
+    description: '云图科技专注于数据可视化领域，提供专业的BI工具和数据分析解决方案。'
+  },
+  {
+    id: 4,
+    name: '创新动力',
+    note: '驱动企业创新增长',
+    logo: "{% static 'images/logo.png' %}",
+    tags: [{ name: '创新', color: '#ed64a6' }, { name: '增长', color: '#d53f8c' }],
+    radar: [70, 78, 88, 82, 75, 90],
+    understand: 65,
+    price: '40-90万',
+    website: 'https://example.com',
+    qcc: 'https://qcc.com',
+    description: '创新动力通过创新的解决方案帮助企业实现可持续增长。'
+  },
+  {
+    id: 5,
+    name: '智联未来',
+    note: '连接企业与未来',
+    logo: "{% static 'images/logo.png' %}",
+    tags: [{ name: '物联网', color: '#48bb78' }, { name: '智能连接', color: '#38a169' }],
+    radar: [82, 80, 85, 88, 85, 78],
+    understand: 72,
+    price: '60-120万',
+    website: 'https://example.com',
+    qcc: 'https://qcc.com',
+    description: '智联未来专注于物联网领域，为企业提供智能连接解决方案。'
+  },
+  {
+    id: 6,
+    name: '数据之光',
+    note: '点亮数据价值',
+    logo: "{% static 'images/logo.png' %}",
+    tags: [{ name: '大数据', color: '#ed8936' }, { name: '数据价值', color: '#dd6b20' }],
+    radar: [88, 82, 80, 85, 90, 75],
+    understand: 80,
+    price: '70-150万',
+    website: 'https://example.com',
+    qcc: 'https://qcc.com',
+    description: '数据之光致力于挖掘大数据的价值，为企业提供数据驱动的决策支持。'
+  },
+  {
+    id: 7,
+    name: '智慧领航',
+    note: '引领智慧化转型',
+    logo: "{% static 'images/logo.png' %}",
+    tags: [{ name: '智慧化', color: '#9f7aea' }, { name: '转型', color: '#805ad5' }],
+    radar: [78, 88, 82, 90, 80, 82],
+    understand: 68,
+    price: '50-100万',
+    website: 'https://example.com',
+    qcc: 'https://qcc.com',
+    description: '智慧领航通过智慧化解决方案帮助企业实现数字化转型。'
+  },
+  {
+    id: 8,
+    name: '创新引擎',
+    note: '驱动持续创新',
+    logo: "{% static 'images/logo.png' %}",
+    tags: [{ name: '研发', color: '#f56565' }, { name: '创新', color: '#e53e3e' }],
+    radar: [75, 85, 88, 82, 85, 92],
+    understand: 78,
+    price: '80-160万',
+    website: 'https://example.com',
+    qcc: 'https://qcc.com',
+    description: '创新引擎专注于研发和创新，为企业提供持续的创新动力。'
+  },
+  {
+    id: 9,
+    name: '云端互联',
+    note: '构建云生态',
+    logo: "{% static 'images/logo.png' %}",
+    tags: [{ name: '云生态', color: '#4299e1' }, { name: '互联', color: '#3182ce' }],
+    radar: [85, 80, 85, 78, 88, 80],
+    understand: 75,
+    price: '40-80万',
+    website: 'https://example.com',
+    qcc: 'https://qcc.com',
+    description: '云端互联致力于构建完善的云生态系统，为企业提供全方位的云服务。'
+  },
+  {
+    id: 10,
+    name: '数据智能',
+    note: '智能数据解决方案',
+    logo: "{% static 'images/logo.png' %}",
+    tags: [{ name: '数据智能', color: '#38b2ac' }, { name: 'AI分析', color: '#2c7a7b' }],
+    radar: [90, 85, 80, 85, 92, 88],
+    understand: 88,
+    price: '100-200万',
+    website: 'https://example.com',
+    qcc: 'https://qcc.com',
+    description: '数据智能提供智能化的数据分析解决方案，帮助企业实现数据驱动的业务增长。'
+  }
+];
+
+let currentSort = 'tag';
+let modalRadarChart = null;
+
+function createRadarChart(canvasId, data, labels) {
+  const ctx = document.getElementById(canvasId).getContext('2d');
+  
+  const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 100);
+  gradient.addColorStop(0, 'rgba(203, 12, 159, 0.3)');
+  gradient.addColorStop(1, 'rgba(118, 75, 162, 0.1)');
+  
+  return new Chart(ctx, {
+    type: 'radar',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: data,
+        backgroundColor: 'rgba(203, 12, 159, 0.2)',
+        borderColor: 'rgba(203, 12, 159, 0.8)',
+        borderWidth: 2,
+        pointBackgroundColor: 'rgba(203, 12, 159, 1)',
+        pointBorderColor: '#fff',
+        pointHoverBackgroundColor: '#fff',
+        pointHoverBorderColor: 'rgba(203, 12, 159, 1)',
+        pointRadius: 4,
+        pointHoverRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      scales: {
+        r: {
+          beginAtZero: true,
+          max: 100,
+          ticks: {
+            stepSize: 20,
+            font: { size: 10 },
+            color: '#718096'
+          },
+          pointLabels: {
+            font: { size: 11, weight: '600' },
+            color: '#4a5568'
+          },
+          grid: {
+            color: 'rgba(0, 0, 0, 0.06)'
+          },
+          angleLines: {
+            color: 'rgba(0, 0, 0, 0.06)'
+          }
+        }
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          padding: 12,
+          titleFont: { size: 14 },
+          bodyFont: { size: 13 },
+          callbacks: {
+            label: function(context) {
+              return context.raw + ' 分';
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+function renderCards(data) {
+  const grid = document.getElementById('card-grid');
+  grid.innerHTML = '';
+  
+  data.forEach((brand, index) => {
+    const col = document.createElement('div');
+    col.className = 'col-12 col-sm-6 col-md-4 col-lg-2';
+    col.style.animationDelay = `${index * 50}ms`;
+    
+    const card = document.createElement('div');
+    card.className = 'brand-card card p-3 card-fade-enter';
+    card.onclick = () => showDetail(brand);
+    
+    card.innerHTML = `
+      <div class="d-flex align-items-start gap-3">
+        <div class="text-center" style="min-width: 70px; flex: 1;">
+          <img src="${brand.logo}" alt="${brand.name}" class="brand-logo mb-2">
+          <h6 class="card-title text-truncate">${brand.name}</h6>
+          <p class="card-text text-truncate">${brand.note}</p>
+        </div>
+        <div class="radar-container" style="min-width: 110px; flex: 1;">
+          <canvas id="radar-${brand.id}"></canvas>
+        </div>
+      </div>
+      <div class="mt-3 tags-container">
+        ${brand.tags.map(tag => `
+          <span class="badge" style="background: ${tag.color}20; color: ${tag.color}; font-size: 0.7rem; padding: 4px 8px;">
+            ${tag.name}
+          </span>
+        `).join('')}
+      </div>
+    `;
+    
+    col.appendChild(card);
+    grid.appendChild(col);
+    
+    requestAnimationFrame(() => {
+      card.classList.add('card-fade-enter-active');
+    });
+    
+    setTimeout(() => {
+      createRadarChart(`radar-${brand.id}`, brand.radar, ['价格', '质量', '交付', '服务', '技术', '创新']);
+    }, 100 + index * 50);
+  });
+}
+
+function switchSort(sortMethod) {
+  currentSort = sortMethod;
+  let sortedData = [...brandData];
+  
+  if (sortMethod === 'alphabet') {
+    sortedData.sort((a, b) => a.name.localeCompare(b.name, 'zh-CN'));
+  } else if (sortMethod === 'tag') {
+    sortedData.sort((a, b) => {
+      const tagA = a.tags[0]?.name || '';
+      const tagB = b.tags[0]?.name || '';
+      return tagA.localeCompare(tagB, 'zh-CN');
+    });
+  }
+  
+  renderCards(sortedData);
+}
+
+function showDetail(brand) {
+  document.getElementById('modal-logo').src = brand.logo;
+  document.getElementById('modal-name').textContent = brand.name;
+  document.getElementById('modal-note').textContent = brand.note;
+  document.getElementById('modal-price').textContent = brand.price;
+  document.getElementById('modal-website').href = brand.website;
+  document.getElementById('modal-qcc').href = brand.qcc;
+  document.getElementById('modal-description').textContent = brand.description;
+  
+  const progressBar = document.getElementById('modal-progress');
+  progressBar.style.width = brand.understand + '%';
+  progressBar.className = 'progress-bar ';
+  
+  if (brand.understand <= 40) {
+    progressBar.classList.add('progress-bar-low');
+  } else if (brand.understand <= 70) {
+    progressBar.classList.add('progress-bar-medium');
+  } else {
+    progressBar.classList.add('progress-bar-high');
+  }
+  
+  document.getElementById('modal-progress-text').textContent = `了解程度：${brand.understand}/100`;
+  
+  const tagsContainer = document.getElementById('modal-tags');
+  tagsContainer.innerHTML = brand.tags.map(tag => `
+    <span class="badge me-2 mb-2" style="background: ${tag.color}20; color: ${tag.color}; font-size: 0.9rem; padding: 6px 14px;">
+      ${tag.name}
+    </span>
+  `).join('');
+  
+  if (modalRadarChart) {
+    modalRadarChart.destroy();
+  }
+  
+  modalRadarChart = createRadarChart('modal-radar-chart', brand.radar, ['价格', '质量', '交付', '服务', '技术', '创新']);
+  
+  const modal = new bootstrap.Modal(document.getElementById('detailModal'));
+  modal.show();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('brand-count').textContent = brandData.length;
+  renderCards(brandData);
+});
+</script>
+{% endblock %}

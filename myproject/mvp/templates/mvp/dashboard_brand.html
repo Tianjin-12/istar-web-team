@@ -1,0 +1,13 @@
+{% extends 'mvp/base.html' %}
+
+{% load plotly_dash %}
+{% load static %}
+
+{% block title %}品牌AI可见度 - Istar GEO{% endblock %}
+
+{% block content %}
+<div id="dashboard-container">
+    {% plotly_app_bootstrap name="DashboardApp" %}
+  </div>
+</div>
+{% endblock %}

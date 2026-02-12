@@ -1,0 +1,251 @@
+{% load plotly_dash %}
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{% block title %}Istar GEO Evaluator{% endblock %}</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'css/bootstrap-icons.css' %}">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+    #dashboard-container {
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+    }
+    #dashboard-container iframe {
+      width: 100%;
+      height: 100vh;
+      border: none;
+      overflow-y: auto;
+    }
+    /* Toast 提示样式 */
+    .toast {
+      position: fixed;
+      bottom: 40px;
+      right: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 16px 24px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      z-index: 10000;
+      display: none;
+      animation: slideIn 0.3s ease-out;
+      min-width: 300px;
+    }
+    .toast.show {
+      display: block;
+    }
+    .toast.success {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    .toast-content {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .toast-icon {
+      font-size: 20px;
+    }
+    .toast-message {
+      flex: 1;
+      font-weight: 500;
+    }
+    .toast-close {
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: white;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+    .toast-close:hover {
+      background: rgba(255,255,255,0.3);
+    }
+    @keyframes slideIn {
+      from {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+    @keyframes slideOut {
+      from {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      to {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  {% include 'mvp/navbar.html' %}
+  
+  <div class="main-content" 
+  style="padding-top: 10px;
+  height: calc(100vh - 56px - 56px);
+  overflow-y: auto;
+  padding-bottom: 0px;">
+    {% block content %}{% endblock %}
+  </div>
+  
+  {% include 'mvp/footer.html' %}
+  
+  <script>
+    function showToast(message, duration = 5000) {
+      const toast = document.getElementById('toast');
+      const messageElement = document.getElementById('toast-message');
+      
+      messageElement.textContent = message;
+      toast.classList.add('show');
+      
+      setTimeout(() => {
+        hideToast();
+      }, duration);
+    }
+    
+    function hideToast() {
+      const toast = document.getElementById('toast');
+      toast.style.animation = 'slideOut 0.3s ease-out forwards';
+      setTimeout(() => {
+        toast.classList.remove('show');
+        toast.style.animation = '';
+      }, 300);
+    }
+    
+    function checkUrlParams() {
+      const params = new URLSearchParams(window.location.search);
+      const loginSuccess = params.get('login_success');
+      const registerSuccess = params.get('register_success');
+      const username = params.get('username');
+      const logoutSuccess = params.get('logout_success');
+      if (loginSuccess === 'true' && username) {
+        showToast(`欢迎回来，${username}！`);  
+        window.history.replaceState({}, document.title, window.location.pathname);
+      } else if (registerSuccess === 'true' && username) {
+        showToast(`注册成功，欢迎 ${username}！`);
+      } else if (logoutSuccess === 'true') {
+        showToast('您已退出登录');  
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    }
+    function updateAuthButtons(authenticated, username) {
+  // 直接访问父页面的元素，不访问 iframe
+  try {
+    const loginButton = document.getElementById('login-button');
+    const userButton = document.getElementById('user-button');
+    
+    if (authenticated && username) {
+      // 已登录
+      if (loginButton) {
+        loginButton.style.display = 'none';
+      }
+      if (userButton) {
+        userButton.textContent = username;
+        userButton.style.display = 'inline-block';
+      }
+    } else {
+      // 未登录
+      if (loginButton) {
+        loginButton.style.display = 'inline-block';
+      }
+      if (userButton) {
+        userButton.style.display = 'none';
+      }
+    }
+  } catch (error) {
+    console.log('更新按钮失败:', error);
+  }
+}
+    async function checkServerAuthStatus() {
+  try {
+    const response = await fetch('/accounts/api/auth-check/');
+    const data = await response.json();
+    
+    // 直接更新 UI，不使用 localStorage
+    updateAuthButtons(data.authenticated, data.username);
+    
+    // 如果检测到状态变化，显示提示
+    const userButton = document.getElementById('user-button');
+    const loginButton = document.getElementById('login-button');
+    const currentIsLoggedIn = userButton && userButton.style.display !== 'none';
+    
+    if (data.authenticated && !currentIsLoggedIn) {
+      showToast(`欢迎回来，${data.username}！`);
+    } else if (!data.authenticated && currentIsLoggedIn) {
+      showToast('您已退出登录');
+    }
+  } catch (error) {
+    console.log('检查服务器登录状态失败:', error);
+  }
+}
+    function handleLanguageSwitch() {
+    const langSwitch = document.getElementById('lang-switch-checkbox');
+    if (langSwitch) {
+        langSwitch.addEventListener('change', function() {
+            const iframe = document.querySelector('iframe');
+            if (iframe && iframe.contentWindow) {
+                iframe.contentWindow.postMessage({
+                    type: 'language-change',
+                    lang: this.checked ? 'en' : 'zh'
+                }, '*');
+            }
+        });
+    }
+}
+    window.addEventListener('DOMContentLoaded', function() {
+  // 1. 检查 URL 参数（登录/注册成功）
+  checkUrlParams();
+  
+  // 2. 处理语言切换
+  handleLanguageSwitch();
+  
+  // 3. 立即检查服务器状态
+  checkServerAuthStatus();
+  
+  // 4. 每 15 秒检查一次（缩短间隔）
+  setInterval(checkServerAuthStatus, 15000);
+  
+  // 5. 处理"我已知晓并愿意"按钮
+  const btnAgree = document.getElementById('btn-agree');
+  if (btnAgree) {
+    if (localStorage.getItem('userAgreed')) {
+      btnAgree.textContent = '✓ 已知晓';
+      btnAgree.disabled = true;
+    }
+    btnAgree.addEventListener('click', function() {
+      localStorage.setItem('userAgreed', 'true');
+      btnAgree.textContent = '✓ 已知晓';
+      btnAgree.disabled = true;
+    });
+  }
+});
+  </script>
+  
+  <!-- Toast 提示 -->
+  <div id="toast" class="toast success">
+    <div class="toast-content">
+      <span class="toast-icon">✓</span>
+      <span class="toast-message" id="toast-message"></span>
+      <button class="toast-close" onclick="hideToast()">✕</button>
+    </div>
+  </div>
+</body>
+</html>
