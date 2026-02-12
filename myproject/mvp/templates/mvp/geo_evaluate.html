@@ -5,7 +5,7 @@
 {% block title %}GEO服务商评估 - {% endblock %}
 
 {% block content %}
-<div class="container-fluid px-4 py-4" style="max-width: 1400px;">
+<div class="container-fluid px-4 py-4" style="max-width: 1600px;">
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div class="btn-group" role="group">
       <input type="radio" class="btn-check" name="sortMethod" id="sort-tag" autocomplete="off" checked>
@@ -26,7 +26,7 @@
     </div>
   </div>
 
-  <div id="card-grid" class="g-4 row">
+  <div id="card-grid" class="g-5 row">
   </div>
 </div>
 
@@ -101,7 +101,7 @@
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
   transition: all 0.3s ease;
   cursor: pointer;
-  height: 100%;
+  min-height: 320px;
 }
 
 .brand-card:hover {
@@ -110,11 +110,12 @@
 }
 
 .brand-card img.brand-logo {
-  max-height: 80px;
+  max-height: 100px;
   max-width: 100%;
   object-fit: contain;
   border-radius: 12px;
   transition: transform 0.2s;
+  cursor: pointer;
 }
 
 .brand-card:hover img.brand-logo {
@@ -122,14 +123,14 @@
 }
 
 .brand-card .card-title {
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: 700;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.3rem;
   color: #2d3748;
 }
 
 .brand-card .card-text {
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   color: #718096;
 }
 
@@ -138,14 +139,14 @@
 }
 
 .brand-card canvas {
-  max-height: 120px;
+  max-height: 140px;
 }
 
 .brand-card .tags-container {
-  min-height: 60px;
+  min-height: 70px;
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 8px;
   justify-content: center;
 }
 
@@ -381,30 +382,33 @@ function renderCards(data) {
   
   data.forEach((brand, index) => {
     const col = document.createElement('div');
-    col.className = 'col-12 col-sm-6 col-md-4 col-lg-2';
+    col.className = 'col-12 col-sm-6 col-md-4 col-lg-3';
     col.style.animationDelay = `${index * 50}ms`;
-    
+
     const card = document.createElement('div');
-    card.className = 'brand-card card p-3 card-fade-enter';
+    card.className = 'brand-card card p-4 card-fade-enter';
     card.onclick = () => showDetail(brand);
-    
+
     card.innerHTML = `
-      <div class="d-flex align-items-start gap-3">
-        <div class="text-center" style="min-width: 70px; flex: 1;">
-          <img src="${brand.logo}" alt="${brand.name}" class="brand-logo mb-2">
+      <div class="d-flex align-items-start gap-4">
+        <div class="text-center" style="min-width: 90px; flex: 1;">
+          <img src="${brand.logo}" alt="${brand.name}" class="brand-logo mb-2" title="点击查看详情">
           <h6 class="card-title text-truncate">${brand.name}</h6>
           <p class="card-text text-truncate">${brand.note}</p>
         </div>
-        <div class="radar-container" style="min-width: 110px; flex: 1;">
+        <div class="radar-container" style="min-width: 130px; flex: 1;">
           <canvas id="radar-${brand.id}"></canvas>
         </div>
       </div>
-      <div class="mt-3 tags-container">
+      <div class="mt-4 tags-container">
         ${brand.tags.map(tag => `
-          <span class="badge" style="background: ${tag.color}20; color: ${tag.color}; font-size: 0.7rem; padding: 4px 8px;">
+          <span class="badge" style="background: ${tag.color}20; color: ${tag.color}; font-size: 0.75rem; padding: 5px 10px;">
             ${tag.name}
           </span>
         `).join('')}
+      </div>
+      <div class="text-center mt-3">
+        <small class="text-muted" style="font-size: 0.7rem; cursor: pointer;">点击查看详情</small>
       </div>
     `;
     

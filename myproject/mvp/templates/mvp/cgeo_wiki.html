@@ -5,15 +5,2077 @@
 {% block title %}CGEO知识库 - {% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-  <div class="card shadow">
-    <div class="card-body">
-      <h2 class="text-center mb-4">CGEO开源知识库</h2>
-      <p class="text-center text-muted">正在开发中，敬请期待...</p>
-      <div class="text-center mt-5">
-        <img src="{% static 'images/coming-soon.png' %}" alt="Coming Soon" class="img-fluid" style="max-width: 300px; opacity: 0.6;">
+<div class="container-fluid px-4 py-4" style="max-width: 1600px;">
+  <div class="row">
+    <div class="col-lg-3 mb-4">
+      <div class="card shadow position-sticky" style="top: 20px; border-radius: 24px; border: none; max-height: calc(100vh - 100px); overflow-y: auto;">
+        <div class="card-body p-3">
+          <h5 class="fw-bold mb-3 text-primary">
+            <i class="bi bi-book-half me-2"></i>目录导航
+          </h5>
+          
+          <div class="mb-4">
+            <div class="small text-muted fw-bold mb-2" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;">第一阶段：快速入门</div>
+            <div class="nav flex-column nav-pills">
+              <a href="#section-1-1" class="nav-link active mb-1" style="border-radius: 12px; padding: 10px 15px; font-size: 0.9rem;">
+                <span class="badge bg-primary me-2" style="font-size: 0.7rem;">1.1</span>什么是GEO
+              </a>
+              <a href="#section-1-2" class="nav-link mb-1" style="border-radius: 12px; padding: 10px 15px; font-size: 0.9rem;">
+                <span class="badge bg-primary me-2" style="font-size: 0.7rem;">1.2</span>GEO vs SEO
+              </a>
+              <a href="#section-1-3" class="nav-link mb-1" style="border-radius: 12px; padding: 10px 15px; font-size: 0.9rem;">
+                <span class="badge bg-primary me-2" style="font-size: 0.7rem;">1.3</span>AI搜索工具
+              </a>
+              <a href="#section-1-4" class="nav-link mb-1" style="border-radius: 12px; padding: 10px 15px; font-size: 0.9rem;">
+                <span class="badge bg-primary me-2" style="font-size: 0.7rem;">1.4</span>为什么需要GEO
+              </a>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <div class="small text-muted fw-bold mb-2" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;">第二阶段：内容优化</div>
+            <div class="nav flex-column nav-pills">
+              <a href="#section-2-1" class="nav-link mb-1" style="border-radius: 12px; padding: 10px 15px; font-size: 0.9rem;">
+                <span class="badge bg-success me-2" style="font-size: 0.7rem;">2.1</span>结构化内容
+              </a>
+              <a href="#section-2-2" class="nav-link mb-1" style="border-radius: 12px; padding: 10px 15px; font-size: 0.9rem;">
+                <span class="badge bg-success me-2" style="font-size: 0.7rem;">2.2</span>优化标题摘要
+              </a>
+              <a href="#section-2-3" class="nav-link mb-1" style="border-radius: 12px; padding: 10px 15px; font-size: 0.9rem;">
+                <span class="badge bg-success me-2" style="font-size: 0.7rem;">2.3</span>事实准确性
+              </a>
+              <a href="#section-2-4" class="nav-link mb-1" style="border-radius: 12px; padding: 10px 15px; font-size: 0.9rem;">
+                <span class="badge bg-success me-2" style="font-size: 0.7rem;">2.4</span>多媒体优化
+              </a>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <div class="small text-muted fw-bold mb-2" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;">第三阶段：技术实现</div>
+            <div class="nav flex-column nav-pills">
+              <a href="#section-3-1" class="nav-link mb-1" style="border-radius: 12px; padding: 10px 15px; font-size: 0.9rem;">
+                <span class="badge bg-warning me-2" style="font-size: 0.7rem;">3.1</span>网站结构
+              </a>
+              <a href="#section-3-2" class="nav-link mb-1" style="border-radius: 12px; padding: 10px 15px; font-size: 0.9rem;">
+                <span class="badge bg-warning me-2" style="font-size: 0.7rem;">3.2</span>Schema标记
+              </a>
+              <a href="#section-3-3" class="nav-link mb-1" style="border-radius: 12px; padding: 10px 15px; font-size: 0.9rem;">
+                <span class="badge bg-warning me-2" style="font-size: 0.7rem;">3.3</span>API集成
+              </a>
+              <a href="#section-3-4" class="nav-link mb-1" style="border-radius: 12px; padding: 10px 15px; font-size: 0.9rem;">
+                <span class="badge bg-warning me-2" style="font-size: 0.7rem;">3.4</span>性能优化
+              </a>
+            </div>
+          </div>
+
+          <div>
+            <div class="small text-muted fw-bold mb-2" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;">第四阶段：实战技巧</div>
+            <div class="nav flex-column nav-pills">
+              <a href="#section-4-1" class="nav-link mb-1" style="border-radius: 12px; padding: 10px 15px; font-size: 0.9rem;">
+                <span class="badge bg-danger me-2" style="font-size: 0.7rem;">4.1</span>关键词演变
+              </a>
+              <a href="#section-4-2" class="nav-link mb-1" style="border-radius: 12px; padding: 10px 15px; font-size: 0.9rem;">
+                <span class="badge bg-danger me-2" style="font-size: 0.7rem;">4.2</span>品牌权威性
+              </a>
+              <a href="#section-4-3" class="nav-link mb-1" style="border-radius: 12px; padding: 10px 15px; font-size: 0.9rem;">
+                <span class="badge bg-danger me-2" style="font-size: 0.7rem;">4.3</span>用户意图
+              </a>
+              <a href="#section-4-4" class="nav-link" style="border-radius: 12px; padding: 10px 15px; font-size: 0.9rem;">
+                <span class="badge bg-danger me-2" style="font-size: 0.7rem;">4.4</span>监测分析
+              </a>
+            </div>
+          </div>
+
+          <hr class="my-4">
+
+          <div class="bg-light rounded p-3">
+            <div class="small text-muted mb-2">学习进度</div>
+            <div class="progress mb-2" style="height: 8px; border-radius: 4px;">
+              <div class="progress-bar" role="progressbar" style="width: 0%; border-radius: 4px;" id="progress-bar"></div>
+            </div>
+            <div class="d-flex justify-content-between align-items-center">
+              <small class="text-muted" id="progress-text">0/16 章节</small>
+              <small class="text-primary fw-bold" id="progress-percent">0%</small>
+            </div>
+          </div>
+        </div>
       </div>
+    </div>
+
+    <div class="col-lg-9">
+      <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="#" class="text-decoration-none">首页</a></li>
+          <li class="breadcrumb-item active" aria-current="page">CGEO知识库</li>
+        </ol>
+      </nav>
+
+      <div class="card shadow-lg mb-4" style="border-radius: 24px; border: none; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+        <div class="card-body p-5 text-white">
+          <h1 class="fw-bold mb-3" style="font-size: 2.5rem;">
+            🚀 CGEO知识库
+          </h1>
+          <p class="mb-0" style="font-size: 1.3rem; opacity: 0.95;">
+            生成式引擎优化实战指南 - 掌握AI时代的搜索新玩法
+          </p>
+          <p class="mt-3 mb-0" style="font-size: 1rem; opacity: 0.85;">
+            从基础概念到实战技巧，全面提升品牌在AI搜索工具中的曝光度
+          </p>
+        </div>
+      </div>
+
+      <div class="card shadow mb-4" style="border-radius: 24px; border: none;">
+        <div class="card-body p-4">
+          <h3 class="fw-bold mb-4" style="color: #2d3748;">
+            <i class="bi bi-bullseye text-primary me-2"></i>🎯 阶段目标
+          </h3>
+          <div class="row g-4">
+            <div class="col-md-6">
+              <div class="d-flex align-items-start gap-3">
+                <div class="flex-shrink-0">
+                  <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                    <i class="bi bi-lightbulb text-primary fs-5"></i>
+                  </div>
+                </div>
+                <div>
+                  <h6 class="fw-bold mb-1">理解GEO概念</h6>
+                  <p class="text-muted mb-0 small">掌握生成式引擎优化的核心原理</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="d-flex align-items-start gap-3">
+                <div class="flex-shrink-0">
+                  <div class="bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                    <i class="bi bi-tools text-success fs-5"></i>
+                  </div>
+                </div>
+                <div>
+                  <h6 class="fw-bold mb-1">学会优化技巧</h6>
+                  <p class="text-muted mb-0 small">掌握内容和技术层面的优化方法</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="d-flex align-items-start gap-3">
+                <div class="flex-shrink-0">
+                  <div class="bg-warning bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                    <i class="bi bi-graph-up text-warning fs-5"></i>
+                  </div>
+                </div>
+                <div>
+                  <h6 class="fw-bold mb-1">提升品牌曝光</h6>
+                  <p class="text-muted mb-0 small">在AI搜索中获得更多展示机会</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="d-flex align-items-start gap-3">
+                <div class="flex-shrink-0">
+                  <div class="bg-danger bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                    <i class="bi bi-trophy text-danger fs-5"></i>
+                  </div>
+                </div>
+                <div>
+                  <h6 class="fw-bold mb-1">实战应用能力</h6>
+                  <p class="text-muted mb-0 small">能独立完成GEO优化项目</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card shadow mb-4" style="border-radius: 24px; border: none;">
+        <div class="card-body p-4">
+          <h3 class="fw-bold mb-4" style="color: #2d3748;">
+            <i class="bi bi-clock-history text-primary me-2"></i>⏳ 预计耗时
+          </h3>
+          <div class="d-flex align-items-center gap-4">
+            <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+              <span class="text-primary fw-bold fs-3">2-3h</span>
+            </div>
+            <div>
+              <p class="mb-0" style="font-size: 1.1rem;">
+                根据个人基础，完成全部课程预计需要 <strong>2-3小时</strong>
+              </p>
+              <p class="text-muted mb-0 small mt-1">
+                建议分多次学习，每次专注一个阶段
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card shadow mb-4" style="border-radius: 24px; border: none;">
+        <div class="card-body p-4">
+          <h3 class="fw-bold mb-4" style="color: #2d3748;">
+            <i class="bi bi-list-check text-primary me-2"></i>📚 课程列表
+          </h3>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead>
+                <tr style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                  <th class="text-white border-0 py-3 px-4" style="border-radius: 12px 0 0 0;">课程</th>
+                  <th class="text-white border-0 py-3 px-4">内容</th>
+                  <th class="text-white border-0 py-3 px-4" style="border-radius: 0 12px 0 0;">时长</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="py-3 px-4">
+                    <span class="badge bg-primary me-2">1.1</span>
+                    <a href="#section-1-1" class="text-decoration-none text-dark fw-bold">什么是GEO</a>
+                  </td>
+                  <td class="py-3 px-4 text-muted">了解GEO的定义、发展背景和核心价值</td>
+                  <td class="py-3 px-4"><span class="badge bg-light text-dark">5分钟</span></td>
+                </tr>
+                <tr>
+                  <td class="py-3 px-4">
+                    <span class="badge bg-primary me-2">1.2</span>
+                    <a href="#section-1-2" class="text-decoration-none text-dark fw-bold">GEO vs SEO</a>
+                  </td>
+                  <td class="py-3 px-4 text-muted">对比分析GEO与传统SEO的区别和联系</td>
+                  <td class="py-3 px-4"><span class="badge bg-light text-dark">8分钟</span></td>
+                </tr>
+                <tr>
+                  <td class="py-3 px-4">
+                    <span class="badge bg-primary me-2">1.3</span>
+                    <a href="#section-1-3" class="text-decoration-none text-dark fw-bold">AI搜索工具</a>
+                  </td>
+                  <td class="py-3 px-4 text-muted">介绍主流AI搜索工具及其特点</td>
+                  <td class="py-3 px-4"><span class="badge bg-light text-dark">10分钟</span></td>
+                </tr>
+                <tr>
+                  <td class="py-3 px-4">
+                    <span class="badge bg-primary me-2">1.4</span>
+                    <a href="#section-1-4" class="text-decoration-none text-dark fw-bold">为什么需要GEO</a>
+                  </td>
+                  <td class="py-3 px-4 text-muted">分析AI时代搜索行为的变化</td>
+                  <td class="py-3 px-4"><span class="badge bg-light text-dark">7分钟</span></td>
+                </tr>
+                <tr>
+                  <td class="py-3 px-4">
+                    <span class="badge bg-success me-2">2.1</span>
+                    <a href="#section-2-1" class="text-decoration-none text-dark fw-bold">结构化内容</a>
+                  </td>
+                  <td class="py-3 px-4 text-muted">学习如何创作适合AI理解和引用的内容</td>
+                  <td class="py-3 px-4"><span class="badge bg-light text-dark">15分钟</span></td>
+                </tr>
+                <tr>
+                  <td class="py-3 px-4">
+                    <span class="badge bg-success me-2">2.2</span>
+                    <a href="#section-2-2" class="text-decoration-none text-dark fw-bold">优化标题摘要</a>
+                  </td>
+                  <td class="py-3 px-4 text-muted">掌握吸引AI注意力的标题和摘要写法</td>
+                  <td class="py-3 px-4"><span class="badge bg-light text-dark">10分钟</span></td>
+                </tr>
+                <tr>
+                  <td class="py-3 px-4">
+                    <span class="badge bg-success me-2">2.3</span>
+                    <a href="#section-2-3" class="text-decoration-none text-dark fw-bold">事实准确性</a>
+                  </td>
+                  <td class="py-3 px-4 text-muted">了解AI对可信内容的要求和引用机制</td>
+                  <td class="py-3 px-4"><span class="badge bg-light text-dark">12分钟</span></td>
+                </tr>
+                <tr>
+                  <td class="py-3 px-4">
+                    <span class="badge bg-success me-2">2.4</span>
+                    <a href="#section-2-4" class="text-decoration-none text-dark fw-bold">多媒体优化</a>
+                  </td>
+                  <td class="py-3 px-4 text-muted">优化图片、视频等内容在AI中的表现</td>
+                  <td class="py-3 px-4"><span class="badge bg-light text-dark">10分钟</span></td>
+                </tr>
+                <tr>
+                  <td class="py-3 px-4">
+                    <span class="badge bg-warning me-2">3.1</span>
+                    <a href="#section-3-1" class="text-decoration-none text-dark fw-bold">网站结构</a>
+                  </td>
+                  <td class="py-3 px-4 text-muted">优化网站结构以提升AI抓取效率</td>
+                  <td class="py-3 px-4"><span class="badge bg-light text-dark">15分钟</span></td>
+                </tr>
+                <tr>
+                  <td class="py-3 px-4">
+                    <span class="badge bg-warning me-2">3.2</span>
+                    <a href="#section-3-2" class="text-decoration-none text-dark fw-bold">Schema标记</a>
+                  </td>
+                  <td class="py-3 px-4 text-muted">学习结构化数据和Schema标记的应用</td>
+                  <td class="py-3 px-4"><span class="badge bg-light text-dark">20分钟</span></td>
+                </tr>
+                <tr>
+                  <td class="py-3 px-4">
+                    <span class="badge bg-warning me-2">3.3</span>
+                    <a href="#section-3-3" class="text-decoration-none text-dark fw-bold">API集成</a>
+                  </td>
+                  <td class="py-3 px-4 text-muted">实现与AI平台的数据feed和API对接</td>
+                  <td class="py-3 px-4"><span class="badge bg-light text-dark">18分钟</span></td>
+                </tr>
+                <tr>
+                  <td class="py-3 px-4">
+                    <span class="badge bg-warning me-2">3.4</span>
+                    <a href="#section-3-4" class="text-decoration-none text-dark fw-bold">性能优化</a>
+                  </td>
+                  <td class="py-3 px-4 text-muted">提升网站性能以改善AI抓取体验</td>
+                  <td class="py-3 px-4"><span class="badge bg-light text-dark">12分钟</span></td>
+                </tr>
+                <tr>
+                  <td class="py-3 px-4">
+                    <span class="badge bg-danger me-2">4.1</span>
+                    <a href="#section-4-1" class="text-decoration-none text-dark fw-bold">关键词演变</a>
+                  </td>
+                  <td class="py-3 px-4 text-muted">理解AI时代关键词策略的变化</td>
+                  <td class="py-3 px-4"><span class="badge bg-light text-dark">14分钟</span></td>
+                </tr>
+                <tr>
+                  <td class="py-3 px-4">
+                    <span class="badge bg-danger me-2">4.2</span>
+                    <a href="#section-4-2" class="text-decoration-none text-dark fw-bold">品牌权威性</a>
+                  </td>
+                  <td class="py-3 px-4 text-muted">建立品牌在AI领域的权威性和信任度</td>
+                  <td class="py-3 px-4"><span class="badge bg-light text-dark">16分钟</span></td>
+                </tr>
+                <tr>
+                  <td class="py-3 px-4">
+                    <span class="badge bg-danger me-2">4.3</span>
+                    <a href="#section-4-3" class="text-decoration-none text-dark fw-bold">用户意图</a>
+                  </td>
+                  <td class="py-3 px-4 text-muted">深入理解用户在AI搜索中的意图变化</td>
+                  <td class="py-3 px-4"><span class="badge bg-light text-dark">13分钟</span></td>
+                </tr>
+                <tr>
+                  <td class="py-3 px-4">
+                    <span class="badge bg-danger me-2">4.4</span>
+                    <a href="#section-4-4" class="text-decoration-none text-dark fw-bold">监测分析</a>
+                  </td>
+                  <td class="py-3 px-4 text-muted">设置GEO效果监测和数据分析体系</td>
+                  <td class="py-3 px-4"><span class="badge bg-light text-dark">15分钟</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="card shadow mb-4" style="border-radius: 24px; border: none;">
+        <div class="card-body p-4">
+          <h3 class="fw-bold mb-4" style="color: #2d3748;">
+            <i class="bi bi-backpack2 text-primary me-2"></i>🎒 你将收获
+          </h3>
+          <div class="list-group list-group-flush">
+            <div class="list-group-item d-flex align-items-start gap-3 py-3" style="border: none;">
+              <div class="flex-shrink-0">
+                <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                  <i class="bi bi-1-circle-fill text-primary"></i>
+                </div>
+              </div>
+              <div class="flex-grow-1">
+                <h6 class="fw-bold mb-1">清晰理解GEO的核心概念</h6>
+                <p class="text-muted mb-0 small">掌握生成式引擎优化的定义、原理和商业价值</p>
+              </div>
+            </div>
+            <div class="list-group-item d-flex align-items-start gap-3 py-3" style="border: none;">
+              <div class="flex-shrink-0">
+                <div class="bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                  <i class="bi bi-2-circle-fill text-success"></i>
+                </div>
+              </div>
+              <div class="flex-grow-1">
+                <h6 class="fw-bold mb-1">区分GEO与SEO的差异</h6>
+                <p class="text-muted mb-0 small">制定符合AI时代的混合搜索优化策略</p>
+              </div>
+            </div>
+            <div class="list-group-item d-flex align-items-start gap-3 py-3" style="border: none;">
+              <div class="flex-shrink-0">
+                <div class="bg-warning bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                  <i class="bi bi-3-circle-fill text-warning"></i>
+                </div>
+              </div>
+              <div class="flex-grow-1">
+                <h6 class="fw-bold mb-1">熟悉主要AI搜索工具</h6>
+                <p class="text-muted mb-0 small">了解ChatGPT、Claude、Perplexity等工具的工作机制</p>
+              </div>
+            </div>
+            <div class="list-group-item d-flex align-items-start gap-3 py-3" style="border: none;">
+              <div class="flex-shrink-0">
+                <div class="bg-danger bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                  <i class="bi bi-4-circle-fill text-danger"></i>
+                </div>
+              </div>
+              <div class="flex-grow-1">
+                <h6 class="fw-bold mb-1">掌握GEO优化技巧</h6>
+                <p class="text-muted mb-0 small">从内容到技术，全面实施GEO优化策略</p>
+              </div>
+            </div>
+            <div class="list-group-item d-flex align-items-start gap-3 py-3" style="border: none;">
+              <div class="flex-shrink-0">
+                <div class="bg-info bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                  <i class="bi bi-5-circle-fill text-info"></i>
+                </div>
+              </div>
+              <div class="flex-grow-1">
+                <h6 class="fw-bold mb-1">建立GEO监测体系</h6>
+                <p class="text-muted mb-0 small">持续跟踪和优化GEO效果，提升品牌在AI中的表现</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card shadow mb-4" style="border-radius: 24px; border: none;">
+        <div class="card-body p-4">
+          <h3 class="fw-bold mb-4" style="color: #2d3748;">
+            <i class="bi bi-rocket-takeoff text-primary me-2"></i>🚀 准备好了吗？
+          </h3>
+          <div class="d-flex align-items-center justify-content-between gap-4">
+            <div>
+              <p class="mb-0" style="font-size: 1.1rem;">
+                开始你的GEO学习之旅，掌握AI时代的搜索新玩法
+              </p>
+            </div>
+            <a href="#section-1-1" class="btn btn-lg fw-bold text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px; padding: 12px 32px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
+              开始第一课 <i class="bi bi-arrow-right ms-2"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <hr class="my-5">
+
+      <div id="section-1-1" class="course-section mb-5">
+        <div class="card shadow mb-4" style="border-radius: 24px; border: none;">
+          <div class="card-body p-5">
+            <div class="d-flex align-items-center gap-3 mb-4">
+              <span class="badge bg-primary fs-5" style="padding: 12px 20px; border-radius: 12px;">1.1</span>
+              <h2 class="fw-bold mb-0" style="color: #2d3748;">什么是GEO</h2>
+            </div>
+            
+            <div class="bg-light p-4 rounded mb-4">
+              <p class="mb-0 text-muted">
+                <i class="bi bi-clock me-2"></i>预计阅读时间：<strong>5分钟</strong>
+              </p>
+            </div>
+
+            <h4 class="fw-bold mb-3" style="color: #2d3748;">📖 定义</h4>
+            <p class="text-muted mb-4" style="line-height: 1.8;">
+              <strong>GEO（Generative Engine Optimization，生成式引擎优化）</strong>是指通过优化网站内容和结构，使其在生成式AI搜索工具（如ChatGPT、Claude、Perplexity等）中获得更好的曝光度和引用率的策略和方法。
+            </p>
+
+            <h4 class="fw-bold mb-3" style="color: #2d3748;">🎯 核心目标</h4>
+            <ul class="list-group list-group-flush mb-4">
+              <li class="list-group-item d-flex gap-3" style="border: none; padding-left: 0;">
+                <i class="bi bi-check-circle-fill text-primary mt-1"></i>
+                <div>
+                  <strong>提升品牌曝光</strong><br>
+                  <span class="text-muted small">在AI搜索回答中被引用和推荐</span>
+                </div>
+              </li>
+              <li class="list-group-item d-flex gap-3" style="border: none; padding-left: 0;">
+                <i class="bi bi-check-circle-fill text-primary mt-1"></i>
+                <div>
+                  <strong>建立权威性</strong><br>
+                  <span class="text-muted small">成为AI可信赖的信息来源</span>
+                </div>
+              </li>
+              <li class="list-group-item d-flex gap-3" style="border: none; padding-left: 0;">
+                <i class="bi bi-check-circle-fill text-primary mt-1"></i>
+                <div>
+                  <strong>获取流量</strong><br>
+                  <span class="text-muted small">通过AI搜索推荐带来精准访客</span>
+                </div>
+              </li>
+            </ul>
+
+            <h4 class="fw-bold mb-3" style="color: #2d3748;">💡 为什么现在需要GEO？</h4>
+            <div class="row g-3 mb-4">
+              <div class="col-md-4">
+                <div class="bg-primary bg-opacity-10 p-4 rounded text-center" style="border-radius: 16px;">
+                  <i class="bi bi-graph-up-arrow text-primary display-4 mb-2"></i>
+                  <h6 class="fw-bold">AI搜索增长</h6>
+                  <p class="text-muted small mb-0">越来越多的人使用AI工具搜索信息</p>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="bg-success bg-opacity-10 p-4 rounded text-center" style="border-radius: 16px;">
+                  <i class="bi bi-shuffle text-success display-4 mb-2"></i>
+                  <h6 class="fw-bold">搜索行为变化</h6>
+                  <p class="text-muted small mb-0">用户从列表点击转向AI对话获取答案</p>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="bg-warning bg-opacity-10 p-4 rounded text-center" style="border-radius: 16px;">
+                  <i class="bi bi-exclamation-triangle text-warning display-4 mb-2"></i>
+                  <h6 class="fw-bold">传统SEO瓶颈</h6>
+                  <p class="text-muted small mb-0">传统SEO在AI时代效果逐渐减弱</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="alert alert-info" style="border-radius: 12px; border: none;">
+              <i class="bi bi-lightbulb me-2"></i>
+              <strong>小贴士：</strong>GEO不是要替代SEO，而是与SEO形成互补，构建更全面的搜索优化策略。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="section-1-2" class="course-section mb-5">
+        <div class="card shadow mb-4" style="border-radius: 24px; border: none;">
+          <div class="card-body p-5">
+            <div class="d-flex align-items-center gap-3 mb-4">
+              <span class="badge bg-primary fs-5" style="padding: 12px 20px; border-radius: 12px;">1.2</span>
+              <h2 class="fw-bold mb-0" style="color: #2d3748;">GEO vs SEO</h2>
+            </div>
+            
+            <div class="bg-light p-4 rounded mb-4">
+              <p class="mb-0 text-muted">
+                <i class="bi bi-clock me-2"></i>预计阅读时间：<strong>8分钟</strong>
+              </p>
+            </div>
+
+            <h4 class="fw-bold mb-3" style="color: #2d3748;">🔍 核心区别</h4>
+            <div class="table-responsive mb-4">
+              <table class="table table-bordered align-middle">
+                <thead>
+                  <tr style="background: #f8f9fa;">
+                    <th class="py-3 px-4">维度</th>
+                    <th class="py-3 px-4">SEO</th>
+                    <th class="py-3 px-4">GEO</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="py-3 px-4 fw-bold">目标平台</td>
+                    <td class="py-3 px-4">传统搜索引擎（Google、百度等）</td>
+                    <td class="py-3 px-4">生成式AI（ChatGPT、Claude等）</td>
+                  </tr>
+                  <tr>
+                    <td class="py-3 px-4 fw-bold">展示方式</td>
+                    <td class="py-3 px-4">搜索结果列表</td>
+                    <td class="py-3 px-4">AI生成的回答文本</td>
+                  </tr>
+                  <tr>
+                    <td class="py-3 px-4 fw-bold">优化重点</td>
+                    <td class="py-3 px-4">关键词、链接、技术因素</td>
+                    <td class="py-3 px-4">内容质量、权威性、可读性</td>
+                  </tr>
+                  <tr>
+                    <td class="py-3 px-4 fw-bold">用户行为</td>
+                    <td class="py-3 px-4">点击结果进入网站</td>
+                    <td class="py-3 px-4">直接从AI回答获取信息</td>
+                  </tr>
+                  <tr>
+                    <td class="py-3 px-4 fw-bold">衡量指标</td>
+                    <td class="py-3 px-4">排名、点击率、转化率</td>
+                    <td class="py-3 px-4">引用频率、品牌提及、信任度</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h4 class="fw-bold mb-3" style="color: #2d3748;">🤝 协同关系</h4>
+            <p class="text-muted mb-4" style="line-height: 1.8;">
+              GEO和SEO并非对立关系，而是互补关系。一个优秀的搜索优化策略应该同时考虑传统搜索引擎和生成式AI的需求。
+            </p>
+
+            <div class="row g-3 mb-4">
+              <div class="col-md-6">
+                <div class="bg-primary bg-opacity-10 p-4 rounded" style="border-radius: 16px;">
+                  <h6 class="fw-bold mb-2"><i class="bi bi-arrows-angle-expand me-2"></i>SEO的基础作用</h6>
+                  <ul class="mb-0 ps-3">
+                    <li class="text-muted small">提供技术基础（网站速度、移动友好）</li>
+                    <li class="text-muted small">积累品牌权威性和可信度</li>
+                    <li class="text-muted small">建立内容库和数据资产</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="bg-success bg-opacity-10 p-4 rounded" style="border-radius: 16px;">
+                  <h6 class="fw-bold mb-2"><i class="bi bi-robot me-2"></i>GEO的增值作用</h6>
+                  <ul class="mb-0 ps-3">
+                    <li class="text-muted small">触达新的流量渠道</li>
+                    <li class="text-muted small">提升品牌在AI时代的影响力</li>
+                    <li class="text-muted small">适应未来搜索趋势</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="alert alert-success" style="border-radius: 12px; border: none;">
+              <i class="bi bi-lightbulb me-2"></i>
+              <strong>最佳实践：</strong>在现有SEO策略基础上，增加GEO优化层，形成"SEO + GEO"的混合优化模式。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="section-1-3" class="course-section mb-5">
+        <div class="card shadow mb-4" style="border-radius: 24px; border: none;">
+          <div class="card-body p-5">
+            <div class="d-flex align-items-center gap-3 mb-4">
+              <span class="badge bg-primary fs-5" style="padding: 12px 20px; border-radius: 12px;">1.3</span>
+              <h2 class="fw-bold mb-0" style="color: #2d3748;">AI搜索工具概览</h2>
+            </div>
+            
+            <div class="bg-light p-4 rounded mb-4">
+              <p class="mb-0 text-muted">
+                <i class="bi bi-clock me-2"></i>预计阅读时间：<strong>10分钟</strong>
+              </p>
+            </div>
+
+            <h4 class="fw-bold mb-3" style="color: #2d3748;">🤖 主流AI搜索工具</h4>
+            <div class="row g-4 mb-4">
+              <div class="col-md-6">
+                <div class="card h-100" style="border-radius: 16px; border: none; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                  <div class="card-body p-4">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                      <div class="bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                        <i class="bi bi-chat-dots text-success fs-4"></i>
+                      </div>
+                      <div>
+                        <h6 class="fw-bold mb-0">ChatGPT</h6>
+                        <small class="text-muted">OpenAI</small>
+                      </div>
+                    </div>
+                    <p class="text-muted small mb-0">最流行的生成式AI，支持网页浏览和实时信息检索，引用来源清晰。</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="card h-100" style="border-radius: 16px; border: none; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                  <div class="card-body p-4">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                      <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                        <i class="bi bi-person-circle text-primary fs-4"></i>
+                      </div>
+                      <div>
+                        <h6 class="fw-bold mb-0">Claude</h6>
+                        <small class="text-muted">Anthropic</small>
+                      </div>
+                    </div>
+                    <p class="text-muted small mb-0">注重安全性和事实准确性，擅长长文本分析，适合专业领域。</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="card h-100" style="border-radius: 16px; border: none; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                  <div class="card-body p-4">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                      <div class="bg-warning bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                        <i class="bi bi-search text-warning fs-4"></i>
+                      </div>
+                      <div>
+                        <h6 class="fw-bold mb-0">Perplexity</h6>
+                        <small class="text-muted">Perplexity AI</small>
+                      </div>
+                    </div>
+                    <p class="text-muted small mb-0">专门的AI搜索引擎，实时检索网络信息，引用来源详细。</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="card h-100" style="border-radius: 16px; border: none; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                  <div class="card-body p-4">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                      <div class="bg-danger bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                        <i class="bi bi-globe text-danger fs-4"></i>
+                      </div>
+                      <div>
+                        <h6 class="fw-bold mb-0">Bing AI</h6>
+                        <small class="text-muted">Microsoft</small>
+                      </div>
+                    </div>
+                    <p class="text-muted small mb-0">集成在Bing搜索中，结合传统搜索和AI回答，用户量大。</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <h4 class="fw-bold mb-3" style="color: #2d3748;">⚙️ 工作机制</h4>
+            <div class="bg-light p-4 rounded mb-4" style="border-radius: 16px;">
+              <ol class="mb-0 ps-3">
+                <li class="mb-3">
+                  <strong>用户提问</strong> - 用户向AI提出问题或查询需求
+                </li>
+                <li class="mb-3">
+                  <strong>信息检索</strong> - AI从训练知识和实时网络中检索相关信息
+                </li>
+                <li class="mb-3">
+                  <strong>内容筛选</strong> - AI根据相关性、权威性、可信度筛选内容
+                </li>
+                <li class="mb-3">
+                  <strong>综合生成</strong> - AI整合筛选的信息，生成连贯的回答
+                </li>
+                <li>
+                  <strong>来源引用</strong> - AI在回答中引用信息来源，提供可验证性
+                </li>
+              </ol>
+            </div>
+
+            <div class="alert alert-info" style="border-radius: 12px; border: none;">
+              <i class="bi bi-lightbulb me-2"></i>
+              <strong>关键洞察：</strong>理解AI如何筛选和引用内容，是制定有效GEO策略的核心。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="section-1-4" class="course-section mb-5">
+        <div class="card shadow mb-4" style="border-radius: 24px; border: none;">
+          <div class="card-body p-5">
+            <div class="d-flex align-items-center gap-3 mb-4">
+              <span class="badge bg-primary fs-5" style="padding: 12px 20px; border-radius: 12px;">1.4</span>
+              <h2 class="fw-bold mb-0" style="color: #2d3748;">为什么现在需要GEO</h2>
+            </div>
+            
+            <div class="bg-light p-4 rounded mb-4">
+              <p class="mb-0 text-muted">
+                <i class="bi bi-clock me-2"></i>预计阅读时间：<strong>7分钟</strong>
+              </p>
+            </div>
+
+            <h4 class="fw-bold mb-3" style="color: #2d3748;">📊 数据洞察</h4>
+            <div class="row g-4 mb-4">
+              <div class="col-md-3">
+                <div class="bg-gradient-primary p-4 rounded text-center text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px;">
+                  <div class="display-5 fw-bold mb-1">85%</div>
+                  <small>用户尝试使用AI搜索</small>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="bg-gradient-primary p-4 rounded text-center text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px;">
+                  <div class="display-5 fw-bold mb-1">60%</div>
+                  <small>从AI直接获取答案</small>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="bg-gradient-primary p-4 rounded text-center text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px;">
+                  <div class="display-5 fw-bold mb-1">3x</div>
+                  <small>AI搜索年增长率</small>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="bg-gradient-primary p-4 rounded text-center text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px;">
+                  <div class="display-5 fw-bold mb-1">40%</div>
+                  <small>传统搜索流量下降</small>
+                </div>
+              </div>
+            </div>
+
+            <h4 class="fw-bold mb-3" style="color: #2d3748;">🔄 搜索行为变化</h4>
+            <div class="row g-4 mb-4">
+              <div class="col-md-6">
+                <div class="bg-secondary bg-opacity-10 p-4 rounded" style="border-radius: 16px;">
+                  <h6 class="fw-bold mb-3 text-secondary"><i class="bi bi-list-ul me-2"></i>传统搜索模式</h6>
+                  <ul class="mb-0">
+                    <li class="text-muted small mb-2">搜索关键词 → 查看结果列表 → 点击进入网站</li>
+                    <li class="text-muted small mb-2">需要多次点击和跳转</li>
+                    <li class="text-muted small mb-2">信息分散在多个页面</li>
+                    <li class="text-muted small">依赖用户主动筛选</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="bg-primary bg-opacity-10 p-4 rounded" style="border-radius: 16px;">
+                  <h6 class="fw-bold mb-3 text-primary"><i class="bi bi-chat-square-text me-2"></i>AI搜索模式</h6>
+                  <ul class="mb-0">
+                    <li class="text-muted small mb-2">提问 → AI直接给出答案 → 查看引用来源</li>
+                    <li class="text-muted small mb-2">一站式获取信息</li>
+                    <li class="text-muted small mb-2">AI整合多个来源</li>
+                    <li class="text-muted small">依赖AI智能筛选</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <h4 class="fw-bold mb-3" style="color: #2d3748;">💼 商业影响</h4>
+            <div class="bg-light p-4 rounded mb-4" style="border-radius: 16px;">
+              <div class="d-flex gap-3 mb-3">
+                <i class="bi bi-exclamation-circle text-warning fs-4 mt-1"></i>
+                <div>
+                  <h6 class="fw-bold mb-2">流量流失风险</h6>
+                  <p class="text-muted small mb-0">如果不在AI中被引用，用户可能永远不会访问你的网站</p>
+                </div>
+              </div>
+              <div class="d-flex gap-3 mb-3">
+                <i class="bi bi-check-circle text-success fs-4 mt-1"></i>
+                <div>
+                  <h6 class="fw-bold mb-2">新的增长机会</h6>
+                  <p class="text-muted small mb-0">早期布局GEO可以抢占AI搜索的先机</p>
+                </div>
+              </div>
+              <div class="d-flex gap-3">
+                <i class="bi bi-lightbulb text-info fs-4 mt-1"></i>
+                <div>
+                  <h6 class="fw-bold mb-2">品牌权威性</h6>
+                  <p class="text-muted small mb-0">在AI中被频繁引用会建立强大的品牌权威</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="alert alert-warning" style="border-radius: 12px; border: none;">
+              <i class="bi bi-lightbulb me-2"></i>
+              <strong>紧迫性：</strong>GEO不再是可选项，而是必选项。现在开始布局，将决定未来几年的竞争力。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="section-2-1" class="course-section mb-5">
+        <div class="card shadow mb-4" style="border-radius: 24px; border: none;">
+          <div class="card-body p-5">
+            <div class="d-flex align-items-center gap-3 mb-4">
+              <span class="badge bg-success fs-5" style="padding: 12px 20px; border-radius: 12px;">2.1</span>
+              <h2 class="fw-bold mb-0" style="color: #2d3748;">结构化内容写作</h2>
+            </div>
+            
+            <div class="bg-light p-4 rounded mb-4">
+              <p class="mb-0 text-muted">
+                <i class="bi bi-clock me-2"></i>预计阅读时间：<strong>15分钟</strong>
+              </p>
+            </div>
+
+            <h4 class="fw-bold mb-3" style="color: #2d3748;">📝 什么是结构化内容？</h4>
+            <p class="text-muted mb-4" style="line-height: 1.8;">
+              结构化内容是指按照清晰的逻辑组织、使用标准格式标记、易于机器理解和处理的内容。这种内容不仅适合人类阅读，也更容易被AI模型准确理解和引用。
+            </p>
+
+            <h4 class="fw-bold mb-3" style="color: #2d3748;">✨ 核心要素</h4>
+            <div class="row g-4 mb-4">
+              <div class="col-md-6">
+                <div class="bg-success bg-opacity-10 p-4 rounded" style="border-radius: 16px;">
+                  <h6 class="fw-bold mb-2"><i class="bi bi-list-check me-2"></i>清晰的层级</h6>
+                  <ul class="mb-0 ps-3">
+                    <li class="text-muted small mb-1">使用H1-H6标题标记</li>
+                    <li class="text-muted small mb-1">逻辑段落划分</li>
+                    <li class="text-muted small">有序/无序列表</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="bg-info bg-opacity-10 p-4 rounded" style="border-radius: 16px;">
+                  <h6 class="fw-bold mb-2"><i class="bi bi-tag me-2"></i>明确的主题</h6>
+                  <ul class="mb-0 ps-3">
+                    <li class="text-muted small mb-1">每段聚焦一个核心观点</li>
+                    <li class="text-muted small mb-1">主题句在段落开头</li>
+                    <li class="text-muted small">避免模糊表述</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="bg-warning bg-opacity-10 p-4 rounded" style="border-radius: 16px;">
+                  <h6 class="fw-bold mb-2"><i class="bi bi-link-45deg me-2"></i>内部链接</h6>
+                  <ul class="mb-0 ps-3">
+                    <li class="text-muted small mb-1">相关内容互相引用</li>
+                    <li class="text-muted small mb-1">建立知识网络</li>
+                    <li class="text-muted small">便于AI理解关联</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="bg-danger bg-opacity-10 p-4 rounded" style="border-radius: 16px;">
+                  <h6 class="fw-bold mb-2"><i class="bi bi-quote me-2"></i>引用标注</h6>
+                  <ul class="mb-0 ps-3">
+                    <li class="text-muted small mb-1">标注信息来源</li>
+                    <li class="text-muted small mb-1">提供可验证性</li>
+                    <li class="text-muted small">增强内容可信度</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <h4 class="fw-bold mb-3" style="color: #2d3748;">📋 最佳实践示例</h4>
+            <div class="row g-4 mb-4">
+              <div class="col-md-6">
+                <div class="bg-light p-4 rounded" style="border-radius: 16px;">
+                  <h6 class="fw-bold mb-3 text-danger"><i class="bi bi-x-circle me-2"></i>❌ 不推荐</h6>
+                  <p class="text-muted small mb-0" style="white-space: pre-line;">
+搜索引擎优化很重要，你需要关注很多方面。比如关键词、内容质量、技术因素等等。还有就是用户体验也很关键，要确保网站速度快、移动端友好。当然还有外部链接，这对提升排名很有帮助。
+                  </p>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="bg-light p-4 rounded" style="border-radius: 16px;">
+                  <h6 class="fw-bold mb-3 text-success"><i class="bi bi-check-circle me-2"></i>✅ 推荐</h6>
+                  <p class="text-muted small mb-0" style="white-space: pre-line;">
+<h6>1. 关键词优化</h6>
+研究和选择相关的关键词，合理分布在标题、内容中。
+<h6>2. 内容质量</h6>
+创作有价值、原创的内容，满足用户需求。
+<h6>3. 技术因素</h6>
+优化网站速度、移动端体验、站点结构。
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="alert alert-success" style="border-radius: 12px; border: none;">
+              <i class="bi bi-lightbulb me-2"></i>
+              <strong>关键原则：</strong>想象你是为一个智能助手编写内容，让它能够快速提取关键信息并准确理解你的意思。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="section-2-2" class="course-section mb-5">
+        <div class="card shadow mb-4" style="border-radius: 24px; border: none;">
+          <div class="card-body p-5">
+            <div class="d-flex align-items-center gap-3 mb-4">
+              <span class="badge bg-success fs-5" style="padding: 12px 20px; border-radius: 12px;">2.2</span>
+              <h2 class="fw-bold mb-0" style="color: #2d3748;">优化标题和摘要</h2>
+            </div>
+            
+            <div class="bg-light p-4 rounded mb-4">
+              <p class="mb-0 text-muted">
+                <i class="bi bi-clock me-2"></i>预计阅读时间：<strong>10分钟</strong>
+              </p>
+            </div>
+
+            <h4 class="fw-bold mb-3" style="color: #2d3748;">🎯 标题优化策略</h4>
+            <div class="row g-4 mb-4">
+              <div class="col-md-6">
+                <div class="bg-primary bg-opacity-10 p-4 rounded" style="border-radius: 16px;">
+                  <h6 class="fw-bold mb-2"><i class="bi bi-1-circle me-2"></i>明确主题</h6>
+                  <p class="text-muted small mb-0">标题应该准确反映内容主题，避免模糊或误导</p>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="bg-primary bg-opacity-10 p-4 rounded" style="border-radius: 16px;">
+                  <h6 class="fw-bold mb-2"><i class="bi bi-2-circle me-2"></i>包含关键词</h6>
+                  <p class="text-muted small mb-0">在标题中自然地融入核心关键词，便于AI识别</p>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="bg-primary bg-opacity-10 p-4 rounded" style="border-radius: 16px;">
+                  <h6 class="fw-bold mb-2"><i class="bi bi-3-circle me-2"></i>控制长度</h6>
+                  <p class="text-muted small mb-0">建议50-60个字符，确保完整显示</p>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="bg-primary bg-opacity-10 p-4 rounded" style="border-radius: 16px;">
+                  <h6 class="fw-bold mb-2"><i class="bi bi-4-circle me-2"></i>独特性</h6>
+                  <p class="text-muted small mb-0">避免与其他页面标题雷同，突出独特价值</p>
+                </div>
+              </div>
+            </div>
+
+            <h4 class="fw-bold mb-3" style="color: #2d3748;">📄 摘要优化策略</h4>
+            <div class="bg-light p-4 rounded mb-4" style="border-radius: 16px;">
+              <ul class="mb-0">
+                <li class="text-muted small mb-3">
+                  <strong>概括核心内容</strong> - 用2-3句话概括文章的主要观点和价值
+                </li>
+                <li class="text-muted small mb-3">
+                  <strong>包含关键词</strong> - 自然融入核心关键词和长尾词
+                </li>
+                <li class="text-muted small mb-3">
+                  <strong>长度适中</strong> - 建议控制在150-160个字符
+                </li>
+                <li class="text-muted small mb-3">
+                  <strong>吸引点击</strong> - 用有吸引力的语言激发用户兴趣
+                </li>
+                <li class="text-muted small">
+                  <strong>准确描述</strong> - 确保摘要与内容相符，建立信任
+                </li>
+              </ul>
+            </div>
+
+            <h4 class="fw-bold mb-3" style="color: #2d3748;">💡 AI友好型示例</h4>
+            <div class="row g-4 mb-4">
+              <div class="col-md-6">
+                <div class="bg-light p-4 rounded" style="border-radius: 16px;">
+                  <h6 class="fw-bold mb-3 text-muted">传统SEO标题</h6>
+                  <p class="text-primary fw-bold mb-0">GEO优化技巧大全</p>
+                  <p class="text-muted small mt-2">太简短，缺乏具体信息</p>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="bg-light p-4 rounded" style="border-radius: 16px;">
+                  <h6 class="fw-bold mb-3 text-success">GEO优化标题</h6>
+                  <p class="text-success fw-bold mb-0">GEO优化指南：10个提升品牌AI搜索曝光的实用技巧</p>
+                  <p class="text-muted small mt-2">明确主题，包含关键词，承诺价值</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="alert alert-info" style="border-radius: 12px; border: none;">
+              <i class="bi bi-lightbulb me-2"></i>
+              <strong>小贴士：</strong>AI在生成回答时，会优先参考标题和摘要。优质的标题和摘要能显著提升被引用的概率。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="section-2-3" class="course-section mb-5">
+        <div class="card shadow mb-4" style="border-radius: 24px; border: none;">
+          <div class="card-body p-5">
+            <div class="d-flex align-items-center gap-3 mb-4">
+              <span class="badge bg-success fs-5" style="padding: 12px 20px; border-radius: 12px;">2.3</span>
+              <h2 class="fw-bold mb-0" style="color: #2d3748;">事实准确性和来源引用</h2>
+            </div>
+            
+            <div class="bg-light p-4 rounded mb-4">
+              <p class="mb-0 text-muted">
+                <i class="bi bi-clock me-2"></i>预计阅读时间：<strong>12分钟</strong>
+              </p>
+            </div>
+
+            <h4 class="fw-bold mb-3" style="color: #2d3748;">✅ 为什么事实准确性重要？</h4>
+            <p class="text-muted mb-4" style="line-height: 1.8;">
+              AI模型在筛选内容时，会优先选择事实准确、来源可靠的内容。错误的信息不仅不会被引用，还可能损害品牌在AI心中的可信度。
+            </p>
+
+            <h4 class="fw-bold mb-3" style="color: #2d3748;">🔍 事实验证策略</h4>
+            <div class="row g-4 mb-4">
+              <div class="col-md-6">
+                <div class="bg-success bg-opacity-10 p-4 rounded" style="border-radius: 16px;">
+                  <h6 class="fw-bold mb-2"><i class="bi bi-search me-2"></i>数据来源</h6>
+                  <ul class="mb-0 ps-3">
+                    <li class="text-muted small mb-1">使用权威机构发布的数据</li>
+                    <li class="text-muted small mb-1">引用研究报告和白皮书</li>
+                    <li class="text-muted small">标注数据发布时间和来源</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="bg-info bg-opacity-10 p-4 rounded" style="border-radius: 16px;">
+                  <h6 class="fw-bold mb-2"><i class="bi bi-shield-check me-2"></i>内容验证</h6>
+                  <ul class="mb-0 ps-3">
+                    <li class="text-muted small mb-1">发布前进行事实核查</li>
+                    <li class="text-muted small mb-1">定期更新过时信息</li>
+                    <li class="text-muted small">提供证据和案例支持</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="bg-warning bg-opacity-10 p-4 rounded" style="border-radius: 16px;">
+                  <h6 class="fw-bold mb-2"><i class="bi bi-person-check me-2"></i>专家审查</h6>
+                  <ul class="mb-0 ps-3">
+                    <li class="text-muted small mb-1">邀请领域专家审核内容</li>
+                    <li class="text-muted small mb-1">标注作者资质和背景</li>
+                    <li class="text-muted small">提供联系方式供核实</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="bg-danger bg-opacity-10 p-4 rounded" style="border-radius: 16px;">
+                  <h6 class="fw-bold mb-2"><i class="bi bi-clock-history me-2"></i>及时更新</h6>
+                  <ul class="mb-0 ps-3">
+                    <li class="text-muted small mb-1">标记内容更新日期</li>
+                    <li class="text-muted small mb-1">建立内容审查机制</li>
+                    <li class="text-muted small">修正发现的错误信息</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <h4 class="fw-bold mb-3" style="color: #2d3748;">📚 来源引用最佳实践</h4>
+            <div class="bg-light p-4 rounded mb-4" style="border-radius: 16px;">
+              <ul class="mb-0">
+                <li class="text-muted small mb-3">
+                  <strong>明确标注来源</strong> - 在内容中清晰引用信息来源，包括作者、机构、发布时间
+                </li>
+                <li class="text-muted small mb-3">
+                  <strong>使用标准格式</strong> - 采用APA、MLA等标准引用格式，便于识别和验证
+                </li>
+                <li class="text-muted small mb-3">
+                  <strong>提供链接</strong> - 为可访问的来源提供直接链接
+                </li>
+                <li class="text-muted small mb-3">
+                  <strong>多样化来源</strong> - 引用多个权威来源，避免单一来源依赖
+                </li>
+                <li class="text-muted small">
+                  <strong>区分观点和事实</strong> - 明确标注哪些是事实，哪些是观点
+                </li>
+              </ul>
+            </div>
+
+            <div class="alert alert-warning" style="border-radius: 12px; border: none;">
+              <i class="bi bi-lightbulb me-2"></i>
+              <strong>重要提醒：</strong>AI对内容的可信度非常敏感。一次错误的信息可能导致AI对你的内容产生长期的不信任。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="section-2-4" class="course-section mb-5">
+        <div class="card shadow mb-4" style="border-radius: 24px; border: none;">
+          <div class="card-body p-5">
+            <div class="d-flex align-items-center gap-3 mb-4">
+              <span class="badge bg-success fs-5" style="padding: 12px 20px; border-radius: 12px;">2.4</span>
+              <h2 class="fw-bold mb-0" style="color: #2d3748;">多媒体内容优化</h2>
+            </div>
+            
+            <div class="bg-light p-4 rounded mb-4">
+              <p class="mb-0 text-muted">
+                <i class="bi bi-clock me-2"></i>预计阅读时间：<strong>10分钟</strong>
+              </p>
+            </div>
+
+            <h4 class="fw-bold mb-3" style="color: #2d3748;">🖼️ 图片优化</h4>
+            <div class="row g-4 mb-4">
+              <div class="col-md-6">
+                <div class="bg-primary bg-opacity-10 p-4 rounded" style="border-radius: 16px;">
+                  <h6 class="fw-bold mb-2"><i class="bi bi-card-text me-2"></i>Alt文本</h6>
+                  <p class="text-muted small mb-0">为所有图片添加描述性的Alt文本，帮助AI理解图片内容</p>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="bg-primary bg-opacity-10 p-4 rounded" style="border-radius: 16px;">
+                  <h6 class="fw-bold mb-2"><i class="bi bi-file-earmark-text me-2"></i>文件命名</h6>
+                  <p class="text-muted small mb-0">使用描述性的文件名，如"seo-vs-geo-comparison.jpg"</p>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="bg-primary bg-opacity-10 p-4 rounded" style="border-radius: 16px;">
+                  <h6 class="fw-bold mb-2"><i class="bi bi-images me-2"></i>图片质量</h6>
+                  <p class="text-muted small mb-0">使用高质量、清晰的图片，避免模糊或失真</p>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="bg-primary bg-opacity-10 p-4 rounded" style="border-radius: 16px;">
+                  <h6 class="fw-bold mb-2"><i class="bi bi-layout-sidebar me-2"></i>上下文</h6>
+                  <p class="text-muted small mb-0">确保图片与周围文字内容相关联</p>
+                </div>
+              </div>
+            </div>
+
+            <h4 class="fw-bold mb-3" style="color: #2d3748;">🎥 视频优化</h4>
+            <div class="bg-light p-4 rounded mb-4" style="border-radius: 16px;">
+              <ul class="mb-0">
+                <li class="text-muted small mb-3">
+                  <strong>添加字幕</strong> - 为视频添加准确的字幕，便于AI提取文本内容
+                </li>
+                <li class="text-muted small mb-3">
+                  <strong>视频描述</strong> - 提供详细的视频描述，概述视频内容和关键点
+                </li>
+                <li class="text-muted small mb-3">
+                  <strong>章节标记</strong> - 添加时间戳和章节标记，帮助AI理解视频结构
+                </li>
+                <li class="text-muted small">
+                  <strong>缩略图</strong> - 使用高质量缩略图，确保与内容相关
+                </li>
+              </ul>
+            </div>
+
+            <h4 class="fw-bold mb-3" style="color: #2d3748;">🎵 音频内容</h4>
+            <div class="row g-4 mb-4">
+              <div class="col-md-6">
+                <div class="bg-success bg-opacity-10 p-4 rounded" style="border-radius: 16px;">
+                  <h6 class="fw-bold mb-2"><i class="bi bi-file-earmark-play me-2"></i>转录文本</h6>
+                  <p class="text-muted small mb-0">提供音频的完整转录文本，便于AI索引</p>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="bg-success bg-opacity-10 p-4 rounded" style="border-radius: 16px;">
+                  <h6 class="fw-bold mb-2"><i class="bi bi-list-ul me-2"></i>内容大纲</h6>
+                  <p class="text-muted small mb-0">提供音频内容的大纲或摘要</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="alert alert-info" style="border-radius: 12px; border: none;">
+              <i class="bi bi-lightbulb me-2"></i>
+              <strong>关键洞察：</strong>AI模型是多模态的，能够理解文本、图片、视频等多种内容形式。优化多媒体内容能显著提升GEO效果。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="section-3-1" class="course-section mb-5">
+        <div class="card shadow mb-4" style="border-radius: 24px; border: none;">
+          <div class="card-body p-5">
+            <div class="d-flex align-items-center gap-3 mb-4">
+              <span class="badge bg-warning fs-5" style="padding: 12px 20px; border-radius: 12px;">3.1</span>
+              <h2 class="fw-bold mb-0" style="color: #2d3748;">网站结构优化</h2>
+            </div>
+            
+            <div class="bg-light p-4 rounded mb-4">
+              <p class="mb-0 text-muted">
+                <i class="bi bi-clock me-2"></i>预计阅读时间：<strong>15分钟</strong>
+              </p>
+            </div>
+
+            <h4 class="fw-bold mb-3" style="color: #2d3748;">🏗️ 信息架构</h4>
+            <p class="text-muted mb-4" style="line-height: 1.8;">
+              清晰的网站信息架构不仅有助于用户导航，也便于AI爬虫理解和抓取内容。一个良好的信息架构应该层次分明、逻辑清晰。
+            </p>
+
+            <div class="row g-4 mb-4">
+              <div class="col-md-6">
+                <div class="bg-warning bg-opacity-10 p-4 rounded" style="border-radius: 16px;">
+                  <h6 class="fw-bold mb-2"><i class="bi bi-sitemap me-2"></i>扁平化结构</h6>
+                  <ul class="mb-0 ps-3">
+                    <li class="text-muted small mb-1">减少目录层级，建议不超过3层</li>
+                    <li class="text-muted small mb-1">重要内容更容易被AI发现</li>
+                    <li class="text-muted small">URL简洁易读</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="bg-warning bg-opacity-10 p-4 rounded" style="border-radius: 16px;">
+                  <h6 class="fw-bold mb-2"><i class="bi bi-link me-2"></i>内部链接</h6>
+                  <ul class="mb-0 ps-3">
+                    <li class="text-muted small mb-1">建立内容之间的关联</li>
+                    <li class="text-muted small mb-1">使用描述性锚文本</li>
+                    <li class="text-muted small">形成主题集群</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="bg-warning bg-opacity-10 p-4 rounded" style="border-radius: 16px;">
+                  <h6 class="fw-bold mb-2"><i class="bi bi-list-stars me-2"></i>导航菜单</h6>
+                  <ul class="mb-0 ps-3">
+                    <li class="text-muted small mb-1">清晰的导航分类</li>
+                    <li class="text-muted small mb-1">面包屑导航</li>
+                    <li class="text-muted small">网站地图</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="bg-warning bg-opacity-10 p-4 rounded" style="border-radius: 16px;">
+                  <h6 class="fw-bold mb-2"><i class="bi bi-diagram-3 me-2"></i>主题聚类</h6>
+                  <ul class="mb-0 ps-3">
+                    <li class="text-muted small mb-1">相关内容聚集在一起</li>
+                    <li class="text-muted small mb-1">建立内容主题页面</li>
+                    <li class="text-muted small">强化主题权威性</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <h4 class="fw-bold mb-3" style="color: #2d3748;">🔗 URL结构</h4>
+            <div class="bg-light p-4 rounded mb-4" style="border-radius: 16px;">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <h6 class="fw-bold mb-2 text-danger"><i class="bi bi-x-circle me-2"></i>不推荐</h6>
+                  <code class="d-block text-muted small">example.com/p=1234</code>
+                  <p class="text-muted small mt-1 mb-0">无意义，难以理解</p>
+                </div>
+                <div class="col-md-6">
+                  <h6 class="fw-bold mb-2 text-success"><i class="bi bi-check-circle me-2"></i>推荐</h6>
+                  <code class="d-block text-muted small">example.com/geo/optimization-guide</code>
+                  <p class="text-muted small mt-1 mb-0">清晰描述，包含关键词</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="alert alert-success" style="border-radius: 12px; border: none;">
+              <i class="bi bi-lightbulb me-2"></i>
+              <strong>最佳实践：</strong>URL应该简洁、可读、包含关键词，并使用连字符分隔单词。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="section-3-2" class="course-section mb-5">
+        <div class="card shadow mb-4" style="border-radius: 24px; border: none;">
+          <div class="card-body p-5">
+            <div class="d-flex align-items-center gap-3 mb-4">
+              <span class="badge bg-warning fs-5" style="padding: 12px 20px; border-radius: 12px;">3.2</span>
+              <h2 class="fw-bold mb-0" style="color: #2d3748;">Schema标记和元数据</h2>
+            </div>
+            
+            <div class="bg-light p-4 rounded mb-4">
+              <p class="mb-0 text-muted">
+                <i class="bi bi-clock me-2"></i>预计阅读时间：<strong>20分钟</strong>
+              </p>
+            </div>
+
+            <h4 class="fw-bold mb-3" style="color: #2d3748;">🏷️ 什么是Schema标记？</h4>
+            <p class="text-muted mb-4" style="line-height: 1.8;">
+              Schema标记是一种结构化数据标准，使用JSON-LD格式向搜索引擎和AI提供关于网页内容的详细信息。它能帮助AI更好地理解内容的类型、结构和意义。
+            </p>
+
+            <h4 class="fw-bold mb-3" style="color: #2d3748;">📋 常用Schema类型</h4>
+            <div class="row g-4 mb-4">
+              <div class="col-md-4">
+                <div class="bg-primary bg-opacity-10 p-4 rounded text-center" style="border-radius: 16px;">
+                  <i class="bi bi-file-text text-primary display-5 mb-2"></i>
+                  <h6 class="fw-bold mb-1">Article</h6>
+                  <p class="text-muted small mb-0">文章、博客内容</p>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="bg-success bg-opacity-10 p-4 rounded text-center" style="border-radius: 16px;">
+                  <i class="bi bi-shop text-success display-5 mb-2"></i>
+                  <h6 class="fw-bold mb-1">Product</h6>
+                  <p class="text-muted small mb-0">商品、服务信息</p>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="bg-info bg-opacity-10 p-4 rounded text-center" style="border-radius: 16px;">
+                  <i class="bi bi-person text-info display-5 mb-2"></i>
+                  <h6 class="fw-bold mb-1">Person</h6>
+                  <p class="text-muted small mb-0">作者、专家信息</p>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="bg-warning bg-opacity-10 p-4 rounded text-center" style="border-radius: 16px;">
+                  <i class="bi bi-building text-warning display-5 mb-2"></i>
+                  <h6 class="fw-bold mb-1">Organization</h6>
+                  <p class="text-muted small mb-0">公司、组织信息</p>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="bg-danger bg-opacity-10 p-4 rounded text-center" style="border-radius: 16px;">
+                  <i class="bi bi-star text-danger display-5 mb-2"></i>
+                  <h6 class="fw-bold mb-1">Review</h6>
+                  <p class="text-muted small mb-0">评价、评论信息</p>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="bg-dark bg-opacity-10 p-4 rounded text-center" style="border-radius: 16px;">
+                  <i class="bi bi-question-circle text-dark display-5 mb-2"></i>
+                  <h6 class="fw-bold mb-1">FAQ</h6>
+                  <p class="text-muted small mb-0">常见问题解答</p>
+                </div>
+              </div>
+            </div>
+
+            <h4 class="fw-bold mb-3" style="color: #2d3748;">💻 JSON-LD示例</h4>
+            <div class="bg-dark p-4 rounded mb-4" style="border-radius: 16px;">
+              <pre class="text-success mb-0" style="font-size: 0.85rem;"><code>&lt;script type="application/ld+json"&gt;
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "GEO优化指南",
+  "author": {
+    "@type": "Person",
+    "name": "张三"
+  },
+  "datePublished": "2024-01-15",
+  "dateModified": "2024-01-20",
+  "description": "学习如何优化网站以提升在AI搜索中的曝光度"
+}
+&lt;/script&gt;</code></pre>
+            </div>
+
+            <div class="alert alert-info" style="border-radius: 12px; border: none;">
+              <i class="bi bi-lightbulb me-2"></i>
+              <strong>工具推荐：</strong>使用Google的结构化数据测试工具验证Schema标记是否正确。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="section-3-3" class="course-section mb-5">
+        <div class="card shadow mb-4" style="border-radius: 24px; border: none;">
+          <div class="card-body p-5">
+            <div class="d-flex align-items-center gap-3 mb-4">
+              <span class="badge bg-warning fs-5" style="padding: 12px 20px; border-radius: 12px;">3.3</span>
+              <h2 class="fw-bold mb-0" style="color: #2d3748;">API集成和数据Feed</h2>
+            </div>
+            
+            <div class="bg-light p-4 rounded mb-4">
+              <p class="mb-0 text-muted">
+                <i class="bi bi-clock me-2"></i>预计阅读时间：<strong>18分钟</strong>
+              </p>
+            </div>
+
+            <h4 class="fw-bold mb-3" style="color: #2d3748;">🔌 API集成方式</h4>
+            <div class="row g-4 mb-4">
+              <div class="col-md-6">
+                <div class="bg-primary bg-opacity-10 p-4 rounded" style="border-radius: 16px;">
+                  <h6 class="fw-bold mb-2"><i class="bi bi-cloud-upload me-2"></i>内容API</h6>
+                  <p class="text-muted small mb-0">提供RESTful API接口，允许AI平台主动拉取内容数据</p>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="bg-primary bg-opacity-10 p-4 rounded" style="border-radius: 16px;">
+                  <h6 class="fw-bold mb-2"><i class="bi bi-rss me-2"></i>RSS/Atom Feed</h6>
+                  <p class="text-muted small mb-0">发布RSS/Atom Feed，便于内容聚合和订阅</p>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="bg-primary bg-opacity-10 p-4 rounded" style="border-radius: 16px;">
+                  <h6 class="fw-bold mb-2"><i class="bi bi-file-xml me-2"></i>XML Sitemap</h6>
+                  <p class="text-muted small mb-0">提供XML站点地图，列出所有重要页面URL</p>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="bg-primary bg-opacity-10 p-4 rounded" style="border-radius: 16px;">
+                  <h6 class="fw-bold mb-2"><i class="bi bi-robot me-2"></i>机器人协议</h6>
+                  <p class="text-muted small mb-0">优化robots.txt和sitemap，引导AI爬虫抓取</p>
+                </div>
+              </div>
+            </div>
+
+            <h4 class="fw-bold mb-3" style="color: #2d3748;">📊 数据Feed最佳实践</h4>
+            <div class="bg-light p-4 rounded mb-4" style="border-radius: 16px;">
+              <ul class="mb-0">
+                <li class="text-muted small mb-3">
+                  <strong>实时更新</strong> - 确保Feed中的内容是最新的，设置合理的缓存策略
+                </li>
+                <li class="text-muted small mb-3">
+                  <strong>完整信息</strong> - 包含标题、摘要、作者、发布时间等完整元数据
+                </li>
+                <li class="text-muted small mb-3">
+                  <strong>标准化格式</strong> - 使用行业标准的RSS 2.0或Atom 1.0格式
+                </li>
+                <li class="text-muted small mb-3">
+                  <strong>内容分类</strong> - 在Feed中对内容进行分类，便于AI理解主题
+                </li>
+                <li class="text-muted small">
+                  <strong>错误处理</strong> - 提供友好的错误处理和重试机制
+                </li>
+              </ul>
+            </div>
+
+            <div class="alert alert-success" style="border-radius: 12px; border: none;">
+              <i class="bi bi-lightbulb me-2"></i>
+              <strong>关键点：</strong>主动向AI平台推送内容，比被动等待抓取更高效。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="section-3-4" class="course-section mb-5">
+        <div class="card shadow mb-4" style="border-radius: 24px; border: none;">
+          <div class="card-body p-5">
+            <div class="d-flex align-items-center gap-3 mb-4">
+              <span class="badge bg-warning fs-5" style="padding: 12px 20px; border-radius: 12px;">3.4</span>
+              <h2 class="fw-bold mb-0" style="color: #2d3748;">性能优化</h2>
+            </div>
+            
+            <div class="bg-light p-4 rounded mb-4">
+              <p class="mb-0 text-muted">
+                <i class="bi bi-clock me-2"></i>预计阅读时间：<strong>12分钟</strong>
+              </p>
+            </div>
+
+            <h4 class="fw-bold mb-3" style="color: #2d3748;">⚡ 页面加载速度</h4>
+            <p class="text-muted mb-4" style="line-height: 1.8;">
+              AI爬虫也有时间和资源限制，加载速度快的页面更容易被完整抓取。同时，良好的性能也能提升用户体验，间接增强内容的可信度。
+            </p>
+
+            <div class="row g-4 mb-4">
+              <div class="col-md-6">
+                <div class="bg-warning bg-opacity-10 p-4 rounded" style="border-radius: 16px;">
+                  <h6 class="fw-bold mb-2"><i class="bi bi-image me-2"></i>图片优化</h6>
+                  <ul class="mb-0 ps-3">
+                    <li class="text-muted small mb-1">使用现代图片格式（WebP）</li>
+                    <li class="text-muted small mb-1">压缩图片大小</li>
+                    <li class="text-muted small">实现懒加载</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="bg-warning bg-opacity-10 p-4 rounded" style="border-radius: 16px;">
+                  <h6 class="fw-bold mb-2"><i class="bi bi-file-earmark-code me-2"></i>代码优化</h6>
+                  <ul class="mb-0 ps-3">
+                    <li class="text-muted small mb-1">压缩CSS和JavaScript</li>
+                    <li class="text-muted small mb-1">减少HTTP请求</li>
+                    <li class="text-muted small">使用CDN加速</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="bg-warning bg-opacity-10 p-4 rounded" style="border-radius: 16px;">
+                  <h6 class="fw-bold mb-2"><i class="bi bi-cpu me-2"></i>服务器优化</h6>
+                  <ul class="mb-0 ps-3">
+                    <li class="text-muted small mb-1">启用HTTP/2或HTTP/3</li>
+                    <li class="text-muted small mb-1">使用缓存策略</li>
+                    <li class="text-muted small">选择优质主机</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="bg-warning bg-opacity-10 p-4 rounded" style="border-radius: 16px;">
+                  <h6 class="fw-bold mb-2"><i class="bi bi-lightning me-2"></i>关键渲染</h6>
+                  <ul class="mb-0 ps-3">
+                    <li class="text-muted small mb-1">优化关键CSS</li>
+                    <li class="text-muted small mb-1">减少JavaScript阻塞</li>
+                    <li class="text-muted small">预加载关键资源</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <h4 class="fw-bold mb-3" style="color: #2d3748;">📱 移动端优化</h4>
+            <div class="bg-light p-4 rounded mb-4" style="border-radius: 16px;">
+              <ul class="mb-0">
+                <li class="text-muted small mb-3">
+                  <strong>响应式设计</strong> - 确保网站在各种设备上都能良好显示
+                </li>
+                <li class="text-muted small mb-3">
+                  <strong>触摸友好</strong> - 按钮和链接足够大，便于触摸操作
+                </li>
+                <li class="text-muted small mb-3">
+                  <strong>简化导航</strong> - 移动端导航简洁清晰
+                </li>
+                <li class="text-muted small">
+                  <strong>快速加载</strong> - 移动网络环境下优化加载速度
+                </li>
+              </ul>
+            </div>
+
+            <div class="alert alert-info" style="border-radius: 12px; border: none;">
+              <i class="bi bi-lightbulb me-2"></i>
+              <strong>工具推荐：</strong>使用Google PageSpeed Insights和Lighthouse评估和优化页面性能。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="section-4-1" class="course-section mb-5">
+        <div class="card shadow mb-4" style="border-radius: 24px; border: none;">
+          <div class="card-body p-5">
+            <div class="d-flex align-items-center gap-3 mb-4">
+              <span class="badge bg-danger fs-5" style="padding: 12px 20px; border-radius: 12px;">4.1</span>
+              <h2 class="fw-bold mb-0" style="color: #2d3748;">关键词演变</h2>
+            </div>
+            
+            <div class="bg-light p-4 rounded mb-4">
+              <p class="mb-0 text-muted">
+                <i class="bi bi-clock me-2"></i>预计阅读时间：<strong>14分钟</strong>
+              </p>
+            </div>
+
+            <h4 class="fw-bold mb-3" style="color: #2d3748;">🔄 从关键词到问题</h4>
+            <p class="text-muted mb-4" style="line-height: 1.8;">
+              在AI时代，用户不再只是输入关键词，而是用自然语言提问。这意味着关键词策略需要从"关键词"转向"问题"和"意图"。
+            </p>
+
+            <h4 class="fw-bold mb-3" style="color: #2d3748;">📊 传统 vs AI时代</h4>
+            <div class="row g-4 mb-4">
+              <div class="col-md-6">
+                <div class="bg-secondary bg-opacity-10 p-4 rounded" style="border-radius: 16px;">
+                  <h6 class="fw-bold mb-3 text-secondary"><i class="bi bi-search me-2"></i>传统搜索</h6>
+                  <div class="mb-2">
+                    <span class="badge bg-secondary">关键词</span>
+                    <span class="text-muted small ms-2">"SEO技巧"</span>
+                  </div>
+                  <div class="mb-2">
+                    <span class="badge bg-secondary">关键词</span>
+                    <span class="text-muted small ms-2">"GEO优化方法"</span>
+                  </div>
+                  <div>
+                    <span class="badge bg-secondary">关键词</span>
+                    <span class="text-muted small ms-2">"搜索引擎排名"</span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="bg-primary bg-opacity-10 p-4 rounded" style="border-radius: 16px;">
+                  <h6 class="fw-bold mb-3 text-primary"><i class="bi bi-robot me-2"></i>AI搜索</h6>
+                  <div class="mb-2">
+                    <span class="badge bg-primary">问题</span>
+                    <span class="text-muted small ms-2">"如何提升品牌在AI搜索中的曝光度？"</span>
+                  </div>
+                  <div class="mb-2">
+                    <span class="badge bg-primary">问题</span>
+                    <span class="text-muted small ms-2">"GEO和SEO有什么区别？"</span>
+                  </div>
+                  <div>
+                    <span class="badge bg-primary">问题</span>
+                    <span class="text-muted small ms-2">"AI时代如何优化网站以获得更好的排名？"</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <h4 class="fw-bold mb-3" style="color: #2d3748;">🎯 新的关键词策略</h4>
+            <div class="row g-4 mb-4">
+              <div class="col-md-6">
+                <div class="bg-success bg-opacity-10 p-4 rounded" style="border-radius: 16px;">
+                  <h6 class="fw-bold mb-2"><i class="bi bi-question-lg me-2"></i>问题型关键词</h6>
+                  <ul class="mb-0 ps-3">
+                    <li class="text-muted small mb-1">如何、为什么、是什么</li>
+                    <li class="text-muted small mb-1">对比类问题（A vs B）</li>
+                    <li class="text-muted small">解决方案类问题</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="bg-info bg-opacity-10 p-4 rounded" style="border-radius: 16px;">
+                  <h6 class="fw-bold mb-2"><i class="bi bi-chat-quote me-2"></i>对话式关键词</h6>
+                  <ul class="mb-0 ps-3">
+                    <li class="text-muted small mb-1">自然语言表达</li>
+                    <li class="text-muted small mb-1">完整句子</li>
+                    <li class="text-muted small">上下文相关</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="bg-warning bg-opacity-10 p-4 rounded" style="border-radius: 16px;">
+                  <h6 class="fw-bold mb-2"><i class="bi bi-lightbulb me-2"></i>意图导向</h6>
+                  <ul class="mb-0 ps-3">
+                    <li class="text-muted small mb-1">信息型：用户想了解什么</li>
+                    <li class="text-muted small mb-1">交易型：用户想做什么</li>
+                    <li class="text-muted small">导航型：用户想找什么</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="bg-danger bg-opacity-10 p-4 rounded" style="border-radius: 16px;">
+                  <h6 class="fw-bold mb-2"><i class="bi bi-layers me-2"></i>长尾关键词</h6>
+                  <ul class="mb-0 ps-3">
+                    <li class="text-muted small mb-1">更具体的问题</li>
+                    <li class="text-muted small mb-1">竞争度低</li>
+                    <li class="text-muted small">转化率高</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="alert alert-success" style="border-radius: 12px; border: none;">
+              <i class="bi bi-lightbulb me-2"></i>
+              <strong>核心思路：</strong>不是猜测用户输入什么关键词，而是理解用户想解决什么问题。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="section-4-2" class="course-section mb-5">
+        <div class="card shadow mb-4" style="border-radius: 24px; border: none;">
+          <div class="card-body p-5">
+            <div class="d-flex align-items-center gap-3 mb-4">
+              <span class="badge bg-danger fs-5" style="padding: 12px 20px; border-radius: 12px;">4.2</span>
+              <h2 class="fw-bold mb-0" style="color: #2d3748;">品牌权威性</h2>
+            </div>
+            
+            <div class="bg-light p-4 rounded mb-4">
+              <p class="mb-0 text-muted">
+                <i class="bi bi-clock me-2"></i>预计阅读时间：<strong>16分钟</strong>
+              </p>
+            </div>
+
+            <h4 class="fw-bold mb-3" style="color: #2d3748;">🏆 什么是品牌权威性？</h4>
+            <p class="text-muted mb-4" style="line-height: 1.8;">
+              品牌权威性是指在特定领域或行业中，品牌被认可为可信、专业和有影响力的程度。AI在筛选内容时，会优先引用来自权威品牌的信息。
+            </p>
+
+            <h4 class="fw-bold mb-3" style="color: #2d3748;">📈 建立品牌权威性的方法</h4>
+            <div class="row g-4 mb-4">
+              <div class="col-md-6">
+                <div class="bg-danger bg-opacity-10 p-4 rounded" style="border-radius: 16px;">
+                  <h6 class="fw-bold mb-2"><i class="bi bi-pencil me-2"></i>持续产出高质量内容</h6>
+                  <ul class="mb-0 ps-3">
+                    <li class="text-muted small mb-1">保持内容更新的频率</li>
+                    <li class="text-muted small mb-1">确保内容的准确性和深度</li>
+                    <li class="text-muted small">建立内容库和知识体系</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="bg-danger bg-opacity-10 p-4 rounded" style="border-radius: 16px;">
+                  <h6 class="fw-bold mb-2"><i class="bi bi-people me-2"></i>专家背书</h6>
+                  <ul class="mb-0 ps-3">
+                    <li class="text-muted small mb-1">展示团队成员资质</li>
+                    <li class="text-muted small mb-1">邀请行业专家撰写内容</li>
+                    <li class="text-muted small">建立专家顾问团</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="bg-danger bg-opacity-10 p-4 rounded" style="border-radius: 16px;">
+                  <h6 class="fw-bold mb-2"><i class="bi bi-newspaper me-2"></i>媒体曝光</h6>
+                  <ul class="mb-0 ps-3">
+                    <li class="text-muted small mb-1">在权威媒体发表文章</li>
+                    <li class="text-muted small mb-1">获得媒体报道和引用</li>
+                    <li class="text-muted small">参与行业活动</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="bg-danger bg-opacity-10 p-4 rounded" style="border-radius: 16px;">
+                  <h6 class="fw-bold mb-2"><i class="bi bi-award me-2"></i>权威认证</h6>
+                  <ul class="mb-0 ps-3">
+                    <li class="text-muted small mb-1">获得行业认证</li>
+                    <li class="text-muted small mb-1">展示客户案例和评价</li>
+                    <li class="text-muted small">建立合作伙伴关系</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <h4 class="fw-bold mb-3" style="color: #2d3748;">🔍 AI如何评估权威性？</h4>
+            <div class="bg-light p-4 rounded mb-4" style="border-radius: 16px;">
+              <ul class="mb-0">
+                <li class="text-muted small mb-3">
+                  <strong>内容质量</strong> - 评估内容的深度、准确性和原创性
+                </li>
+                <li class="text-muted small mb-3">
+                  <strong>引用频率</strong> - 观察品牌在AI回答中被引用的频率
+                </li>
+                <li class="text-muted small mb-3">
+                  <strong>用户反馈</strong> - 分析用户对品牌内容的反馈和互动
+                </li>
+                <li class="text-muted small mb-3">
+                  <strong>外部信号</strong> - 参考外部链接、社交媒体提及等
+                </li>
+                <li class="text-muted small">
+                  <strong>历史表现</strong> - 考虑品牌在相关领域的长期表现
+                </li>
+              </ul>
+            </div>
+
+            <div class="alert alert-warning" style="border-radius: 12px; border: none;">
+              <i class="bi bi-lightbulb me-2"></i>
+              <strong>重要提示：</strong>建立品牌权威性需要时间，但一旦建立，将成为最强大的GEO资产。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="section-4-3" class="course-section mb-5">
+        <div class="card shadow mb-4" style="border-radius: 24px; border: none;">
+          <div class="card-body p-5">
+            <div class="d-flex align-items-center gap-3 mb-4">
+              <span class="badge bg-danger fs-5" style="padding: 12px 20px; border-radius: 12px;">4.3</span>
+              <h2 class="fw-bold mb-0" style="color: #2d3748;">用户意图</h2>
+            </div>
+            
+            <div class="bg-light p-4 rounded mb-4">
+              <p class="mb-0 text-muted">
+                <i class="bi bi-clock me-2"></i>预计阅读时间：<strong>13分钟</strong>
+              </p>
+            </div>
+
+            <h4 class="fw-bold mb-3" style="color: #2d3748;">🎯 理解用户意图</h4>
+            <p class="text-muted mb-4" style="line-height: 1.8;">
+              用户意图是指用户在进行搜索时的真实目的和需求。AI搜索更加注重理解用户的深层意图，而不仅仅是匹配关键词。
+            </p>
+
+            <h4 class="fw-bold mb-3" style="color: #2d3748;">📊 用户意图类型</h4>
+            <div class="row g-4 mb-4">
+              <div class="col-md-4">
+                <div class="bg-primary bg-opacity-10 p-4 rounded text-center" style="border-radius: 16px;">
+                  <i class="bi bi-info-circle text-primary display-5 mb-2"></i>
+                  <h6 class="fw-bold mb-2">信息型</h6>
+                  <p class="text-muted small mb-2">用户想了解某个主题或概念</p>
+                  <code class="d-block text-muted small">"什么是GEO？"</code>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="bg-success bg-opacity-10 p-4 rounded text-center" style="border-radius: 16px;">
+                  <i class="bi bi-cart3 text-success display-5 mb-2"></i>
+                  <h6 class="fw-bold mb-2">交易型</h6>
+                  <p class="text-muted small mb-2">用户想购买产品或服务</p>
+                  <code class="d-block text-muted small">"购买GEO优化服务"</code>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="bg-warning bg-opacity-10 p-4 rounded text-center" style="border-radius: 16px;">
+                  <i class="bi bi-geo-alt text-warning display-5 mb-2"></i>
+                  <h6 class="fw-bold mb-2">导航型</h6>
+                  <p class="text-muted small mb-2">用户想访问特定网站</p>
+                  <code class="d-block text-muted small">"CGEO知识库官网"</code>
+                </div>
+              </div>
+            </div>
+
+            <h4 class="fw-bold mb-3" style="color: #2d3748;">🔍 AI时代用户意图的变化</h4>
+            <div class="bg-light p-4 rounded mb-4" style="border-radius: 16px;">
+              <ul class="mb-0">
+                <li class="text-muted small mb-3">
+                  <strong>更复杂的查询</strong> - 用户使用更自然、更复杂的语言表达需求
+                </li>
+                <li class="text-muted small mb-3">
+                  <strong>多轮对话</strong> - 用户通过与AI的对话逐步明确需求
+                </li>
+                <li class="text-muted small mb-3">
+                  <strong>个性化推荐</strong> - AI根据用户历史提供个性化建议
+                </li>
+                <li class="text-muted small">
+                  <strong>决策支持</strong> - 用户寻求AI帮助做决策，而不仅仅是信息
+                </li>
+              </ul>
+            </div>
+
+            <h4 class="fw-bold mb-3" style="color: #2d3748;">💡 如何满足用户意图？</h4>
+            <div class="row g-4 mb-4">
+              <div class="col-md-6">
+                <div class="bg-danger bg-opacity-10 p-4 rounded" style="border-radius: 16px;">
+                  <h6 class="fw-bold mb-2"><i class="bi bi-list-check me-2"></i>内容匹配意图</h6>
+                  <ul class="mb-0 ps-3">
+                    <li class="text-muted small mb-1">针对不同意图创建不同类型的内容</li>
+                    <li class="text-muted small mb-1">信息型：详细指南、教程</li>
+                    <li class="text-muted small">交易型：产品页面、案例研究</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="bg-danger bg-opacity-10 p-4 rounded" style="border-radius: 16px;">
+                  <h6 class="fw-bold mb-2"><i class="bi bi-chat-text me-2"></i>对话式体验</h6>
+                  <ul class="mb-0 ps-3">
+                    <li class="text-muted small mb-1">设计便于AI理解和引用的内容结构</li>
+                    <li class="text-muted small mb-1">提供清晰的答案和解决方案</li>
+                    <li class="text-muted small">考虑后续追问的可能性</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="alert alert-info" style="border-radius: 12px; border: none;">
+              <i class="bi bi-lightbulb me-2"></i>
+              <strong>核心原则：</strong>不是猜测用户搜什么，而是理解用户想解决什么问题，并提供完整的解决方案。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="section-4-4" class="course-section mb-5">
+        <div class="card shadow mb-4" style="border-radius: 24px; border: none;">
+          <div class="card-body p-5">
+            <div class="d-flex align-items-center gap-3 mb-4">
+              <span class="badge bg-danger fs-5" style="padding: 12px 20px; border-radius: 12px;">4.4</span>
+              <h2 class="fw-bold mb-0" style="color: #2d3748;">监测分析</h2>
+            </div>
+            
+            <div class="bg-light p-4 rounded mb-4">
+              <p class="mb-0 text-muted">
+                <i class="bi bi-clock me-2"></i>预计阅读时间：<strong>15分钟</strong>
+              </p>
+            </div>
+
+            <h4 class="fw-bold mb-3" style="color: #2d3748;">📊 GEO监测指标</h4>
+            <div class="row g-4 mb-4">
+              <div class="col-md-6">
+                <div class="bg-danger bg-opacity-10 p-4 rounded" style="border-radius: 16px;">
+                  <h6 class="fw-bold mb-2"><i class="bi bi-chat-quote me-2"></i>引用频率</h6>
+                  <p class="text-muted small mb-0">品牌在AI回答中被引用的次数和频率</p>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="bg-danger bg-opacity-10 p-4 rounded" style="border-radius: 16px;">
+                  <h6 class="fw-bold mb-2"><i class="bi bi-link-45deg me-2"></i>品牌提及</h6>
+                  <p class="text-muted small mb-0">AI在回答中提到品牌或产品的次数</p>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="bg-danger bg-opacity-10 p-4 rounded" style="border-radius: 16px;">
+                  <h6 class="fw-bold mb-2"><i class="bi bi-emoji-smile me-2"></i>情感倾向</h6>
+                  <p class="text-muted small mb-0">AI提及品牌时的情感倾向（正面/负面）</p>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="bg-danger bg-opacity-10 p-4 rounded" style="border-radius: 16px;">
+                  <h6 class="fw-bold mb-2"><i class="bi bi-trophy me-2"></i>权威性得分</h6>
+                  <p class="text-muted small mb-0">品牌在AI心中的权威性和可信度评分</p>
+                </div>
+              </div>
+            </div>
+
+            <h4 class="fw-bold mb-3" style="color: #2d3748;">🔧 监测工具和方法</h4>
+            <div class="bg-light p-4 rounded mb-4" style="border-radius: 16px;">
+              <ul class="mb-0">
+                <li class="text-muted small mb-3">
+                  <strong>AI搜索测试</strong> - 定期在ChatGPT、Claude等平台测试品牌相关查询
+                </li>
+                <li class="text-muted small mb-3">
+                  <strong>竞品对比</strong> - 监测竞争对手在AI搜索中的表现
+                </li>
+                <li class="text-muted small mb-3">
+                  <strong>流量分析</strong> - 使用GA等工具分析来自AI推荐站点的流量
+                </li>
+                <li class="text-muted small mb-3">
+                  <strong>舆情监测</strong> - 监测社交媒体和论坛中关于品牌的讨论
+                </li>
+                <li class="text-muted small">
+                  <strong>自动化工具</strong> - 使用第三方GEO监测工具（如Ahrefs、Semrush等）
+                </li>
+              </ul>
+            </div>
+
+            <h4 class="fw-bold mb-3" style="color: #2d3748;">📈 持续优化</h4>
+            <div class="row g-4 mb-4">
+              <div class="col-md-4">
+                <div class="bg-success bg-opacity-10 p-4 rounded text-center" style="border-radius: 16px;">
+                  <i class="bi bi-1-circle text-success display-5 mb-2"></i>
+                  <h6 class="fw-bold mb-2">定期监测</h6>
+                  <p class="text-muted small mb-0">建立定期监测机制，及时发现问题</p>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="bg-success bg-opacity-10 p-4 rounded text-center" style="border-radius: 16px;">
+                  <i class="bi bi-2-circle text-success display-5 mb-2"></i>
+                  <h6 class="fw-bold mb-2">数据分析</h6>
+                  <p class="text-muted small mb-0">深入分析数据，找出改进方向</p>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="bg-success bg-opacity-10 p-4 rounded text-center" style="border-radius: 16px;">
+                  <i class="bi bi-3-circle text-success display-5 mb-2"></i>
+                  <h6 class="fw-bold mb-2">快速迭代</h6>
+                  <p class="text-muted small mb-0">根据数据反馈快速调整策略</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="alert alert-success" style="border-radius: 12px; border: none;">
+              <i class="bi bi-lightbulb me-2"></i>
+              <strong>成功要素：</strong>GEO是一个持续的过程，需要不断监测、分析和优化。
+            </div>
+
+            <div class="card shadow mt-5" style="border-radius: 24px; border: none; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+              <div class="card-body p-5 text-white text-center">
+                <h2 class="fw-bold mb-3" style="font-size: 2rem;">
+                  🎉 恭喜你完成了CGEO知识库的所有课程！
+                </h2>
+                <p class="mb-4" style="font-size: 1.1rem; opacity: 0.95;">
+                  你已经掌握了GEO的核心概念、优化技巧和实战方法。
+                  现在开始应用这些知识，提升品牌在AI搜索中的曝光度吧！
+                </p>
+                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                  <a href="#" class="btn btn-lg text-white fw-bold" style="background: rgba(255,255,255,0.2); border-radius: 16px; padding: 12px 32px; backdrop-filter: blur(10px);">
+                    <i class="bi bi-download me-2"></i>下载课程资料
+                  </a>
+                  <a href="#" class="btn btn-lg text-white fw-bold" style="background: rgba(255,255,255,0.2); border-radius: 16px; padding: 12px 32px; backdrop-filter: blur(10px);">
+                    <i class="bi bi-chat-dots me-2"></i>加入讨论群
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <hr class="my-5">
+
+      <div class="card shadow mb-4" style="border-radius: 24px; border: none;">
+        <div class="card-body p-4">
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex gap-3">
+              <a href="#" class="btn btn-outline-secondary" style="border-radius: 12px; padding: 10px 24px;" disabled>
+                <i class="bi bi-arrow-left me-2"></i>上一页
+              </a>
+              <a href="#section-1-1" class="btn btn-primary" style="border-radius: 12px; padding: 10px 24px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                下一课：1.1 什么是GEO<i class="bi bi-arrow-right ms-2"></i>
+              </a>
+            </div>
+            <div class="text-muted small">
+              <i class="bi bi-pencil me-1"></i>
+              最后更新于2026年2月13日
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
+
+<style>
+.course-section {
+  scroll-margin-top: 20px;
+}
+
+.course-section .card {
+  transition: all 0.3s ease;
+}
+
+.course-section .card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15) !important;
+}
+
+.nav-pills .nav-link {
+  color: #2d3748;
+  border: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
+}
+
+.nav-pills .nav-link:hover {
+  background-color: rgba(102, 126, 234, 0.1);
+  color: #667eea;
+}
+
+.nav-pills .nav-link.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: transparent;
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(102, 126, 234, 0.05);
+}
+
+.btn-primary {
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+pre {
+  border-radius: 12px;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const navLinks = document.querySelectorAll('.nav-pills .nav-link');
+  const sections = document.querySelectorAll('.course-section');
+  const progressBar = document.getElementById('progress-bar');
+  const progressText = document.getElementById('progress-text');
+  const progressPercent = document.getElementById('progress-percent');
+  const totalSections = sections.length;
+
+  function updateProgress() {
+    let completedSections = 0;
+    
+    sections.forEach(section => {
+      const rect = section.getBoundingClientRect();
+      const isVisible = rect.top < window.innerHeight * 0.7 && rect.bottom > 0;
+      
+      if (isVisible) {
+        completedSections++;
+      }
+    });
+
+    const percent = Math.round((completedSections / totalSections) * 100);
+    progressBar.style.width = percent + '%';
+    progressText.textContent = `${completedSections}/${totalSections} 章节`;
+    progressPercent.textContent = percent + '%';
+  }
+
+  function updateActiveLink() {
+    let currentSection = '';
+    
+    sections.forEach(section => {
+      const sectionTop = section.offsetTop;
+      const sectionHeight = section.offsetHeight;
+      
+      if (window.scrollY >= sectionTop - 200) {
+        currentSection = section.getAttribute('id');
+      }
+    });
+
+    navLinks.forEach(link => {
+      link.classList.remove('active');
+      const href = link.getAttribute('href');
+      if (href === '#' + currentSection) {
+        link.classList.add('active');
+      }
+    });
+  }
+
+  navLinks.forEach(link => {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      const targetId = this.getAttribute('href');
+      const targetSection = document.querySelector(targetId);
+      
+      if (targetSection) {
+        const offsetTop = targetSection.offsetTop - 20;
+        window.scrollTo({
+          top: offsetTop,
+          behavior: 'smooth'
+        });
+      }
+    });
+  });
+
+  window.addEventListener('scroll', function() {
+    updateProgress();
+    updateActiveLink();
+  });
+
+  updateProgress();
+  updateActiveLink();
+});
+</script>
 {% endblock %}

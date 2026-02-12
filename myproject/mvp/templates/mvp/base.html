@@ -195,35 +195,18 @@
   } catch (error) {
     console.log('检查服务器登录状态失败:', error);
   }
-}
-    function handleLanguageSwitch() {
-    const langSwitch = document.getElementById('lang-switch-checkbox');
-    if (langSwitch) {
-        langSwitch.addEventListener('change', function() {
-            const iframe = document.querySelector('iframe');
-            if (iframe && iframe.contentWindow) {
-                iframe.contentWindow.postMessage({
-                    type: 'language-change',
-                    lang: this.checked ? 'en' : 'zh'
-                }, '*');
-            }
-        });
-    }
-}
+ }
     window.addEventListener('DOMContentLoaded', function() {
   // 1. 检查 URL 参数（登录/注册成功）
   checkUrlParams();
-  
-  // 2. 处理语言切换
-  handleLanguageSwitch();
-  
-  // 3. 立即检查服务器状态
+
+  // 2. 立即检查服务器状态
   checkServerAuthStatus();
-  
-  // 4. 每 15 秒检查一次（缩短间隔）
+
+  // 3. 每 15 秒检查一次（缩短间隔）
   setInterval(checkServerAuthStatus, 15000);
-  
-  // 5. 处理"我已知晓并愿意"按钮
+
+  // 4. 处理"我已知晓并愿意"按钮
   const btnAgree = document.getElementById('btn-agree');
   if (btnAgree) {
     if (localStorage.getItem('userAgreed')) {
@@ -247,5 +230,7 @@
       <button class="toast-close" onclick="hideToast()">✕</button>
     </div>
   </div>
+
+  <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
 </body>
 </html>

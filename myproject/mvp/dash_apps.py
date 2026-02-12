@@ -280,7 +280,27 @@ app.layout = html.Div([
         'keyword': '',
         'link': '',
     }),
-   
+
+    # 浮动翻译按钮
+    html.Div([
+        dbc.Checklist(
+            id="lang-switch-visible",
+            options=[{"label": "EN", "value": "en"}],
+            value=[],
+            switch=True,
+            inline=True,
+            style={"cursor": "pointer"}
+        )
+    ], id="lang-switch-container", style={
+        "position": "fixed",
+        "top": "15px",
+        "right": "20px",
+        "zIndex": "1000",
+        "background": "rgba(255, 255, 255, 0.95)",
+        "padding": "10px 15px",
+        "borderRadius": "25px",
+        "boxShadow": "0 2px 10px rgba(0, 0, 0, 0.15)"
+    }),
 
     # === C. 主要内容区域 ===
     html.Div(id="page-content", children=[]),
@@ -636,9 +656,6 @@ width=12, lg=4, className="mb-4"),
         size="md"
     ),
 
-    # 语言切换隐藏按钮（用于接收 iframe 消息）
-    html.Button(id='btn-lang-switch', style={'display': 'none'}),
-
     # 点击标识（用于识别点击的卡片）
     html.Div(id="kpi-click-trigger", style={'display': 'none'}),
 
@@ -758,20 +775,6 @@ width=12, lg=4, className="mb-4"),
                  });
           }
       })();
-    """),
-
-    # iframe 通信：监听父页面语言切换消息
-    html.Script("""
-        (function() {
-            window.addEventListener('message', function(event) {
-                if (event.data && event.data.type === 'language-change') {
-                    const langSwitchBtn = document.getElementById('btn-lang-switch');
-                    if (langSwitchBtn) {
-                        langSwitchBtn.click();
-                    }
-                }
-            });
-        })();
     """),
 
     dcc.Download(id="download-report-csv"),
@@ -988,20 +991,20 @@ def export_csv(n_clicks, search_brand, search_keyword,search_link):
      Output('title-pie', 'children'),
      Output('title-rank', 'children'),
      Output('lang-store', 'data')],
-    Input('lang-store', 'data'),
-    Input('btn-lang-switch', 'n_clicks'),
-    State('lang-store', 'data'),
-    prevent_initial_call=False
+     Input('lang-store', 'data'),
+     Input('lang-switch-visible', 'value'),
+     State('lang-store', 'data'),
+     prevent_initial_call=False
 )
-def update_language(lang, n_clicks, current_lang):
+def update_language(lang, switch_value, current_lang):
     ctx = dash.callback_context
-    
+
     # 判断触发源
     if ctx.triggered:
         trigger_id = ctx.triggered[0]['prop_id'].split('.')[0]
-        
-        # 如果是按钮点击，切换语言
-        if trigger_id == 'btn-lang-switch':
+
+        # 如果是开关切换，切换语言
+        if trigger_id == 'lang-switch-visible':
             if not current_lang:
                 current_lang = 'zh'
             lang = 'en' if current_lang == 'zh' else 'zh'
@@ -1011,9 +1014,9 @@ def update_language(lang, n_clicks, current_lang):
                 lang = 'zh'
     else:
         lang = 'zh'
-    
+
     t = TRANSLATIONS.get(lang, TRANSLATIONS['zh'])
-    
+
     return (
         t['lbl_brand'], t['ph_brand'],
         t['lbl_kw'], t['ph_kw'],

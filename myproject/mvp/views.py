@@ -41,8 +41,36 @@ def login_required_new_tab(function=None, redirect_field_name=REDIRECT_FIELD_NAM
             login_url_with_next = f"{resolved_login_url}?{urlencode(query_params)}"
             
             # 返回一个包含JavaScript的响应，在新标签页中打开登录页面并监听登录状态
-            with open('/var/www/myproject/mvp/listening.html', encoding='utf-8') as f:
-                html = f.read()
+            
+            html = f'''<!DOCTYPE html>
+            <html>
+            <head>
+                <title>Redirecting to Login</title>
+            </head>
+            <body>
+                <script>
+                    // 打开登录页面
+                    var loginWindow = window.open('{login_url_with_next}', '_blank');
+                    // 定期检查登录窗口是否关闭
+                    var checkInterval = setInterval(function() {{
+                        if (loginWindow.closed) {{
+                            clearInterval(checkInterval);
+                            // 检查用户是否已登录
+                            fetch('accounts/api/auth_check/')
+                                .then(response => response.json())
+                                .then(data => {{
+                                    if (data.authenticated) {{
+                                        window.location.reload();
+                                    }}
+                                }})
+                                .catch(error => {{
+                                    console.error('Error checking auth status:', error);
+                                }});
+                        }}
+                    }}, 1000);
+                </script>
+            </body>
+            </html>'''
             return HttpResponse(html)
         return _wrapper_view
     if function:

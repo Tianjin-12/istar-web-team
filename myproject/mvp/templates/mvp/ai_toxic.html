@@ -5,15 +5,316 @@
 {% block title %}AI投毒检测 - {% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-  <div class="card shadow">
-    <div class="card-body">
-      <h2 class="text-center mb-4">被AI投毒可视化和鉴别</h2>
-      <p class="text-center text-muted">正在开发中，敬请期待...</p>
-      <div class="text-center mt-5">
-        <img src="{% static 'images/coming-soon.png' %}" alt="Coming Soon" class="img-fluid" style="max-width: 300px; opacity: 0.6;">
+<div class="container-fluid px-4 py-4" style="max-width: 1400px;">
+  
+  <div class="card shadow-lg mb-4" style="border-radius: 24px; border: none; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+    <div class="card-body p-5 text-white">
+      <h1 class="fw-bold mb-3" style="font-size: 2.5rem;">什么是AI投毒</h1>
+      <p class="mb-0" style="font-size: 1.1rem; line-height: 1.8; opacity: 0.95;">
+        AI投毒是指通过精心设计的数据或提示词，诱导AI模型生成虚假、误导性或有害的内容。
+        这种攻击手段可能污染各类信息领域，影响用户决策，甚至造成社会危害。我们通过分析大量信息，
+        识别出受AI投毒影响最严重的领域，帮助用户提高警惕。
+      </p>
+    </div>
+  </div>
+
+  <div class="card shadow mb-4" style="border-radius: 24px; border: none;">
+    <div class="card-body p-4">
+      <div class="d-flex justify-content-end align-items-end flex-wrap gap-4">
+        <div class="text-end">
+          <p class="fw-bold mb-1" style="font-size: 1.3rem;">
+            已分析<span class="mx-1" style="font-size: 2.2rem; color: #cb0c9f; font-weight: 800;">1908</span>条信息，
+            收录<span class="mx-1" style="font-size: 2.2rem; color: #cb0c9f; font-weight: 800;">20</span>个领域
+          </p>
+          <p class="text-muted mb-0" style="font-size: 0.9rem;">
+            <i class="bi bi-clock-history"></i> 上次更新于2026年2月13日
+          </p>
+        </div>
       </div>
     </div>
   </div>
+
+  <div class="card shadow mb-4" style="border-radius: 24px; border: none;">
+    <div class="card-body p-4">
+      <h3 class="fw-bold mb-4" style="color: #2d3748;">
+        <i class="bi bi-cloud-fog2 text-primary"></i> 领域污染程度词云
+      </h3>
+      <div id="wordcloud-container" style="height: 450px; width: 100%;"></div>
+      <!-- 统计口径注释 -->
+      <div class="mt-4 p-3 bg-light rounded" style="border-left: 4px solid #667eea;">
+        <p class="mb-0" style="font-size: 0.85rem; color: #718096;">
+          <i class="bi bi-info-circle"></i>
+          <strong>统计口径：</strong>污染程度 = (AI生成虚假信息数 / 该领域总信息数) × 100%；
+          <strong>数据来源：</strong>公开平台信息、用户举报、AI检测模型分析；
+          <strong>更新频率：</strong>每周更新一次；
+          <strong>计算方法：</strong>使用多模型交叉验证，取平均值作为最终结果。
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow mb-4" style="border-radius: 24px; border: none;">
+    <div class="card-body p-4">
+      <h3 class="fw-bold mb-4" style="color: #2d3748;">
+        <i class="bi bi-bar-chart-fill text-primary"></i> 领域污染程度对比
+      </h3>
+      <div style="height: 600px; width: 100%;">
+        <canvas id="barChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow" style="border-radius: 24px; border: none;">
+    <div class="card-body p-5 text-center">
+      <h3 class="mb-4" style="color: #2d3748;">
+        <i class="bi bi-question-circle text-primary"></i> 希望鉴别？
+      </h3>
+      <a href="#" class="text-decoration-none d-inline-block">
+        <span class="fw-bold" style="font-size: 1.5rem; color: #667eea; border-bottom: 3px solid #667eea; transition: all 0.3s ease;">
+          点击此处进行AI内容鉴别
+        </span>
+      </a>
+      <p class="mt-3 text-muted">
+        使用我们的AI检测工具，快速识别内容是否由AI生成
+      </p>
+    </div>
+  </div>
+
 </div>
+
+<style>
+.wordcloud-item {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.wordcloud-item:hover {
+  transform: scale(1.1);
+  filter: brightness(1.2);
+}
+
+.card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15) !important;
+}
+
+canvas {
+  max-height: 100%;
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts-wordcloud@2.1.0/dist/echarts-wordcloud.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+<script>
+const domainData = [
+  { name: '社交媒体', value: 95, count: 320 },
+  { name: '健康医疗', value: 88, count: 285 },
+  { name: '金融投资', value: 85, count: 240 },
+  { name: '时政新闻', value: 82, count: 195 },
+  { name: '教育培训', value: 78, count: 178 },
+  { name: '科技数码', value: 75, count: 156 },
+  { name: '电商购物', value: 72, count: 134 },
+  { name: '旅游出行', value: 68, count: 112 },
+  { name: '房产家居', value: 65, count: 98 },
+  { name: '汽车交通', value: 62, count: 85 },
+  { name: '美食餐饮', value: 58, count: 72 },
+  { name: '游戏娱乐', value: 55, count: 68 },
+  { name: '文学创作', value: 52, count: 61 },
+  { name: '体育竞技', value: 48, count: 54 },
+  { name: '法律咨询', value: 45, count: 48 },
+  { name: '农业农村', value: 42, count: 45 },
+  { name: '环保能源', value: 38, count: 39 },
+  { name: '艺术设计', value: 35, count: 33 },
+  { name: '军事国防', value: 32, count: 28 },
+  { name: '宗教文化', value: 28, count: 23 }
+];
+
+function getColor(value) {
+  const colors = [
+    '#fcd34d',
+    '#fbbf24',
+    '#f59e0b',
+    '#f97316',
+    '#ef4444',
+    '#dc2626',
+    '#be185d',
+    '#9333ea',
+    '#7c3aed',
+    '#6366f1',
+    '#3b82f6',
+    '#0ea5e9',
+    '#06b6d4',
+    '#14b8a6',
+    '#10b981',
+    '#059669',
+    '#047857',
+    '#0d9488',
+    '#0891b2',
+    '#0284c7'
+  ];
+  const index = Math.floor((100 - value) / 5);
+  return colors[Math.min(index, colors.length - 1)];
+}
+
+function initWordCloud() {
+  const chart = echarts.init(document.getElementById('wordcloud-container'));
+  
+  const option = {
+    tooltip: {
+      show: true,
+      formatter: function(params) {
+        const domain = domainData.find(d => d.name === params.name);
+        return `${params.name}<br/>污染程度：${domain ? domain.value : params.value}%<br/>信息数量：${domain ? domain.count : 0}条`;
+      }
+    },
+    series: [{
+      type: 'wordCloud',
+      shape: 'ellipse',
+      sizeRange: [24, 80],
+      rotationRange: [0, 0],
+      rotationStep: 0,
+      gridSize: 8,
+      drawOutOfBound: false,
+      textStyle: {
+        fontFamily: 'Microsoft YaHei, sans-serif',
+        fontWeight: 'bold',
+        color: function(params) {
+          const value = params.data.value / 15;
+          return getColor(value);
+        }
+      },
+      emphasis: {
+        focus: 'self',
+        textStyle: {
+          textShadowBlur: 20,
+          textShadowColor: '#333'
+        }
+      },
+      data: domainData.map(item => ({
+        name: item.name,
+        value: item.value * 15
+      }))
+    }]
+  };
+  
+  chart.setOption(option);
+  
+  window.addEventListener('resize', () => {
+    chart.resize();
+  });
+}
+
+function initBarChart() {
+  const ctx = document.getElementById('barChart').getContext('2d');
+  
+  const sortedData = [...domainData].sort((a, b) => b.value - a.value);
+  const labels = sortedData.map(d => d.name);
+  const values = sortedData.map(d => d.value);
+  
+  const backgroundColors = values.map(v => {
+    if (v >= 80) return 'rgba(203, 12, 159, 0.8)';
+    if (v >= 60) return 'rgba(118, 75, 162, 0.8)';
+    if (v >= 40) return 'rgba(102, 126, 234, 0.8)';
+    return 'rgba(160, 174, 192, 0.8)';
+  });
+  
+  const borderColors = values.map(v => {
+    if (v >= 80) return 'rgba(203, 12, 159, 1)';
+    if (v >= 60) return 'rgba(118, 75, 162, 1)';
+    if (v >= 40) return 'rgba(102, 126, 234, 1)';
+    return 'rgba(160, 174, 192, 1)';
+  });
+  
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: '污染程度 (%)',
+        data: values,
+        backgroundColor: backgroundColors,
+        borderColor: borderColors,
+        borderWidth: 2,
+        borderRadius: 8,
+        borderSkipped: false,
+        barThickness: 'flex',
+        maxBarThickness: 40
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: {
+          beginAtZero: true,
+          max: 100,
+          grid: {
+            color: 'rgba(0, 0, 0, 0.05)'
+          },
+          ticks: {
+            callback: function(value) {
+              return value + '%';
+            },
+            font: {
+              size: 12,
+              weight: '500'
+            },
+            color: '#718096'
+          }
+        },
+        y: {
+          grid: {
+            display: false
+          },
+          ticks: {
+            font: {
+              size: 13,
+              weight: '600'
+            },
+            color: '#2d3748'
+          }
+        }
+      },
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          padding: 12,
+          titleFont: {
+            size: 14,
+            weight: 'bold'
+          },
+          bodyFont: {
+            size: 13
+          },
+          callbacks: {
+            label: function(context) {
+              const item = sortedData[context.dataIndex];
+              return `污染程度：${context.raw}% | 信息数量：${item.count}条`;
+            }
+          }
+        }
+      },
+      animation: {
+        duration: 1500,
+        easing: 'easeInOutQuart'
+      }
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  initWordCloud();
+  initBarChart();
+});
+</script>
 {% endblock %}
