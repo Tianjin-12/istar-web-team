@@ -330,13 +330,13 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-light">
         <div class="container">
-            <a class="navbar-brand" href="{% url 'mvp:order_list' %}">
+            <a class="navbar-brand" href="{% url 'order_list' %}">
                 <i class="bi bi-graph-up"></i> AI 可见度评估系统
             </a>
             <div class="navbar-nav ms-auto">
-                <a class="nav-link" href="{% url 'mvp:dashboard' %}">仪表盘</a>
-                <a class="nav-link" href="{% url 'mvp:order_list' %}">订单列表</a>
-                <a class="nav-link" href="{% url 'mvp:create_order' %}">创建订单</a>
+                <a class="nav-link" href="{% url 'dashboard' %}">仪表盘</a>
+                <a class="nav-link" href="{% url 'order_list' %}">订单列表</a>
+                <a class="nav-link" href="{% url 'create_order' %}">创建订单</a>
             </div>
         </div>
     </nav>
@@ -345,7 +345,7 @@
         <div class="page-header">
             <h1><i class="bi bi-list-ul"></i> 订单列表</h1>
             <div class="actions">
-                <a href="{% url 'mvp:create_order' %}" class="btn btn-primary">
+                <a href="{% url 'create_order' %}" class="btn btn-primary">
                     <i class="bi bi-plus-circle"></i> 创建新订单
                 </a>
                 <button id="refreshBtn" class="btn btn-outline-secondary">
@@ -395,7 +395,7 @@
                     <i class="bi bi-inbox"></i>
                     <h3>暂无订单</h3>
                     <p>您还没有创建任何订单，快去创建第一个吧！</p>
-                    <a href="{% url 'mvp:create_order' %}" class="btn btn-primary">
+                    <a href="{% url 'create_order' %}" class="btn btn-primary">
                         <i class="bi bi-plus-circle"></i> 创建第一个订单
                     </a>
                 </div>

@@ -335,7 +335,7 @@
                         <button type="submit" class="btn btn-primary" id="submitBtn">
                             <i class="bi bi-check-circle"></i> 创建订单
                         </button>
-                        <a href="{% url 'mvp:order_list' %}" class="btn btn-secondary">
+                        <a href="{% url 'order_list' %}" class="btn btn-secondary">
                             <i class="bi bi-list"></i> 查看订单
                         </a>
                     </div>
@@ -407,7 +407,7 @@
             submitBtn.innerHTML = '<span class="loading-spinner"></span>提交中...';
 
             try {
-                const response = await fetch('{% url "mvp:create_order" %}', {
+                const response = await fetch('{% url "create_order" %}', {
                     method: 'POST',
                     headers: {
                         'X-CSRFToken': getCookie('csrftoken')
@@ -420,7 +420,7 @@
                 if (data.success) {
                     showToast(data.message, 'success');
                     setTimeout(() => {
-                        window.location.href = '{% url "mvp:order_list" %}';
+                        window.location.href = '{% url "order_list" %}';
                     }, 1000);
                 } else {
                     showToast(data.message, 'error');

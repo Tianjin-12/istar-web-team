@@ -31,7 +31,7 @@ body {
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
 }
 .navbar-logo {
-    mix-blend-mode: multiply; 
+    mix-blend-mode: multiply;
     object-fit: contain;
     height: 40px; /* 稍微调小一点适配导航 */
 }
@@ -85,18 +85,134 @@ body {
     color: #2d3748;
 }
 
-/* 排行榜 */
+/* --- 5. KPI 卡片计数动画 --- */
+@keyframes countUp {
+    0% { opacity: 0; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1.05); }
+    100% { opacity: 1; transform: scale(1); }
+}
+.metric-value {
+    animation: countUp 0.5s ease-out;
+}
+
+/* --- 7. 趋势指示器样式 --- */
+.trend-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+.trend-indicator-up {
+    background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+    color: #059669;
+}
+.trend-indicator-down {
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    color: #dc2626;
+}
+.trend-indicator i {
+    font-size: 0.9rem;
+}
+
+/* --- 8. 新手引导 Modal 样式 --- */
+#guide-modal .modal-dialog {
+    max-width: 600px;
+}
+#guide-modal .modal-header {
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 1rem;
+}
+#guide-modal .badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    min-height: 32px;
+}
+#guide-modal .modal-footer {
+    border-top: 2px solid #f0f0f0;
+    padding-top: 1rem;
+}
+
+/* --- 9. 排行榜优化 --- */
 .ranking-item {
-    padding: 15px 0;
+    padding: 12px 0;
     border-bottom: 1px solid #edf2f7;
+    transition: all 0.2s ease;
+}
+.ranking-item:hover {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding-left: 8px;
+    padding-right: 8px;
+}
+.ranking-item:last-child {
+    border-bottom: none;
 }
 .rank-circle {
-    width: 32px; height: 32px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    color: #fff; font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
-.rank-1 { background: linear-gradient(135deg, #FFD700 0%, #FDB931 100%); }
-.rank-2 { background: linear-gradient(135deg, #E0E0E0 0%, #BDBDBD 100%); }
-.rank-3 { background: linear-gradient(135deg, #B08D55 0%, #8C7853 100%); }
+.rank-1 { background: linear-gradient(135deg, #FFD700 0%, #FDB931 100%); color: #fff; }
+.rank-2 { background: linear-gradient(135deg, #E0E0E0 0%, #BDBDBD 100%); color: #333; }
+.rank-3 { background: linear-gradient(135deg, #CD7F32 0%, #8B4513 100%); color: #fff; }
 .rank-other { background: #E2E8F0; color: #718096; }
+
+/* --- 10. 搜索控制台图标样式 --- */
+.input-group-text {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-color: #e2e8f0;
+    color: #667eea;
+    font-size: 1.1rem;
+}
+.input-group-text i {
+    font-size: 1rem;
+}
+.form-control-premium {
+    border-color: #e2e8f0;
+    transition: all 0.3s ease;
+}
+.form-control-premium:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+.input-group:focus-within .input-group-text {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
+}
+.input-group:focus-within .form-control-premium {
+    border-color: #667eea;
+}
+
+/* --- 11. 卡片延迟动画 --- */
+.delay-1 { animation-delay: 0.1s; }
+.delay-2 { animation-delay: 0.2s; }
+.delay-3 { animation-delay: 0.3s; }
+
+/* --- 12. 响应式优化 --- */
+@media (max-width: 991px) {
+    .metric-value {
+        font-size: 2rem;
+    }
+    .ranking-item {
+        padding: 10px 0;
+    }
+}
+@media (max-width: 767px) {
+    .metric-value {
+        font-size: 1.8rem;
+    }
+    #guide-modal .modal-dialog {
+        margin: 10px;
+    }
+}

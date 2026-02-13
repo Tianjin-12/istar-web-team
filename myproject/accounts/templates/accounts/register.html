@@ -92,6 +92,12 @@
       box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
     }
 
+    .form-control:disabled {
+      background: #e9ecef;
+      color: #6c757d;
+      cursor: not-allowed;
+    }
+
     .btn {
       width: 100%;
       padding: 1rem;
@@ -119,65 +125,143 @@
       transform: translateY(0);
     }
 
-    .register-link {
+    .btn-outline {
+      background: transparent;
+      color: #667eea;
+      border: 2px solid #667eea;
+    }
+
+    .btn-outline:hover:not(:disabled) {
+      background: #667eea;
+      color: white;
+    }
+
+    .btn-outline:disabled {
+      border-color: #ccc;
+      color: #999;
+      cursor: not-allowed;
+    }
+
+    .form-footer {
       text-align: center;
       margin-top: 1.5rem;
       color: #666;
+      font-size: 0.95rem;
     }
 
-    .register-link a {
+    .form-footer a {
       color: #667eea;
       text-decoration: none;
       font-weight: 600;
       transition: color 0.3s ease;
     }
 
-    .register-link a:hover {
+    .form-footer a:hover {
       color: #764ba2;
     }
 
-    .alert {
-      padding: 0.875rem 1.125rem;
-      margin-bottom: 1.25rem;
+    /* Modal 样式 */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(5px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal {
+      background: white;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 420px;
+      animation: modalSlideIn 0.3s ease-out;
+    }
+
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: scale(0.9) translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    .modal-body {
+      padding: 2.5rem 2rem;
+      text-align: center;
+    }
+
+    .modal-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .modal-title {
+      color: #333;
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .modal-message {
+      color: #666;
+      font-size: 0.95rem;
+    }
+
+    .modal-btn {
+      padding: 0.75rem 2rem;
+      border: none;
       border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 1.5rem;
+    }
+
+    .modal-btn-confirm {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .modal-btn-confirm:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .code-group {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .code-group .form-control {
+      flex: 1;
+    }
+
+    .code-group .btn {
+      width: auto;
+      padding: 0.875rem 1.125rem;
       font-size: 0.9rem;
-      animation: shake 0.5s ease-in-out;
-    }
-
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-10px); }
-      75% { transform: translateX(10px); }
-    }
-
-    .alert-success {
-      background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
-      color: #155724;
-      border: 1px solid #c3e6cb;
-    }
-
-    .alert-danger {
-      background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
-      color: #721c24;
-      border: 1px solid #f5c6cb;
+      margin-top: 0;
     }
 
     .help-text {
       font-size: 0.8rem;
       color: #6c757d;
       margin-top: 0.4rem;
-    }
-
-    .error-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-
-    .error-list li {
-      color: #721c24;
-      font-size: 0.85rem;
-      margin-bottom: 0.4rem;
     }
 
     .terms-agree {
@@ -195,6 +279,14 @@
       .register-header h1 {
         font-size: 1.75rem;
       }
+
+      .code-group {
+        flex-direction: column;
+      }
+
+      .code-group .btn {
+        width: 100%;
+      }
     }
   </style>
 </head>
@@ -205,62 +297,231 @@
       <p>注册以开始使用 AI 可见度评估系统</p>
     </div>
 
-    {% if messages %}
-      {% for message in messages %}
-        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-      {% endfor %}
-    {% endif %}
-
-    <form method="post" action="{% url 'accounts:register' %}">
-      {% csrf_token %}
+    <form id="registerForm">
       <div class="form-group">
-        <label for="{{ form.username.id_for_label }}" class="form-label">{{ form.username.label }}</label>
-        {{ form.username }}
-        {% if form.username.help_text %}
-          <div class="help-text">{{ form.username.help_text }}</div>
-        {% endif %}
-        {% for error in form.username.errors %}
-          <div class="alert alert-danger">{{ error }}</div>
-        {% endfor %}
+        <label for="username" class="form-label">用户名</label>
+        <input type="text" id="username" class="form-control" placeholder="请输入用户名（2-8个字符）" required>
+        <div class="help-text">用户名长度必须在2-8个字符之间</div>
       </div>
 
       <div class="form-group">
-        <label for="{{ form.email.id_for_label }}" class="form-label">{{ form.email.label }}</label>
-        {{ form.email }}
-        {% if form.email.help_text %}
-          <div class="help-text">{{ form.email.help_text }}</div>
-        {% endif %}
-        {% for error in form.email.errors %}
-          <div class="alert alert-danger">{{ error }}</div>
-        {% endfor %}
+        <label for="email" class="form-label">邮箱地址</label>
+        <input type="email" id="email" class="form-control" placeholder="请输入邮箱地址" required>
+        <div class="help-text">用于接收验证码和重要通知</div>
       </div>
 
       <div class="form-group">
-        <label for="{{ form.password1.id_for_label }}" class="form-label">{{ form.password1.label }}</label>
-        {{ form.password1 }}
-        {% if form.password1.help_text %}
-          <div class="help-text">{{ form.password1.help_text }}</div>
-        {% endif %}
-        {% for error in form.password1.errors %}
-          <div class="alert alert-danger">{{ error }}</div>
-        {% endfor %}
+        <label for="code" class="form-label">验证码</label>
+        <div class="code-group">
+          <input type="text" id="code" class="form-control" placeholder="请输入验证码" required>
+          <button type="button" id="sendCodeBtn" class="btn btn-outline">发送验证码</button>
+        </div>
+        <div class="help-text">验证码10分钟内有效</div>
       </div>
 
       <div class="form-group">
-        <label for="{{ form.password2.id_for_label }}" class="form-label">{{ form.password2.label }}</label>
-        {{ form.password2 }}
-        {% for error in form.password2.errors %}
-          <div class="alert alert-danger">{{ error }}</div>
-        {% endfor %}
+        <label for="password1" class="form-label">密码</label>
+        <input type="password" id="password1" class="form-control" placeholder="请输入密码（至少8位）" required>
+        <div class="help-text">密码长度至少为8个字符</div>
+      </div>
+
+      <div class="form-group">
+        <label for="password2" class="form-label">确认密码</label>
+        <input type="password" id="password2" class="form-control" placeholder="请再次输入密码" required>
       </div>
 
       <button type="submit" class="btn btn-primary">注册</button>
     </form>
 
-    <div class="register-link">
-      已有账户？<a href="{% url 'accounts:login' %}" class="text-decoration-none">立即登录</a>
+    <div class="form-footer">
+      已有账户？<a href="{% url 'accounts:login' %}">立即登录</a>
+    </div>
+
+    <div class="terms-agree">
+      注册即表示您同意我们的服务条款和隐私政策
     </div>
   </div>
+
+  <!-- 提示 Modal -->
+  <div class="modal-overlay" id="alertModal">
+    <div class="modal">
+      <div class="modal-body">
+        <div class="modal-icon" id="alertIcon">ℹ️</div>
+        <h3 class="modal-title" id="alertTitle">提示</h3>
+        <p class="modal-message" id="alertMessage">这是一条提示信息</p>
+        <button type="button" class="modal-btn modal-btn-confirm" id="closeAlertBtn">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Modal 控制
+    const alertModal = document.getElementById('alertModal');
+    const closeAlertBtn = document.getElementById('closeAlertBtn');
+
+    function showModal(modal) {
+      modal.classList.add('active');
+    }
+
+    function hideModal(modal) {
+      modal.classList.remove('active');
+    }
+
+    function showAlert(title, message, type = 'info') {
+      const alertIcon = document.getElementById('alertIcon');
+      const alertTitle = document.getElementById('alertTitle');
+      const alertMessage = document.getElementById('alertMessage');
+
+      alertTitle.textContent = title;
+      alertMessage.textContent = message;
+
+      if (type === 'error') {
+        alertIcon.textContent = '❌';
+      } else if (type === 'success') {
+        alertIcon.textContent = '✅';
+      } else {
+        alertIcon.textContent = 'ℹ️';
+      }
+
+      showModal(alertModal);
+    }
+
+    closeAlertBtn.addEventListener('click', () => hideModal(alertModal));
+
+    alertModal.addEventListener('click', (e) => {
+      if (e.target === alertModal) {
+        hideModal(alertModal);
+      }
+    });
+
+    // 验证码发送
+    const sendCodeBtn = document.getElementById('sendCodeBtn');
+    const emailInput = document.getElementById('email');
+
+    let countdown = 0;
+    let countdownTimer = null;
+
+    async function sendVerificationCode() {
+      const email = emailInput.value.trim();
+
+      if (!email) {
+        showAlert('错误', '请输入邮箱地址', 'error');
+        return;
+      }
+
+      // 验证邮箱格式
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        showAlert('错误', '邮箱格式不正确', 'error');
+        return;
+      }
+
+      try {
+        const response = await fetch('/accounts/send-verification-code/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: `email=${encodeURIComponent(email)}&code_type=register`
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          countdown = 60;
+          sendCodeBtn.disabled = true;
+          sendCodeBtn.textContent = `${countdown}秒后重发`;
+
+          countdownTimer = setInterval(() => {
+            countdown--;
+            if (countdown <= 0) {
+              clearInterval(countdownTimer);
+              sendCodeBtn.disabled = false;
+              sendCodeBtn.textContent = '发送验证码';
+            } else {
+              sendCodeBtn.textContent = `${countdown}秒后重发`;
+            }
+          }, 1000);
+
+          showAlert('成功', '验证码已发送，请查收邮件', 'success');
+        } else {
+          showAlert('错误', data.message || '发送失败，请重试', 'error');
+        }
+      } catch (error) {
+        console.error('发送验证码错误:', error);
+        showAlert('错误', '发送验证码失败，请重试', 'error');
+      }
+    }
+
+    sendCodeBtn.addEventListener('click', sendVerificationCode);
+
+    // 注册表单提交
+    const registerForm = document.getElementById('registerForm');
+
+    registerForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const username = document.getElementById('username').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const code = document.getElementById('code').value.trim();
+      const password1 = document.getElementById('password1').value.trim();
+      const password2 = document.getElementById('password2').value.trim();
+
+      // 验证用户名
+      if (username.length < 2 || username.length > 8) {
+        showAlert('错误', '用户名长度必须在2-8个字符之间', 'error');
+        return;
+      }
+
+      // 验证邮箱
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        showAlert('错误', '邮箱格式不正确', 'error');
+        return;
+      }
+
+      // 验证验证码
+      if (!code) {
+        showAlert('错误', '请输入验证码', 'error');
+        return;
+      }
+
+      // 验证密码
+      if (password1.length < 8) {
+        showAlert('错误', '密码长度至少为8个字符', 'error');
+        return;
+      }
+
+      if (password1 !== password2) {
+        showAlert('错误', '两次输入的密码不一致', 'error');
+        return;
+      }
+
+      // 提交注册
+      try {
+        const response = await fetch('/accounts/register-with-code/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: `username=${encodeURIComponent(username)}&email=${encodeURIComponent(email)}&code=${encodeURIComponent(code)}&password1=${encodeURIComponent(password1)}&password2=${encodeURIComponent(password2)}`
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          showAlert('成功', '注册成功，正在跳转...', 'success');
+          setTimeout(() => {
+            window.location.href = '/accounts/login/?register_success=true&username=' + encodeURIComponent(username);
+          }, 1500);
+        } else {
+          showAlert('错误', data.message || '注册失败，请重试', 'error');
+        }
+      } catch (error) {
+        console.error('注册错误:', error);
+        showAlert('错误', '注册失败，请重试', 'error');
+      }
+    });
+  </script>
 </body>
 </html>
-

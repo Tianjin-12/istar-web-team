@@ -27,7 +27,7 @@ def loginView(request):
       user = form.get_user()
       login(request, user)
 
-      nextUrl = request.GET.get('dashboard/brand/')
+      nextUrl = request.GET.get('next','dashboard/brand/')
       import time
       return redirect(f"/?login_success=true&username={user.username}&timestamp={int(time.time())}")
   else:
@@ -116,9 +116,15 @@ def send_verification_code(request):
         return JsonResponse({'success': False, 'message': '仅支持 POST 请求'})
     
     email = request.POST.get('email', '').strip()
+    code_type = request.POST.get('code_type', 'register').strip()
     
     if not email:
         return JsonResponse({'success': False, 'message': '请输入邮箱'})
+    
+    # 验证 code_type
+    valid_code_types = ['register', 'reset_password']
+    if code_type not in valid_code_types:
+        return JsonResponse({'success': False, 'message': '无效的验证码类型'})
     
     # 验证邮箱格式
     from django.core.validators import validate_email
@@ -127,21 +133,31 @@ def send_verification_code(request):
     except:
         return JsonResponse({'success': False, 'message': '邮箱格式不正确'})
     
+    # 如果是重置密码，检查邮箱是否已注册
+    if code_type == 'reset_password':
+        if not User.objects.filter(email=email).exists():
+            return JsonResponse({'success': False, 'message': '该邮箱未注册'})
+    
+    # 如果是注册，检查邮箱是否已存在
+    if code_type == 'register':
+        if User.objects.filter(email=email).exists():
+            return JsonResponse({'success': False, 'message': '该邮箱已注册，请直接登录或使用密码重置功能'})
+    
     # 获取客户端IP
     ip = request.META.get('REMOTE_ADDR', '127.0.0.1')
     
     # 频次限制1：1分钟1邮箱1次（缓存）
-    cache_key_email_1min = f'verify_code_{email}_1min'
+    cache_key_email_1min = f'verify_code_{email}_1min_{code_type}'
     if cache.get(cache_key_email_1min):
         return JsonResponse({'success': False, 'message': '1分钟内只能发送1次'})
     
     # 频次限制2：1分钟1IP1次（缓存）
-    cache_key_ip_1min = f'verify_code_{ip}_1min'
+    cache_key_ip_1min = f'verify_code_{ip}_1min_{code_type}'
     if cache.get(cache_key_ip_1min):
         return JsonResponse({'success': False, 'message': '操作过于频繁，请稍后再试'})
     
     # 频次限制3：1小时1IP最多20条（缓存计数器）
-    cache_key_ip_1hour = f'verify_code_{ip}_1hour_count'
+    cache_key_ip_1hour = f'verify_code_{ip}_1hour_count_{code_type}'
     ip_count = cache.get(cache_key_ip_1hour, 0)
     if ip_count >= 20:
         return JsonResponse({'success': False, 'message': '该IP 1小时内发送次数已达上限（20次）'})
@@ -150,6 +166,7 @@ def send_verification_code(request):
     one_minute_ago = timezone.now() - timedelta(minutes=1)
     if EmailVerificationCode.objects.filter(
         email=email,
+        code_type=code_type,
         created_at__gte=one_minute_ago
     ).exists():
         return JsonResponse({'success': False, 'message': '1分钟内只能发送1次'})
@@ -163,7 +180,7 @@ def send_verification_code(request):
         code=code,
         expires_at=timezone.now() + timedelta(minutes=10),
         ip_address=ip,
-        code_type='register'
+        code_type=code_type
     )
     
     # 设置缓存限制
@@ -171,12 +188,19 @@ def send_verification_code(request):
     cache.set(cache_key_ip_1min, 'sent', 60)  # 1分钟
     cache.set(cache_key_ip_1hour, ip_count + 1, 3600)  # 1小时，递增计数
     
-    # 发送邮件
+    # 根据code_type发送不同的邮件
     try:
         from django.conf import settings
+        if code_type == 'register':
+            subject = '【品牌AI可见度】注册验证码'
+            message = f'您的注册验证码是：{code}，10分钟内有效。'
+        else:
+            subject = '【品牌AI可见度】密码重置验证码'
+            message = f'您的密码重置验证码是：{code}，10分钟内有效。如非本人操作，请忽略此邮件。'
+        
         send_mail(
-            subject='【品牌AI可见度】注册验证码',
-            message=f'您的验证码是：{code}，10分钟内有效。',
+            subject=subject,
+            message=message,
             from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@example.com'),
             recipient_list=[email],
         )
@@ -220,7 +244,7 @@ def register_with_code(request):
     
     # 检查邮箱是否已存在
     if User.objects.filter(email=email).exists():
-        return JsonResponse({'success': False, 'message': f'该邮箱已注册。如需重新注册，请访问<a href="{reverse('accounts:deregister')}?email={email}">重新注册</a>'})
+        return JsonResponse({'success': False, 'message': f'该邮箱已注册。如需重新注册，请访问<a href="{reverse('accounts:deregister_and_reregister')}?email={email}">重新注册</a>'})
     
     # 创建用户
     user = User.objects.create_user(

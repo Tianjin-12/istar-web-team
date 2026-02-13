@@ -300,21 +300,11 @@ def collect_answers_with_db(keyword):
         
         # 创建浏览器实例
         with sync_playwright() as p:
-            browser = p.chromium.launch_persistent_context(
-                executable_path=r'C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe',
-                user_data_dir=r"C:\Users\meiho\AppData\Local\Microsoft\Edge\User Data\MVP",
-                headless=False,
-                no_viewport=True,
-                args=['--start-maximized']
-            )
-            
-            # 初始化页面
-            page_list_aa = browser.pages
-            if len(page_list_aa) == 0:
-                page1 = browser.new_page()
-            else:
-                page1 = page_list_aa[0]
-            
+            browser = p.chromium.launch(headless=False, args=['--start-maximized'])
+            context = browser.new_context(no_viewport=True)
+            page1 = context.new_page()
+            js_data = open('stealth.min.js', 'r', encoding="utf-8").read()
+            page1.add_init_script(js_data)
             # 加载stealth脚本并访问网站
             stealth_js_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'stealth.min.js')
             if os.path.exists(stealth_js_path):
@@ -322,9 +312,14 @@ def collect_answers_with_db(keyword):
                 page1.add_init_script(js_data)
             else:
                 print("警告: 找不到 stealth.min.js 文件")
-            
+            phone=  "19515309293"
+            password= "myc20060929"
             page1.goto('https://chat.deepseek.com')
-            page1.wait_for_timeout(3000)
+            page1.click("//div[@class='ds-sign-in-form__social-buttons-container']/button[1]")
+            page1.fill("//div[@class='ds-form-item__content']//input[@type='text']", phone)
+            page1.fill("//div[@class='ds-form-item__content']//input[@type='password']", password)
+            page1.click("//div[@class='ds-auth-form__main-hero']/button")
+            page1.wait_for_timeout(2000)
             
             # 处理所有问题
             total_count = len(questions)

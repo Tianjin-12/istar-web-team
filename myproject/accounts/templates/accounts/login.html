@@ -118,47 +118,164 @@
       transform: translateY(0);
     }
 
-    .register-link {
-      text-align: center;
-      margin-top: 2rem;
-      color: #666;
+    .btn-outline {
+      background: transparent;
+      color: #667eea;
+      border: 2px solid #667eea;
     }
 
-    .register-link a {
+    .btn-outline:hover {
+      background: #667eea;
+      color: white;
+    }
+
+    .form-footer {
+      text-align: center;
+      margin-top: 1.5rem;
+      color: #666;
+      font-size: 0.95rem;
+    }
+
+    .form-footer a {
       color: #667eea;
       text-decoration: none;
       font-weight: 600;
       transition: color 0.3s ease;
+      cursor: pointer;
     }
 
-    .register-link a:hover {
+    .form-footer a:hover {
       color: #764ba2;
     }
 
-    .alert {
-      padding: 1rem 1.25rem;
-      margin-bottom: 1.5rem;
-      border-radius: 12px;
+    /* Modal 样式 */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(5px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal {
+      background: white;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 420px;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: modalSlideIn 0.3s ease-out;
+    }
+
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: scale(0.9) translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    .modal-header {
+      padding: 1.5rem 2rem;
+      border-bottom: 1px solid #e0e0e0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h3 {
+      color: #333;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: #999;
+      cursor: pointer;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+    }
+
+    .modal-close:hover {
+      background: #f0f0f0;
+      color: #333;
+    }
+
+    .modal-body {
+      padding: 2rem;
+    }
+
+    .modal-footer {
+      padding: 1rem 2rem;
+      border-top: 1px solid #e0e0e0;
+      display: flex;
+      gap: 1rem;
+      justify-content: flex-end;
+    }
+
+    .modal-btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 10px;
       font-size: 0.95rem;
-      animation: shake 0.5s ease-in-out;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
     }
 
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-10px); }
-      75% { transform: translateX(10px); }
+    .modal-btn-cancel {
+      background: #f0f0f0;
+      color: #666;
     }
 
-    .alert-success {
-      background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
-      color: #155724;
-      border: 1px solid #c3e6cb;
+    .modal-btn-cancel:hover {
+      background: #e0e0e0;
     }
 
-    .alert-danger {
-      background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
-      color: #721c24;
-      border: 1px solid #f5c6cb;
+    .modal-btn-confirm {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .modal-btn-confirm:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .code-group {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .code-group .form-control {
+      flex: 1;
+    }
+
+    .code-group .btn {
+      width: auto;
+      white-space: nowrap;
     }
 
     .help-text {
@@ -167,48 +284,25 @@
       margin-top: 0.5rem;
     }
 
-    .error-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
+    .modal-icon {
+      text-align: center;
+      margin-bottom: 1.5rem;
     }
 
-    .error-list li {
-      color: #721c24;
-      font-size: 0.9rem;
+    .modal-icon .icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .modal-icon h4 {
+      color: #333;
+      font-size: 1.25rem;
       margin-bottom: 0.5rem;
     }
 
-    .divider {
-      height: 1px;
-      background: #e0e0e0;
-      margin: 1.5rem 0;
-    }
-
-    .social-login {
-      display: flex;
-      gap: 1rem;
-      margin-top: 1.5rem;
-    }
-
-    .social-btn {
-      flex: 1;
-      padding: 0.875rem;
-      border: 2px solid #e0e0e0;
-      border-radius: 10px;
-      background: white;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.9rem;
-      color: #333;
-    }
-
-    .social-btn:hover {
-      border-color: #667eea;
-      background: #f8f9fa;
+    .modal-icon p {
+      color: #666;
+      font-size: 0.95rem;
     }
 
     @media (max-width: 480px) {
@@ -218,6 +312,14 @@
 
       .login-header h1 {
         font-size: 1.75rem;
+      }
+
+      .code-group {
+        flex-direction: column;
+      }
+
+      .code-group .btn {
+        width: 100%;
       }
     }
   </style>
@@ -229,43 +331,246 @@
       <p>登录您的账户继续使用</p>
     </div>
 
-    {% if messages %}
-      {% for message in messages %}
-        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-      {% endfor %}
-    {% endif %}
-
-    {% if form.non_field_errors %}
-      <div class="alert alert-danger">
-        {{ form.non_field_errors }}
-      </div>
-    {% endif %}
-
-    <form method="post" action="{% url 'accounts:login' %}">
+    <form id="loginForm" method="post" action="{% url 'accounts:login' %}">
       {% csrf_token %}
       <div class="form-group">
         <label for="{{ form.username.id_for_label }}" class="form-label">{{ form.username.label }}</label>
         {{ form.username }}
-        {% for error in form.username.errors %}
-          <div class="alert alert-danger">{{ error }}</div>
-        {% endfor %}
       </div>
 
       <div class="form-group">
         <label for="{{ form.password.id_for_label }}" class="form-label">{{ form.password.label }}</label>
         {{ form.password }}
-        {% for error in form.password.errors %}
-          <div class="alert alert-danger">{{ error }}</div>
-        {% endfor %}
       </div>
 
       <button type="submit" class="btn btn-primary">登录</button>
     </form>
 
-    <div class="register-link">
-      还没有账户？<a href="{% url 'accounts:register' %}" class="text-decoration-none">立即注册</a>
+    <div class="form-footer">
+      <a id="forgotPasswordBtn">忘记密码？</a>
+      <span style="margin: 0 0.5rem;">|</span>
+      <a href="{% url 'accounts:register' %}">立即注册</a>
     </div>
   </div>
+
+  <!-- 忘记密码 Modal -->
+  <div class="modal-overlay" id="forgotPasswordModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>重置密码</h3>
+        <button class="modal-close" id="closeForgotModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="resetEmail" class="form-label">邮箱地址</label>
+          <input type="email" id="resetEmail" class="form-control" placeholder="请输入邮箱地址" required>
+          <div class="help-text">验证码将发送到此邮箱</div>
+        </div>
+
+        <div class="form-group">
+          <label for="resetCode" class="form-label">验证码</label>
+          <div class="code-group">
+            <input type="text" id="resetCode" class="form-control" placeholder="请输入验证码" required>
+            <button type="button" id="sendResetCodeBtn" class="btn btn-outline">发送验证码</button>
+          </div>
+          <div class="help-text">验证码10分钟内有效</div>
+        </div>
+
+        <div class="form-group">
+          <label for="newPassword" class="form-label">新密码</label>
+          <input type="password" id="newPassword" class="form-control" placeholder="请输入新密码" required>
+          <div class="help-text">至少8个字符</div>
+        </div>
+
+        <div class="form-group">
+          <label for="confirmPassword" class="form-label">确认密码</label>
+          <input type="password" id="confirmPassword" class="form-control" placeholder="请再次输入新密码" required>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="modal-btn modal-btn-cancel" id="cancelForgotBtn">取消</button>
+        <button type="button" class="modal-btn modal-btn-confirm" id="submitResetBtn">重置密码</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 提示 Modal -->
+  <div class="modal-overlay" id="alertModal">
+    <div class="modal">
+      <div class="modal-body" style="text-align: center; padding: 2.5rem 2rem;">
+        <div class="modal-icon">
+          <div class="icon" id="alertIcon">ℹ️</div>
+          <h4 id="alertTitle">提示</h4>
+          <p id="alertMessage">这是一条提示信息</p>
+        </div>
+      </div>
+      <div class="modal-footer" style="justify-content: center;">
+        <button type="button" class="modal-btn modal-btn-confirm" id="closeAlertBtn">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Modal 控制
+    const forgotPasswordModal = document.getElementById('forgotPasswordModal');
+    const alertModal = document.getElementById('alertModal');
+    const forgotPasswordBtn = document.getElementById('forgotPasswordBtn');
+    const closeForgotModal = document.getElementById('closeForgotModal');
+    const cancelForgotBtn = document.getElementById('cancelForgotBtn');
+    const closeAlertBtn = document.getElementById('closeAlertBtn');
+    const sendResetCodeBtn = document.getElementById('sendResetCodeBtn');
+    const submitResetBtn = document.getElementById('submitResetBtn');
+
+    let resetCountdown = 0;
+    let resetCountdownTimer = null;
+
+    function showModal(modal) {
+      modal.classList.add('active');
+    }
+
+    function hideModal(modal) {
+      modal.classList.remove('active');
+    }
+
+    function showAlert(title, message, type = 'info') {
+      const alertIcon = document.getElementById('alertIcon');
+      const alertTitle = document.getElementById('alertTitle');
+      const alertMessage = document.getElementById('alertMessage');
+
+      alertTitle.textContent = title;
+      alertMessage.textContent = message;
+
+      if (type === 'error') {
+        alertIcon.textContent = '❌';
+      } else if (type === 'success') {
+        alertIcon.textContent = '✅';
+      } else {
+        alertIcon.textContent = 'ℹ️';
+      }
+
+      showModal(alertModal);
+    }
+
+    forgotPasswordBtn.addEventListener('click', () => {
+      showModal(forgotPasswordModal);
+    });
+
+    closeForgotModal.addEventListener('click', () => hideModal(forgotPasswordModal));
+    cancelForgotBtn.addEventListener('click', () => hideModal(forgotPasswordModal));
+    closeAlertBtn.addEventListener('click', () => hideModal(alertModal));
+
+    forgotPasswordModal.addEventListener('click', (e) => {
+      if (e.target === forgotPasswordModal) {
+        hideModal(forgotPasswordModal);
+      }
+    });
+
+    alertModal.addEventListener('click', (e) => {
+      if (e.target === alertModal) {
+        hideModal(alertModal);
+      }
+    });
+
+    // 发送重置验证码
+    sendResetCodeBtn.addEventListener('click', async () => {
+      const email = document.getElementById('resetEmail').value.trim();
+
+      if (!email) {
+        showAlert('错误', '请输入邮箱地址', 'error');
+        return;
+      }
+
+      try {
+        const response = await fetch('/accounts/send-verification-code/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: `email=${encodeURIComponent(email)}&code_type=reset_password`
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          resetCountdown = 60;
+          sendResetCodeBtn.disabled = true;
+          sendResetCodeBtn.textContent = `${resetCountdown}秒后重发`;
+
+          resetCountdownTimer = setInterval(() => {
+            resetCountdown--;
+            if (resetCountdown <= 0) {
+              clearInterval(resetCountdownTimer);
+              sendResetCodeBtn.disabled = false;
+              sendResetCodeBtn.textContent = '发送验证码';
+            } else {
+              sendResetCodeBtn.textContent = `${resetCountdown}秒后重发`;
+            }
+          }, 1000);
+
+          showAlert('成功', '验证码已发送，请查收邮件', 'success');
+        } else {
+          showAlert('错误', data.message || '发送失败，请重试', 'error');
+        }
+      } catch (error) {
+        console.error('发送验证码错误:', error);
+        showAlert('错误', '发送验证码失败，请重试', 'error');
+      }
+    });
+
+    // 重置密码
+    submitResetBtn.addEventListener('click', async () => {
+      const email = document.getElementById('resetEmail').value.trim();
+      const code = document.getElementById('resetCode').value.trim();
+      const newPassword = document.getElementById('newPassword').value.trim();
+      const confirmPassword = document.getElementById('confirmPassword').value.trim();
+
+      if (!email || !code || !newPassword || !confirmPassword) {
+        showAlert('错误', '请填写所有字段', 'error');
+        return;
+      }
+
+      if (newPassword.length < 8) {
+        showAlert('错误', '密码长度至少为8个字符', 'error');
+        return;
+      }
+
+      if (newPassword !== confirmPassword) {
+        showAlert('错误', '两次输入的密码不一致', 'error');
+        return;
+      }
+
+      try {
+        const response = await fetch('/accounts/reset-password-with-code/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: `email=${encodeURIComponent(email)}&code=${encodeURIComponent(code)}&new_password=${encodeURIComponent(newPassword)}`
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          showAlert('成功', '密码重置成功，请使用新密码登录', 'success');
+          setTimeout(() => {
+            hideModal(forgotPasswordModal);
+            window.location.reload();
+          }, 2000);
+        } else {
+          showAlert('错误', data.message || '重置失败，请重试', 'error');
+        }
+      } catch (error) {
+        console.error('重置密码错误:', error);
+        showAlert('错误', '重置密码失败，请重试', 'error');
+      }
+    });
+
+    // 登录表单处理
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      const submitBtn = this.querySelector('button[type="submit"]');
+      submitBtn.disabled = true;
+      submitBtn.textContent = '登录中...';
+    });
+  </script>
 </body>
 </html>
-

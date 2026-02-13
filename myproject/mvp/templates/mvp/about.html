@@ -5,70 +5,279 @@
 {% block title %}关于我们 - {% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-  <h2 class="text-center mb-5">关于我们</h2>
-  
-  <div class="row">
-    <div class="col-md-6 mb-4">
-      <div class="card shadow">
-        <div class="card-body">
-          <h4 class="mb-3">向我们提供信息</h4>
-          <a href="https://example.com/survey" class="btn btn-primary btn-lg" target="_blank">
-            填写问卷
-          </a>
+<style>
+  .about-page {
+    min-height: calc(100vh - 56px - 56px);
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    padding: 40px 20px;
+  }
+
+  .about-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: fadeInDown 0.8s ease-out;
+  }
+
+  .info-card {
+    border: none;
+    border-radius: 20px;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    overflow: hidden;
+  }
+
+  .info-card:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
+  }
+
+  .card-survey {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
+
+  .card-survey .card-title {
+    color: white;
+  }
+
+  .card-survey .btn-gradient {
+    background: white;
+    color: #667eea;
+    border: none;
+    padding: 15px 40px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    border-radius: 30px;
+    transition: all 0.3s ease;
+  }
+
+  .card-survey .btn-gradient:hover {
+    background: #f8f9fa;
+    transform: scale(1.05);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  }
+
+  .card-sponsor {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  }
+
+  .card-sponsor .card-title {
+    color: white;
+  }
+
+  .card-sponsor .sponsor-icon {
+    font-size: 4rem;
+    color: white;
+    text-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  }
+
+  .card-contact {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  }
+
+  .card-contact .card-title {
+    color: white;
+  }
+
+  .card-contact .contact-item {
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    transition: all 0.3s ease;
+  }
+
+  .card-contact .contact-item:hover {
+    transform: translateX(5px);
+  }
+
+  .card-contact .contact-icon {
+    font-size: 1.3rem;
+    width: 35px;
+    height: 35px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .qr-code {
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 10px;
+    padding: 5px;
+    background: white;
+  }
+
+  .qr-code:hover {
+    transform: scale(1.1);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+  }
+
+  .modal-content {
+    border-radius: 20px;
+    border: none;
+  }
+
+  .modal-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 20px 20px 0 0;
+  }
+
+  .modal-header .btn-close {
+    filter: brightness(0) invert(1);
+  }
+
+  .modal-body {
+    padding: 30px;
+    background: #f8f9fa;
+  }
+
+  .modal-body img {
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  }
+
+  @keyframes fadeInDown {
+    from {
+      opacity: 0;
+      transform: translateY(-30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .fade-in-up {
+    animation: fadeInUp 0.8s ease-out forwards;
+    opacity: 0;
+  }
+
+  .delay-1 { animation-delay: 0.2s; }
+  .delay-2 { animation-delay: 0.4s; }
+  .delay-3 { animation-delay: 0.6s; }
+
+  .card-title {
+    font-weight: 700;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .sponsor-text {
+    color: white;
+    line-height: 1.6;
+  }
+</style>
+
+<div class="about-page">
+  <div class="container">
+    <h2 class="text-center mb-5 about-title">关于我们</h2>
+
+    <div class="row g-4">
+      <div class="col-md-6 fade-in-up delay-1">
+        <div class="card info-card card-survey shadow-lg">
+          <div class="card-body text-center p-5">
+            <i class="bi bi-clipboard-data display-1 mb-4 d-block" style="color: white;"></i>
+            <h4 class="card-title">向我们提供信息</h4>
+            <p class="mb-4" style="color: rgba(255,255,255,0.9);">您的反馈对我们非常重要，帮助我们不断改进服务</p>
+            <a href="https://example.com/survey" class="btn btn-gradient" target="_blank">
+              <i class="bi bi-pencil-square me-2"></i>填写问卷
+            </a>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="col-md-3 mb-4">
-      <div class="card shadow">
-        <div class="card-body">
-          <h4 class="mb-3">支持我们</h4>
-          <div class="text-center mb-3">
-            <i class="bi bi-currency-yen display-4 text-primary mb-3"></i>
-          </div>
-          <div class="d-grid gap-2">
-            <a href="https://example.com/alipay" class="btn btn-success btn-lg text-center" target="_blank">
-              <i class="bi bi-alipay"></i> 支付宝
-            </a>
-            <a href="https://example.com/wechat" class="btn btn-success btn-lg text-center" target="_blank">
-              <i class="bi bi-wechat"></i> 微信支付
-            </a>
+
+      <div class="col-md-3 fade-in-up delay-2">
+        <div class="card info-card card-sponsor shadow-lg">
+          <div class="card-body text-center p-4">
+            <i class="bi bi-currency-yen sponsor-icon mb-3 d-block"></i>
+            <h4 class="card-title">支持我们</h4>
+            <p class="sponsor-text mb-3">
+              我们一年的服务器费就要300多，我们是一群为爱发电的大学生，这个项目能不能活下去走得更远有赖于您的支持！
+            </p>
+            <img src="{% static 'images/payment.png' %}" 
+                 alt="支付二维码" 
+                 class="qr-code"
+                 style="width: 120px; height: 120px;"
+                 onclick="showModal('支付二维码', '{% static 'images/payment.png' %}')">
           </div>
         </div>
       </div>
-    </div>
-    <div class="col-md-3 mb-4">
-      <div class="card shadow">
-        <div class="card-body">
-          <h4 class="mb-3">联系我们</h4>
-          <ul class="list-unstyled">
-            <li class="mb-3">
-              <i class="bi bi-telephone me-2"></i>
-              电话：xxx-xxxx-xxxx
-            </li>
-            <li class="mb-3">
-              <i class="bi bi-envelope me-2"></i>
-              邮箱：contact@istar-geo.com
-            </li>
-            <li class="mb-3">
-              <i class="bi bi-github me-2"></i>
-              GitHub: @istar-geo
-            </li>
-            <li class="mb-3">
-              <i class="bi bi-twitter me-2"></i>
-              Twitter: @istar-geo
-            </li>
-            <li class="mb-3">
-              <i class="bi bi-people me-2"></i>
-              微信群：
-              <img src="{% static 'images/wechat-group.png' %}" 
-                   alt="微信群" 
-                   style="width: 100px; height: 100px;">
-            </li>
-          </ul>
+
+      <div class="col-md-3 fade-in-up delay-3">
+        <div class="card info-card card-contact shadow-lg">
+          <div class="card-body p-4">
+            <h4 class="card-title text-center mb-4">联系我们</h4>
+            <ul class="list-unstyled">
+              <li class="contact-item">
+                <span class="contact-icon"><i class="bi bi-telephone"></i></span>
+                <span>电话：xxx-xxxx-xxxx</span>
+              </li>
+              <li class="contact-item">
+                <span class="contact-icon"><i class="bi bi-envelope"></i></span>
+                <span>邮箱：contact@istar-geo.com</span>
+              </li>
+              <li class="contact-item">
+                <span class="contact-icon"><i class="bi bi-github"></i></span>
+                <span>GitHub: @istar-geo</span>
+              </li>
+              <li class="contact-item">
+                <span class="contact-icon"><i class="bi bi-twitter"></i></span>
+                <span>Twitter: @istar-geo</span>
+              </li>
+              <li class="contact-item justify-content-center flex-column text-center mt-4">
+                <span class="mb-2">微信群</span>
+                <img src="{% static 'images/wechat-group.png' %}" 
+                     alt="微信群二维码" 
+                     class="qr-code"
+                     style="width: 120px; height: 120px;"
+                     onclick="showModal('微信群二维码', '{% static 'images/wechat-group.png' %}')">
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </div>
+
+<div class="modal fade" id="qrModal" tabindex="-1" aria-labelledby="qrModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title text-white" id="qrModalLabel">二维码</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-center">
+        <img id="modalImage" src="" alt="二维码" style="max-width: 100%; height: auto;">
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function showModal(title, imageSrc) {
+    document.getElementById('qrModalLabel').textContent = title;
+    document.getElementById('modalImage').src = imageSrc;
+    const modal = new bootstrap.Modal(document.getElementById('qrModal'));
+    modal.show();
+  }
+</script>
 {% endblock %}

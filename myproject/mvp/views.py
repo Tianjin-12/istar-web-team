@@ -225,7 +225,7 @@ def redirect_to_create_order(request):
     request.session['prefilled_keyword'] = keyword_name
 
     # 重定向到订单创建页面
-    return redirect('mvp:create_order')
+    return redirect('create_order')
 
 @login_required_new_tab
 def notification_list(request):
@@ -275,22 +275,30 @@ def notification_list_api(request):
   return JsonResponse({'data': data}, safe=False)
 
 # 新页面视图函数
-@login_required_new_tab
+
 def geo_evaluate_view(request):
     """GEO服务商评估页面"""
     return render(request, 'mvp/geo_evaluate.html')
 
-@login_required_new_tab
+
 def ai_toxic_view(request):
     """AI投毒检测页面"""
     return render(request, 'mvp/ai_toxic.html')
 
-@login_required_new_tab
+
 def cgeo_wiki_view(request):
     """CGEO知识库页面"""
     return render(request, 'mvp/cgeo_wiki.html')
 
-@login_required_new_tab
+
 def about_view(request):
     """关于我们页面"""
     return render(request, 'mvp/about.html')
+
+def terms_view(request):
+    """用户协议页面"""
+    return render(request, 'mvp/terms.html')
+
+def disclaimer_view(request):
+    """免责声明页面"""
+    return render(request, 'mvp/disclaimer.html')
