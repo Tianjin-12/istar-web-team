@@ -160,13 +160,6 @@ def dashboard_data_api(request):
 
             days = int(request.GET.get("days", 30))
             # 默认获取30天的数据
-            config_path = os.path.join(settings.BASE_DIR, "brand_config.json")
-            with open(config_path, "w", encoding="utf-8") as f:
-                json.dump(
-                    {"brand_name": brand_name, "keyword": keyword, "link": link},
-                    f,
-                    ensure_ascii=False,
-                )
             cache_key = f"dashboard_data_{keyword}_{days}"
             # 尝试从缓存中获取数据
             cached_data = cache.get(cache_key)

@@ -21,7 +21,8 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "myproject.settings")
 
 import django
 
-django.setup()
+if not django.apps.apps.ready:
+    django.setup()
 
 from mvp.models import ZhihuQuestion, QuestionBank
 

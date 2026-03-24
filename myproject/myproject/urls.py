@@ -43,5 +43,6 @@ urlpatterns = [
   path('orders/', views.order_list, name='order_list'),
   path('orders/create/', views.create_order, name='create_order'),
   path('notifications/', views.notification_list, name='notification_list'),
-  path('dash/', include('django_plotly_dash.urls'))
+  path('dash/', include('django_plotly_dash.urls')),
+  path('cluster-viz/', cluster_viz_view, name='cluster_viz'),
 ]

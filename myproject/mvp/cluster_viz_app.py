@@ -11,11 +11,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__fil
 sys.path.insert(0, BASE_DIR)
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "myproject.settings")
-
-import django
-if not django.apps.apps.ready:
-    django.setup()
-
 from mvp.cluster_viz_utils import ClusterDataProcessor
 
 COLORS = {

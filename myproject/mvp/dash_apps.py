@@ -40,6 +40,7 @@ TRANSLATIONS = {
         # 欢迎区
         'welcome_title': '想知道你的品牌有多大可能被AI推荐？',
         'welcome_desc1': '这里是一个公益免费检测工具',
+        'welcome_desc2':'一群中山大学大学生的创新创业项目',
         'welcome_cta': '何妨一试？'
     },
     'en': {
@@ -59,6 +60,7 @@ TRANSLATIONS = {
         # Welcome Section
         'welcome_title': 'Wondering how likely your brand is to be recommended by AI?',
         'welcome_desc1': 'Independent third-party monitoring platform with proprietary algorithms',
+        'welcome_desc2': 'An innovative startup project from Sun Yat-sen University', 
         'welcome_cta': 'Give it a try!'
     }
 }

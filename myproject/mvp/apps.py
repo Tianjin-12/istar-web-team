@@ -11,8 +11,21 @@ class MvpConfig(AppConfig):
             print("MVP Dash apps 正常导入hhh")
         except ImportError as e:
             print(f"Failed to import MVP dash_apps: {e}")
+            
+        try:
+            import mvp.cluster_viz_app
+            print("ClusterVizApp 正常导入")
+        except RuntimeError as e:
+            if "populate() isn't reentrant" in str(e):
+            # Django 启动时的正常情况，忽略
+                print("ClusterVizApp: 跳过重复 django.setup()")
+            else:
+                raise
+        except ImportError as e:
+            print(f"Failed to import cluster_viz_app: {e}")
+
         try:
             from . import signals
             print("signals 系统正常导入hhh.")
         except ImportError as e:
-            print(f"Failed to import signals: {e}")     
+            print(f"Failed to import signals: {e}")
