@@ -12,9 +12,13 @@ from django.core.mail import send_mail
 from django.utils import timezone
 from datetime import timedelta
 import random
+import logging
 from .models import EmailVerificationCode, UserProfile
 import secrets
 from django.urls import reverse
+from django.db import transaction
+
+logger = logging.getLogger(__name__)
 
 def loginView(request):
   """处理用户登录"""
@@ -26,6 +30,7 @@ def loginView(request):
     if form.is_valid():
       user = form.get_user()
       login(request, user)
+      logger.info(f"用户登录成功: username={user.username}, user_id={user.id}")
 
       nextUrl = request.GET.get('next','dashboard/brand/')
       import time
@@ -45,6 +50,7 @@ def registerView(request):
     form = RegisterForm(request.POST)
     if form.is_valid():
       user = form.save()
+      logger.info(f"用户注册成功: username={user.username}, user_id={user.id}, email={user.email}")
 
       authenticatedUser = authenticate(
         username=form.cleaned_data['username'],
@@ -65,6 +71,7 @@ def registerView(request):
 @login_required
 def logoutView(request):
   """处理退出登录"""
+  logger.info(f"用户退出登录: username={request.user.username}, user_id={request.user.id}")
   logout(request)
   messages.success(request, '已成功退出登录')
   return redirect('/?logout_success=true')
@@ -130,7 +137,7 @@ def send_verification_code(request):
     from django.core.validators import validate_email
     try:
         validate_email(email)
-    except:
+    except Exception:
         return JsonResponse({'success': False, 'message': '邮箱格式不正确'})
     
     # 如果是重置密码，检查邮箱是否已注册
@@ -204,30 +211,33 @@ def send_verification_code(request):
             from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@example.com'),
             recipient_list=[email],
         )
+        logger.info(f"验证码发送成功: email={email}, code_type={code_type}, ip={ip}")
         return JsonResponse({'success': True, 'message': '验证码已发送'})
     except Exception as e:
-        return JsonResponse({'success': False, 'message': f'发送失败，请重试：{str(e)}'})
+        logger.error(f"验证码发送失败: email={email}, code_type={code_type}, error={str(e)}")
+        return JsonResponse({'success': False, 'message': '发送失败，请重试'})
 
-
+@csrf_exempt
+@transaction.atomic
 def register_with_code(request):
     """邮箱验证码注册"""
     if request.method != 'POST':
         return JsonResponse({'success': False, 'message': '仅支持 POST 请求'})
-    
+
     username = request.POST.get('username', '').strip()
     email = request.POST.get('email', '').strip()
     code = request.POST.get('code', '').strip()
     password1 = request.POST.get('password1', '').strip()
     password2 = request.POST.get('password2', '').strip()
-    
+
     # 验证用户名长度（2-8字符）
     if len(username) < 2 or len(username) > 8:
         return JsonResponse({'success': False, 'message': '用户名长度必须在2-8个字符之间'})
-    
+
     # 验证密码
     if password1 != password2:
         return JsonResponse({'success': False, 'message': '两次输入的密码不一致'})
-    
+
     # 验证验证码
     try:
         verify_code = EmailVerificationCode.objects.get(
@@ -241,37 +251,39 @@ def register_with_code(request):
             return JsonResponse({'success': False, 'message': '验证码已过期，请重新获取'})
     except EmailVerificationCode.DoesNotExist:
         return JsonResponse({'success': False, 'message': '验证码错误'})
-    
+
     # 检查邮箱是否已存在
     if User.objects.filter(email=email).exists():
         return JsonResponse({'success': False, 'message': f'该邮箱已注册。如需重新注册，请访问<a href="{reverse('accounts:deregister_and_reregister')}?email={email}">重新注册</a>'})
-    
+
     # 创建用户
     user = User.objects.create_user(
         username=username,
         email=email,
         password=password1
     )
-    
+
     # 标记验证码已使用
     verify_code.is_used = True
     verify_code.save()
-    
+
     # 创建用户档案
     UserProfile.objects.create(user=user)
-    
+
+    logger.info(f"验证码注册成功: username={username}, email={email}, user_id={user.id}")
     return JsonResponse({'success': True, 'message': '注册成功'})
 
-
+@csrf_exempt
+@transaction.atomic
 def reset_password_with_code(request):
     """通过验证码重置密码"""
     if request.method != 'POST':
         return JsonResponse({'success': False, 'message': '仅支持 POST 请求'})
-    
+
     email = request.POST.get('email', '').strip()
     code = request.POST.get('code', '').strip()
     new_password = request.POST.get('new_password', '').strip()
-    
+
     # 验证验证码
     try:
         verify_code = EmailVerificationCode.objects.get(
@@ -285,7 +297,7 @@ def reset_password_with_code(request):
             return JsonResponse({'success': False, 'message': '验证码已过期，请重新获取'})
     except EmailVerificationCode.DoesNotExist:
         return JsonResponse({'success': False, 'message': '验证码错误'})
-    
+
     # 获取用户
     try:
         user = User.objects.get(email=email)
@@ -296,8 +308,10 @@ def reset_password_with_code(request):
         verify_code.is_used = True
         verify_code.save()
 
+        logger.info(f"密码重置成功: email={email}, username={user.username}, user_id={user.id}")
         return JsonResponse({'success': True, 'message': '密码重置成功'})
     except User.DoesNotExist:
+        logger.warning(f"密码重置失败: email={email}, error=邮箱未注册")
         return JsonResponse({'success': False, "message": "该邮箱未注册"})
 
 

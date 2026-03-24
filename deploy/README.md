@@ -106,26 +106,31 @@ rm -rf cookies.txt
 ### 1. 创建目录
 
 ```bash
-sudo mkdir -p /var/www/myproject
+
 sudo mkdir -p /var/log/myproject
 sudo mkdir -p /var/log/gunicorn
 sudo mkdir -p /var/log/celery
 sudo mkdir -p /var/log/flower
 sudo mkdir -p /var/log/health-monitor
 sudo mkdir -p /var/archive/tasks
-sudo mkdir -p /var/www/myproject/scripts
+sudo mkdir -p /var/www/.cache
+sudo chown -R www-data:www-data /var/www/.cache
+sudo chmod -R 755 /var/www/.cache
 ```
 
 ### 2. 复制项目文件
 
-通过腾讯云文件上传工具，直接将项目文件夹拖拽上传到 `/var/www/myproject`。
+通过腾讯云文件上传工具，直接将项目文件夹拖拽上传到 `/var/www`。
 
 上传完成后，检查文件是否完整：
 
 ```bash
 ls -la /var/www/myproject
 ```
-
+then construct a scripts to contain sth
+```bash
+sudo mkdir -p /var/www/myproject/scripts
+```
 应包含以下文件/目录：
 - `myproject/` - Django 项目主目录
 - `requirements.txt` - Python 依赖列表
@@ -226,7 +231,9 @@ sudo -u www-data /var/www/myproject/venv/bin/python manage.py createsuperuser
 ```
 
 按照提示输入用户名、邮箱和密码。
-## 注意，去var/www/myproject/venv/lib/---/django-plotly-dash/---/templete/---.html里面把sandbox的相关代码完全删掉再启动
+
+## 注意，去var/www/myproject/venv/lib/---/django-plotly-dash/---/templete/---.html里面把sandbox的相关代码完全删掉再启动——
+（this ulter may not need to excute? you can skip it）
 
 ### 14. 启动服务
 
@@ -557,7 +564,7 @@ sudo tail -f /var/log/celery/worker.log | grep ERROR
    ```bash
    # 安装 Let's Encrypt 证书
    sudo apt install certbot python3-certbot-nginx
-   sudo certbot --nginx -d your-domain.com
+   sudo certbot --nginx -d istar-geo.com
    ```
 
 2. **定期更新系统和依赖**

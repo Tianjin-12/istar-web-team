@@ -42,8 +42,6 @@ class Order(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="创建时间")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="更新时间")
     task_id = models.CharField(max_length=255, blank=True, null=True, verbose_name="任务ID")
-    
-    # 新增字段: 任务追踪
     current_stage = models.CharField(max_length=50, blank=True, null=True, verbose_name="当前阶段")
     progress_percentage = models.IntegerField(default=0, verbose_name="进度百分比")
     last_error = models.TextField(blank=True, null=True, verbose_name="最后错误")

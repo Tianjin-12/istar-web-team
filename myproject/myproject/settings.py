@@ -26,15 +26,20 @@ load_dotenv(os.path.join(BASE_DIR.parent, '.env'))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-7p3w8+k79nvvmlm&g0x3wb&v^k$qycsg*ts2x1%_b7916@_9i=')
+SECRET_KEY = os.environ.get('SECRET_KEY')
+if not SECRET_KEY:
+    raise ValueError("SECRET_KEY环境变量必须设置")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',')
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '')
+if not ALLOWED_HOSTS:
+    raise ValueError("ALLOWED_HOSTS环境变量必须设置")
+ALLOWED_HOSTS = ALLOWED_HOSTS.split(',')
 
 CSRF_TRUSTED_ORIGINS = [
+    "http://istar-geo.com",
     "http://localhost:8000",
     "http://127.0.0.1:8000",
     "https://istar-geo.com",
@@ -92,7 +97,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': os.environ.get('POSTGRES_DB', 'mvpdb'),
         'USER': os.environ.get('POSTGRES_USER', 'postgres'),
-        'PASSWORD': os.environ.get('POSTGRES_PASSWORD', 'mvp123'),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
         'HOST': os.environ.get('POSTGRES_HOST', 'localhost'),
         'PORT': os.environ.get('POSTGRES_PORT', '5432'),
         'CONN_MAX_AGE': 600,
@@ -101,6 +106,8 @@ DATABASES = {
         },
     }
 }
+if not DATABASES['default']['PASSWORD']:
+    raise ValueError("POSTGRES_PASSWORD环境变量必须设置")
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -169,7 +176,7 @@ STATICFILES_FINDERS = [
 PLOTLY_COMPONENTS = [
     'dash_bootstrap_components',
 ]
-X_FRAME_OPTIONS = 'ALLOWALL'
+X_FRAME_OPTIONS = 'DENY'
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
@@ -251,6 +258,7 @@ try:
     import redis
     redis_client = redis.Redis(host=os.environ.get('REDIS_HOST', 'localhost'), port=int(os.environ.get('REDIS_PORT', 6380)), db=2)
     redis_client.ping()  # 测试连接
+    redis_client.close()  # 关闭连接
     CACHES = {
         'default': {
             'BACKEND': 'django_redis.cache.RedisCache',
@@ -279,13 +287,23 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 SESSION_CACHE_ALIAS = 'default'
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 14
 SESSION_COOKIE_SAMESITE = 'Lax'
-SECURE_BROWSER_XSS_FILTER = False
-SECURE_CONTENT_TYPE_NOSNIFF = False
-SESSION_COOKIE_SECURE = False
+
+SESSION_COOKIE_SECURE = True
 SESSION_COOKIE_HTTPONLY = True
+CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_HTTPONLY = True
+CSRF_COOKIE_SAMESITE = 'Lax'
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_SSL_REDIRECT = True
+SECURE_HSTS_SECONDS = 31536000
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
 
 # 日志配置
-'''
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -297,33 +315,36 @@ LOGGING = {
     },
     'handlers': {
         'file': {
-            'level': 'INFO',
+            'level': 'WARNING',
             'class': 'logging.FileHandler',
             'filename': os.environ.get('DJANGO_LOG_FILE', '/var/log/myproject/django.log'),
             'formatter': 'verbose',
         },
         'console': {
-            'level': 'INFO',
+            'level': 'WARNING',
             'class': 'logging.StreamHandler',
             'formatter': 'verbose',
         },
     },
     'root': {
         'handlers': ['console', 'file'] if not DEBUG else ['console'],
-        'level': 'INFO',
+        'level': 'WARNING',
     },
     'loggers': {
         'django': {
             'handlers': ['console', 'file'] if not DEBUG else ['console'],
-            'level': 'INFO',
+            'level': 'WARNING',
             'propagate': False,
         },
         'mvp': {
             'handlers': ['console', 'file'] if not DEBUG else ['console'],
-            'level': 'INFO',
+            'level': 'WARNING',
+            'propagate': False,
+        },
+        'accounts': {
+            'handlers': ['console', 'file'] if not DEBUG else ['console'],
+            'level': 'WARNING',
             'propagate': False,
         },
     },
 }
-'''
-#if no debug：

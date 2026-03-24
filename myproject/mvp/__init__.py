@@ -1,1 +1,1 @@
-default_app_config = 'mvp.apps.MvpConfig'
+default_app_config = "mvp.apps.MvpConfig"

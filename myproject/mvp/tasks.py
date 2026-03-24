@@ -3,13 +3,17 @@ from celery.result import AsyncResult
 from django.utils import timezone
 from django.contrib.auth.models import User
 from django.db.models import Q
+from django.db import transaction
 from .models import (
     Order, Notification, TaskLog,
     ZhihuQuestion, QuestionBank, AIAnswer, QuestionScore
 )
 from .redis_client import get_redis_client
 import json
+import logging
 from datetime import datetime, timedelta
+
+logger = logging.getLogger(__name__)
 
 
 # ========================================
@@ -56,10 +60,10 @@ def schedule_order_processing():
                 continue
         
         return f"已启动 {total_tasks} 个关键词的任务链"
-        
+
     except Exception as e:
-        print(f"schedule_order_processing 执行失败: {str(e)}")
-        return f"任务启动失败: {str(e)}"
+        logger.error(f"schedule_order_processing 执行失败: {str(e)}")
+        return "任务启动失败，请联系管理员"
 
 # ========================================
 # 阶段3: 搜索知乎问题(7天缓存)
@@ -207,13 +211,14 @@ def score_questions(keyword):
 # ========================================
 
 @shared_task(name='mvp.analyze_orders_by_keyword')
+@transaction.atomic
 def analyze_orders_by_keyword(keyword, order_ids):
     """批量分析关键词关联的所有订单"""
     from .summary import analyze_with_db
     from mvp.models import Mention_percentage
     from django.utils import timezone
     from datetime import timedelta
-    
+
     results = []
     # 先获取所有订单的品牌信息，避免重复查询
     orders = list(Order.objects.filter(id__in=order_ids))
@@ -306,39 +311,51 @@ def analyze_orders_by_keyword(keyword, order_ids):
 # ========================================
 
 @shared_task(name='mvp.cleanup_old_data')
+@transaction.atomic
 def cleanup_old_data():
-    """清理过期数据"""
+    """清理过期数据（事务保护）"""
     from django.utils import timezone
-    
-    # 删除7天前的知乎问题
-    threshold_7d = timezone.now() - timedelta(days=7)
-    deleted_zhihu = ZhihuQuestion.objects.filter(
-        created_at__lt=threshold_7d
-    ).delete()
-    
-    # 删除7天前的问题库
-    deleted_qb = QuestionBank.objects.filter(
-        created_at__lt=threshold_7d
-    ).delete()
-    
-    # 删除1天前的AI回答和链接
-    threshold_1d = timezone.now() - timedelta(days=1)
-    deleted_answers = AIAnswer.objects.filter(
-        created_at__lt=threshold_1d
-    ).delete()
-    # AILink 会级联删除
-    
-    # 删除1天前的评分
-    deleted_scores = QuestionScore.objects.filter(
-        created_at__lt=threshold_1d
-    ).delete()
-    
-    return {
-        'zhihu': deleted_zhihu[0] if deleted_zhihu else 0,
-        'question_bank': deleted_qb[0] if deleted_qb else 0,
-        'answers': deleted_answers[0] if deleted_answers else 0,
-        'scores': deleted_scores[0] if deleted_scores else 0
-    }
+
+    try:
+        # 删除7天前的知乎问题
+        threshold_7d = timezone.now() - timedelta(days=7)
+        deleted_zhihu = ZhihuQuestion.objects.filter(
+            created_at__lt=threshold_7d
+        ).delete()
+        logger.info(f"清理知乎问题: {deleted_zhihu[0] if deleted_zhihu else 0} 条")
+
+        # 删除7天前的问题库
+        deleted_qb = QuestionBank.objects.filter(
+            created_at__lt=threshold_7d
+        ).delete()
+        logger.info(f"清理问题库: {deleted_qb[0] if deleted_qb else 0} 条")
+
+        # 删除1天前的AI回答和链接
+        threshold_1d = timezone.now() - timedelta(days=1)
+        deleted_answers = AIAnswer.objects.filter(
+            created_at__lt=threshold_1d
+        ).delete()
+        logger.info(f"清理AI回答: {deleted_answers[0] if deleted_answers else 0} 条")
+        # AILink 会级联删除
+
+        # 删除1天前的评分
+        deleted_scores = QuestionScore.objects.filter(
+            created_at__lt=threshold_1d
+        ).delete()
+        logger.info(f"清理评分: {deleted_scores[0] if deleted_scores else 0} 条")
+
+        result = {
+            'zhihu': deleted_zhihu[0] if deleted_zhihu else 0,
+            'question_bank': deleted_qb[0] if deleted_qb else 0,
+            'answers': deleted_answers[0] if deleted_answers else 0,
+            'scores': deleted_scores[0] if deleted_scores else 0
+        }
+        logger.info(f"数据清理完成: {result}")
+        return result
+
+    except Exception as e:
+        logger.error(f"数据清理失败，已回滚: {str(e)}")
+        raise
 
 @shared_task(name='mvp.archive_old_data')
 def archive_old_data():

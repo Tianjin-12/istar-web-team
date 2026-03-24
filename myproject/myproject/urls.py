@@ -22,6 +22,9 @@ from mvp.views import (
   ai_toxic_view,
   cgeo_wiki_view,
   about_view,
+  terms_view,
+  disclaimer_view,
+  cluster_viz_view,
 )
 from mvp import views
 
@@ -35,8 +38,10 @@ urlpatterns = [
   path('dashboard/ai-toxic/', ai_toxic_view, name='dashboard_ai_toxic'),
   path('dashboard/cgeo-wiki/', cgeo_wiki_view, name='dashboard_cgeo_wiki'),
   path('dashboard/about/', about_view, name='dashboard_about'),
+  path('user-agreement/', terms_view, name='terms'),
+  path('disclaimer/', disclaimer_view, name='disclaimer'),
   path('orders/', views.order_list, name='order_list'),
   path('orders/create/', views.create_order, name='create_order'),
   path('notifications/', views.notification_list, name='notification_list'),
-  path('dash/', include('django_plotly_dash.urls')),
+  path('dash/', include('django_plotly_dash.urls'))
 ]

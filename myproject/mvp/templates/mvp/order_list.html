@@ -366,6 +366,7 @@
                                 <th>品牌词</th>
                                 <th>状态</th>
                                 <th>创建时间</th>
+                                <th>最近更新时间</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -385,6 +386,7 @@
                                     </span>
                                 </td>
                                 <td>{{ order.created_at|date:"Y-m-d H:i:s" }}</td>
+                                <td>{{ order.updated_at|date:"Y-m-d H:i:s" }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>

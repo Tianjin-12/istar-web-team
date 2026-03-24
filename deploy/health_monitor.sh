@@ -17,11 +17,11 @@ while true; do
   fi
 
   # 检查 Beat 主节点
-  MASTER=$(redis-cli -p 6380 GET redbeat:master 2>/dev/null)
-  if [ -z "$MASTER" ]; then
-    echo "[$TIMESTAMP] [ALERT] No active Beat master found!" >> $LOG_DIR/monitor.log
+  BEAT_CHECK=$($VENV_PATH/bin/python -c "import django; django.setup(); from django_celery_beat.models import PeriodicTask; print(PeriodicTask.objects.exists())" 2>/dev/null)
+  if [ "$BEAT_CHECK" != "True" ]; then
+    echo "[$TIMESTAMP] [ALERT] Beat scheduler check failed!" >> $LOG_DIR/monitor.log
   else
-    echo "[$TIMESTAMP] [INFO] Beat master: $MASTER" >> $LOG_DIR/monitor.log
+    echo "[$TIMESTAMP] [INFO] Beat scheduler OK" >> $LOG_DIR/monitor.log
   fi
 
   # 检查 Redis 状态

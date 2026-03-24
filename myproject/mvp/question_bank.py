@@ -96,7 +96,6 @@ def build_bank_with_db(keyword):
     print("模型加载完成！")
     # 检查是否有传入keyword参数(用于数据库版本)
     # 如果没有,则尝试从环境变量获取,或者使用默认值
-    keyword = os.environ.get('KEYWORD', '新能源汽车')
     print(f"使用关键词: {keyword}")
     
     # 从数据库读取知乎问题
@@ -462,4 +461,5 @@ def score_questions_with_db(keyword):
         raise e
  
 
+build_bank_with_db("网球场丙烯酸材料")
 

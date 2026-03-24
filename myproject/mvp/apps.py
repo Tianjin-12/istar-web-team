@@ -15,4 +15,4 @@ class MvpConfig(AppConfig):
             from . import signals
             print("signals 系统正常导入hhh.")
         except ImportError as e:
-            print(f"Failed to import signals: {e}")    
+            print(f"Failed to import signals: {e}")     

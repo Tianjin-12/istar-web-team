@@ -30,7 +30,7 @@ TRANSLATIONS = {
         # 搜索区
         'lbl_brand': '监测对象', 'ph_brand': '品牌名称 (如: Nike)',
         'lbl_kw': '核心关键词', 'ph_kw': '关键词 (如: 蓝牙耳机)',
-        'lbl_link': '链接地址', 'ph_link': '请输入链接地址 (如: https://example.com)',
+        'lbl_link': '链接地址（选填）', 'ph_link': '请输入链接地址 (如: https://example.com)',
         'btn_start': '开始分析',
         # KPI & 图表
         'kpi_vis': '核心品牌提及概率(推荐性任务)', 'kpi_sent': '链接提及概率',
@@ -39,8 +39,7 @@ TRANSLATIONS = {
         'download': '导出分析报告', 'lang_label': 'EN', 'btn_share': '分享',
         # 欢迎区
         'welcome_title': '想知道你的品牌有多大可能被AI推荐？',
-        'welcome_desc1': '我们是独立第三方专业监测平台，拥有自研算法',
-        'welcome_desc2': '全免费公开查询，反正我们只在大客户那里收费doge',
+        'welcome_desc1': '这里是一个公益免费检测工具',
         'welcome_cta': '何妨一试？'
     },
     'en': {
@@ -50,7 +49,7 @@ TRANSLATIONS = {
         # Search Section
         'lbl_brand': 'Target Brand', 'ph_brand': 'e.g. Nike',
         'lbl_kw': 'Keywords', 'ph_kw': 'e.g. Wireless Earbuds',
-        'lbl_link': 'Link URL', 'ph_link': 'Enter link URL (e.g., https://example.com)',
+        'lbl_link': 'Link URL(optional)', 'ph_link': 'Enter link URL (e.g., https://example.com)',
         'btn_start': 'Analyze',
         # KPI & Charts
         'kpi_vis': 'Core Brand Mention percentage(recommend task)', 'kpi_sent': 'Link Mention percentage',
@@ -60,7 +59,6 @@ TRANSLATIONS = {
         # Welcome Section
         'welcome_title': 'Wondering how likely your brand is to be recommended by AI?',
         'welcome_desc1': 'Independent third-party monitoring platform with proprietary algorithms',
-        'welcome_desc2': 'Free public queries - we only charge enterprise clients',
         'welcome_cta': 'Give it a try!'
     }
 }
@@ -128,7 +126,7 @@ EXPLANATIONS = {
     }
 def fetch_backend_data(brand_name=None, keyword_name=None,link_name=None):
     # API端点URL
-    base_url = os.environ.get("https://istar-geo.com",'http://localhost:8000')
+    base_url = os.environ.get('WEBSITE_URL','http://localhost:8000')
     api_url = f"{base_url}/api/dashboard-data/"
     # 构建查询参数
     params = {}
@@ -190,12 +188,12 @@ def fetch_backend_data(brand_name=None, keyword_name=None,link_name=None):
 
 def _convert_to_web_format(df,brand_name):
     # 处理趋势图数据
-    if not isinstance(df, pd.DataFrame) or df.empty:
+    if not isinstance(df, pd.DataFrame):
         return _get_default_data()
     if 'brand_name' not in df.columns or brand_name not in df['brand_name'].values:
         return _get_default_data()
     trend_data = {"Date": [],"Brand": [],"Link": []}
-    focus_df = df[df["brand_name"] == brand_name]
+    focus_df = df[df["brand_name"].str.contains(brand_name, case=False, na=False)]
     # 按日期分组并计算平均值
 
     focus_df["created_at"] = pd.to_datetime(focus_df["created_at"])
@@ -344,8 +342,8 @@ app.layout = html.Div([
         dbc.Card([
             dbc.CardBody([
                 html.H1("想知道你的品牌有多大可能被AI推荐？", id="welcome-title", className="fw-bold text-dark mb-5 fs-1"),
-                html.H1("我们是独立第三方专业监测平台，拥有自研算法", id="welcome-desc-1", className="fw-normal text-dark mb-1 fs-5"),
-                html.H1("全免费公开查询，反正我们只在大客户那里收费doge", id="welcome-desc-2", className="fw-light text-dark mb-1 fs-6"),
+                html.H1("这是一个公益免费检测工具", id="welcome-desc-1", className="fw-normal text-dark mb-1 fs-5"),
+                html.H1("一群中山大学大学生的创新创业项目", id="welcome-desc-2", className="fw-light text-dark mb-1 fs-6"),
                 html.H1("何妨一试？", id="welcome-cta", className="fw-noral text-dark mb-0 fs-3"),
             ], className="p-4 text-center")
         ], className="mb-4 shadow-sm", style={

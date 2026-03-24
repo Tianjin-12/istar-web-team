@@ -1,0 +1,201 @@
+{% extends 'mvp/base.html' %}
+{% load plotly_dash %}
+
+{% block title %}聚类可视化 - Istar GEO Evaluator{% endblock %}
+
+{% block content %}
+<style>
+    .cluster-viz-page {
+        padding: 20px;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: calc(100vh - 112px);
+    }
+    
+    .page-header {
+        margin-bottom: 30px;
+    }
+    
+    .page-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 10px;
+    }
+    
+    .page-subtitle {
+        font-size: 1.2rem;
+        color: #67748e;
+        font-weight: 400;
+    }
+    
+    .info-cards {
+        margin-bottom: 30px;
+    }
+    
+    .info-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        height: 100%;
+        transition: all 0.3s ease;
+    }
+    
+    .info-card:hover {
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        transform: translateY(-2px);
+    }
+    
+    .info-card-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        margin-bottom: 15px;
+    }
+    
+    .info-card-title {
+        font-size: 0.9rem;
+        color: #67748e;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 5px;
+    }
+    
+    .info-card-value {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #2d3748;
+    }
+    
+    .viz-container {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        padding: 24px;
+        margin-bottom: 24px;
+    }
+    
+    @media (max-width: 768px) {
+        .page-title {
+            font-size: 1.8rem;
+        }
+        
+        .page-subtitle {
+            font-size: 1rem;
+        }
+        
+        .info-card-value {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+
+<div class="container-fluid cluster-viz-page">
+    <!-- 页面头部 -->
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="bi bi-graph-3d me-2"></i>聚类可视化分析
+        </h1>
+        <p class="page-subtitle">探索问题库的聚类结构和语义分布</p>
+    </div>
+    
+    <!-- 信息卡片 -->
+    <div class="row info-cards">
+        <div class="col-md-3 mb-3">
+            <div class="info-card">
+                <div class="info-card-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <i class="bi bi-layers-fill"></i>
+                </div>
+                <div class="info-card-title">聚类方法</div>
+                <div class="info-card-value">DBSCAN</div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="info-card">
+                <div class="info-card-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
+                    <i class="bi bi-gear-fill"></i>
+                </div>
+                <div class="info-card-title">降维方法</div>
+                <div class="info-card-value">UMAP</div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="info-card">
+                <div class="info-card-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white;">
+                    <i class="bi bi-database-fill"></i>
+                </div>
+                <div class="info-card-title">数据源</div>
+                <div class="info-card-value">184题</div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="info-card">
+                <div class="info-card-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
+                    <i class="bi bi-diagram-3-fill"></i>
+                </div>
+                <div class="info-card-title">簇数量</div>
+                <div class="info-card-value">5+噪声</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Dash 应用 -->
+    <div class="viz-container">
+        {% load plotly_dash %}
+        {% plotly_app name='ClusterVizApp' %}
+    </div>
+    
+    <!-- 使用说明 -->
+    <div class="viz-container">
+        <h4 class="fw-bold mb-3" style="color: #2d3748;">
+            <i class="bi bi-info-circle-fill me-2" style="color: #667eea;"></i>使用说明
+        </h4>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <div class="d-flex align-items-start mb-2">
+                    <span class="badge bg-primary me-2 mt-1">1</span>
+                    <div>
+                        <strong>选择关键词</strong>
+                        <p class="text-muted mb-0 small">从下拉框中选择要分析的关键词</p>
+                    </div>
+                </div>
+                <div class="d-flex align-items-start mb-2">
+                    <span class="badge bg-primary me-2 mt-1">2</span>
+                    <div>
+                        <strong>调整可视化参数</strong>
+                        <p class="text-muted mb-0 small">选择降维方法（UMAP/PCA/t-SNE）和可视化维度（2D/3D）</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="d-flex align-items-start mb-2">
+                    <span class="badge bg-success me-2 mt-1">3</span>
+                    <div>
+                        <strong>探索聚类结果</strong>
+                        <p class="text-muted mb-0 small">点击簇中的点查看详情，或使用左侧复选框过滤显示</p>
+                    </div>
+                </div>
+                <div class="d-flex align-items-start mb-2">
+                    <span class="badge bg-info me-2 mt-1">4</span>
+                    <div>
+                        <strong>导出结果</strong>
+                        <p class="text-muted mb-0 small">点击"导出图片"按钮保存可视化结果</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

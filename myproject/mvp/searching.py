@@ -183,7 +183,7 @@ def searching_with_db(keyword, use_cache=True):
         
         # 执行搜索(调用原有逻辑)
         # 使用项目根目录作为base_dir
-        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         searching(keyword, base_dir=base_dir)
         
         # 读取 q.xlsx 并转换为数据库格式
@@ -215,4 +215,5 @@ def searching_with_db(keyword, use_cache=True):
         logger.error(f"搜索知乎问题时出错: {str(e)}")
         logger.error(traceback.format_exc())
         raise e
-
+    
+searching_with_db("网球场丙烯酸材料")
