@@ -1,0 +1,13 @@
+{
+  "accounts": [
+    {
+      "name": "A1-MEI",
+      "auth_file": "A1-MEI.json",
+      "login_method": "phone",
+      "phone": "19515309293",
+      "enabled": true,
+      "last_verified": null,
+      "created_at": "2026-04-02T20:19:16.817929"
+    }
+  ]
+}

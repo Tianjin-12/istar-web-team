@@ -190,10 +190,24 @@ def dashboard_data_api(request):
             # 限制数据量，避免返回过多数据
             mention_query = mention_query[:1000]
             data = {
-                "r_brand_amount": list(mention_query.values_list("r_brand_amount", flat=True)),
-                "nr_brand_amount": list(mention_query.values_list("nr_brand_amount", flat=True)),
-                "link_amount": list(mention_query.values_list("link_amount", flat=True)),
-                "keyword_name": list(mention_query.values_list("keyword_name", flat=True)),
+                "r_brand_amount": list(
+                    mention_query.values_list("r_brand_amount", flat=True)
+                ),
+                "nr_brand_amount": list(
+                    mention_query.values_list("nr_brand_amount", flat=True)
+                ),
+                "link_amount": list(
+                    mention_query.values_list("link_amount", flat=True)
+                ),
+                "high_relevance_ratio": list(
+                    mention_query.values_list("high_relevance_ratio", flat=True)
+                ),
+                "source_stats": list(
+                    mention_query.values_list("source_stats", flat=True)
+                ),
+                "keyword_name": list(
+                    mention_query.values_list("keyword_name", flat=True)
+                ),
                 "brand_name": list(mention_query.values_list("brand_name", flat=True)),
                 "created_at": list(mention_query.values_list("created_at", flat=True)),
             }

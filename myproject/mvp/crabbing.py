@@ -407,4 +407,3 @@ def collect_answers_with_db(keyword):
         raise e
 
 
-collect_answers_with_db("网球场丙烯酸材料")

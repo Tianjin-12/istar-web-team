@@ -216,4 +216,3 @@ def searching_with_db(keyword, use_cache=True):
         logger.error(traceback.format_exc())
         raise e
     
-searching_with_db("网球场丙烯酸材料")

@@ -362,8 +362,7 @@ def build_bank_with_db(keyword):
                 # 从 JSON 中提取问题列表
                 questions_list = response_data.get("questions", [])
                 keywords = response_data.get("keywords", [])
-                generated_questions_map[cluster_id] = {
-                "questions": questions_list,}
+                generated_questions_map[cluster_id] = {"questions": questions_list}
                 print(f"簇 {cluster_id} 成功生成了 {len(questions_list)} 个问题")
             except json.JSONDecodeError:
                 print(f"警告：簇 {cluster_id} 的响应不是有效的 JSON 格式")
@@ -460,6 +459,3 @@ def score_questions_with_db(keyword):
         traceback.print_exc()
         raise e
  
-
-build_bank_with_db("网球场丙烯酸材料")
-

@@ -1,0 +1,24 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+<h2>批量设置链接分类</h2>
+<p>已选中 <strong>{{ queryset|length }}</strong> 条链接</p>
+
+<form method="post">
+{% csrf_token %}
+<input type="hidden" name="action" value="bulk_set_category">
+<input type="hidden" name="ids" value="{{ ids }}">
+<input type="hidden" name="apply" value="1">
+
+<div class="form-row">
+    {{ form.category.label_tag }}
+    {{ form.category }}
+</div>
+
+<div class="submit-row">
+    <input type="submit" value="确认设置" class="default">
+    <a href="../../" class="button">取消</a>
+</div>
+</form>
+{% endblock %}
