@@ -59,9 +59,11 @@ class ClusterDataProcessor:
         self._validate_data()
 
     def _load_embeddings(self):
-        """加载向量文件"""
+        safe_keyword = self.keyword.replace("/", "_").replace("\\", "_")
         try:
-            embedding_path = os.path.join(self.project_root, "question_embeddings.npy")
+            embedding_path = os.path.join(
+                self.project_root, f"question_embeddings_{safe_keyword}.npy"
+            )
             embeddings = np.load(embedding_path)
             print(f"[ClusterDataProcessor] 加载向量文件成功: {embeddings.shape}")
             return embeddings
@@ -69,9 +71,11 @@ class ClusterDataProcessor:
             raise FileNotFoundError(f"未找到向量文件: {embedding_path}")
 
     def _load_cluster_map(self):
-        """加载聚类映射文件"""
+        safe_keyword = self.keyword.replace("/", "_").replace("\\", "_")
         try:
-            cluster_map_path = os.path.join(self.project_root, "final_cluster_map.json")
+            cluster_map_path = os.path.join(
+                self.project_root, f"final_cluster_map_{safe_keyword}.json"
+            )
             with open(cluster_map_path, "r", encoding="utf-8") as f:
                 cluster_map = json.load(f)
             print(f"[ClusterDataProcessor] 加载聚类映射成功: {len(cluster_map)} 个问题")

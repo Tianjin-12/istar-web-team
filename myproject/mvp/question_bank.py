@@ -1,4 +1,4 @@
-import os#切换当前工作目录
+import os  # 切换当前工作目录
 import sys
 from datetime import datetime, timedelta
 import json
@@ -10,75 +10,80 @@ from sentence_transformers import SentenceTransformer
 from sklearn.neighbors import NearestNeighbors
 from scipy.signal import find_peaks
 import openpyxl
+
 # 设置Django环境
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'myproject.settings')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "myproject.settings")
 
 import django
+
 django.setup()
 
 from mvp.models import QuestionBank, QuestionScore, ZhihuQuestion
 
-os.environ['HF_ENDPOINT'] = 'https://hf-mirror.com'
+os.environ["HF_ENDPOINT"] = "https://hf-mirror.com"
+
 
 def check_question_bank_cache(keyword):
     """检查问题库缓存(7天)"""
     threshold = datetime.now() - timedelta(days=7)
     cached_count = QuestionBank.objects.filter(
-        keyword=keyword,
-        created_at__gte=threshold
+        keyword=keyword, created_at__gte=threshold
     ).count()
     return cached_count > 0, cached_count
+
 
 def load_question_bank_from_db(keyword):
     """从数据库加载问题库"""
     threshold = datetime.now() - timedelta(days=7)
-    questions = list(QuestionBank.objects.filter(
-        keyword=keyword,
-        created_at__gte=threshold
-    ).order_by('cluster_id').values('cluster_id', 'main_intent', 'generated_question'))
+    questions = list(
+        QuestionBank.objects.filter(keyword=keyword, created_at__gte=threshold)
+        .order_by("cluster_id")
+        .values("cluster_id", "main_intent", "generated_question")
+    )
     return questions
+
 
 def save_question_bank_to_db(keyword, question_data):
     """保存问题库到数据库"""
     QuestionBank.objects.filter(keyword=keyword).delete()
-    
+
     question_objs = [
         QuestionBank(
             keyword=keyword,
-            cluster_id=q['cluster_id'],
-            main_intent=q['main_intent'],
-            generated_question=q['generated_question']
+            cluster_id=q["cluster_id"],
+            main_intent=q["main_intent"],
+            generated_question=q["generated_question"],
         )
         for q in question_data
     ]
     QuestionBank.objects.bulk_create(question_objs, batch_size=100)
 
+
 def load_questions_from_db(keyword):
     """从数据库加载知乎问题"""
-    questions = list(ZhihuQuestion.objects.filter(
-        keyword=keyword
-    ).order_by('question_id').values_list('question_text', flat=True))
+    questions = list(
+        ZhihuQuestion.objects.filter(keyword=keyword)
+        .order_by("question_id")
+        .values_list("question_text", flat=True)
+    )
     return questions
+
 
 def save_scores_to_db(keyword, scores):
     """保存问题评分到数据库"""
     QuestionScore.objects.filter(keyword=keyword).delete()
-    
+
     today = datetime.now().date()
     score_objs = [
-        QuestionScore(
-            keyword=keyword,
-            question_id=qid,
-            score=score,
-            answer_date=today
-        )
+        QuestionScore(keyword=keyword, question_id=qid, score=score, answer_date=today)
         for qid, score in scores.items()
     ]
     QuestionScore.objects.bulk_create(score_objs, batch_size=100)
 
+
 def build_bank_with_db(keyword):
-    
+
     global questions, question_ids
     try:
         # 缓存检查
@@ -89,42 +94,49 @@ def build_bank_with_db(keyword):
     except Exception as e:
         print("缓存失败")
 
-    cache_folder = './text2vec_model_cache' # 模型将保存在当前目录下的这个文件夹中
-    model_name = 'shibing624/text2vec-base-chinese'
-    print(f"正在从镜像站下载/加载模型 {model_name} 到本地目录 {cache_folder}...")#第一次下完
+    cache_folder = "./text2vec_model_cache"
+    model_name = "shibing624/text2vec-base-chinese"
+    print(f"正在从镜像站下载/加载模型 {model_name} 到本地目录 {cache_folder}...")
     model = SentenceTransformer(model_name, cache_folder=cache_folder)
     print("模型加载完成！")
-    # 检查是否有传入keyword参数(用于数据库版本)
-    # 如果没有,则尝试从环境变量获取,或者使用默认值
     print(f"使用关键词: {keyword}")
-    
-    # 从数据库读取知乎问题
+
     questions = load_questions_from_db(keyword)
     print(f"从数据库加载了 {len(questions)} 个问题")
-    
-    # 生成question_ids
-    question_ids = [str(i+1) for i in range(len(questions))]
+
+    question_ids = [str(i + 1) for i in range(len(questions))]
+
+    safe_keyword = keyword.replace("/", "_").replace("\\", "_")
+    embeddings_file = f"question_embeddings_{safe_keyword}.npy"
+    cluster_map_file = f"final_cluster_map_{safe_keyword}.json"
 
     # 向量化
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    device = "cuda" if torch.cuda.is_available() else "cpu"
     model = model.to(device)
-    embeddings = model.encode(questions, batch_size=32, device=device, show_progress_bar=True)
-    #这个batchsize 用64也可
-    np.save('question_embeddings.npy', embeddings)
-    embeddings_nd = np.load('question_embeddings.npy')
+    embeddings = model.encode(
+        questions, batch_size=32, device=device, show_progress_bar=True
+    )
+    # 这个batchsize 用64也可
+    np.save(embeddings_file, embeddings)
+    embeddings_nd = np.load(embeddings_file)
 
-    #保存 id-向量映射
-    id_vector_map = {str(qid): emb.tolist() for qid, emb in zip(question_ids, embeddings)}
+    # 保存 id-向量映射
+    id_vector_map = {
+        str(qid): emb.tolist() for qid, emb in zip(question_ids, embeddings)
+    }
     print("向量化成功")
 
     def data_perpare(embeddings_nd):
         print("检查是否已经标准化")
-        if np.all(np.abs(np.mean(embeddings_nd,axis=0))< 0.1) and np.all(np.abs(np.std(embeddings_nd,axis=0))-1< 0.1):
+        if np.all(np.abs(np.mean(embeddings_nd, axis=0)) < 0.1) and np.all(
+            np.abs(np.std(embeddings_nd, axis=0)) - 1 < 0.1
+        ):
             print("数据已标准化")
             return embeddings_nd
         else:
             print("数据未标准化,开始标准化")
             from sklearn.preprocessing import StandardScaler
+
             scaler = StandardScaler()
             embeddings_nd = scaler.fit_transform(embeddings_nd)
             print("数据已标准化")
@@ -142,12 +154,12 @@ def build_bank_with_db(keyword):
 
     def auto_eps(X, k=4, smooth_win=0.1):
         nn = NearestNeighbors(n_neighbors=k).fit(X)
-        d = np.sort(nn.kneighbors(X)[0][:, -1])          # k-distance 排序
-        der2 = np.convolve(np.gradient(np.gradient(d)), [1, -2, 1], 'same')
-        w = max(3, int(smooth_win * len(d)))             # 窗宽 10%
+        d = np.sort(nn.kneighbors(X)[0][:, -1])  # k-distance 排序
+        der2 = np.convolve(np.gradient(np.gradient(d)), [1, -2, 1], "same")
+        w = max(3, int(smooth_win * len(d)))  # 窗宽 10%
         std = lambda x: np.std(x) if len(x) > 1 else 0
-        score = [std(der2[i:i+w]) for i in range(len(d)-w)]
-        elbow_idx = np.argmax(score) + w//2              # 最陡处
+        score = [std(der2[i : i + w]) for i in range(len(d) - w)]
+        elbow_idx = np.argmax(score) + w // 2  # 最陡处
         return float(d[elbow_idx])
 
     # 用法
@@ -173,7 +185,7 @@ def build_bank_with_db(keyword):
 
     for label in unique_labels:
         indices = np.where(dbscan_labels == label)[0]  # 该簇所有样本的索引
-        cluster_vectors = embeddings[indices]#用来储存~某个簇的所有向量
+        cluster_vectors = embeddings[indices]  # 用来储存~某个簇的所有向量
         centroid = cluster_vectors.mean(axis=0)  # 质心
         centroids.append(centroid)
         cluster_labels.append(label)
@@ -181,25 +193,26 @@ def build_bank_with_db(keyword):
     centroids = np.array(centroids)
 
     # 如果 DBSCAN 簇数 > 8，则用层次聚类合并
-    def auto_hierarchical_clustering(centroids, target_n=8, max_trials=20):#自动寻找最佳 distance_threshold，使层次聚类后的簇数最接近 target_n。
-        
+    def auto_hierarchical_clustering(
+        centroids, target_n=8, max_trials=20
+    ):  # 自动寻找最佳 distance_threshold，使层次聚类后的簇数最接近 target_n。
+
         # 先计算一个合理的阈值搜索范围
         # 用质心间的最小/最大距离作为边界
         from sklearn.metrics import pairwise_distances
+
         dist_mat = pairwise_distances(centroids)
         triu_dists = dist_mat[np.triu_indices_from(dist_mat, k=1)]
         low, high = triu_dists.min(), triu_dists.max()
 
         best_th, best_labels = None, None
-        best_error = float('inf')
+        best_error = float("inf")
 
         # 二分搜索寻找最优 distance_threshold
         for _ in range(max_trials):
             mid = (low + high) / 2
             agg = AgglomerativeClustering(
-                n_clusters=None,
-                linkage='ward',
-                distance_threshold=mid
+                n_clusters=None, linkage="ward", distance_threshold=mid
             )
             labels = agg.fit_predict(centroids)
             n_clusters = len(set(labels))
@@ -222,21 +235,26 @@ def build_bank_with_db(keyword):
                 # 簇太少，需要分裂 → 降低阈值
                 high = mid
 
-        print(f"[auto_hierarchical_clustering] 最终阈值={best_th:.4f}，"
-            f"得到簇数={len(set(best_labels))}，目标簇数={target_n}")
+        print(
+            f"[auto_hierarchical_clustering] 最终阈值={best_th:.4f}，"
+            f"得到簇数={len(set(best_labels))}，目标簇数={target_n}"
+        )
         return best_labels, best_th
-
 
     TARGET_SUPER_CLUSTERS = 8
     if len(unique_labels) > TARGET_SUPER_CLUSTERS:
         # 自动寻找最佳阈值，使层次聚类后的簇数最接近 TARGET_SUPER_CLUSTERS
-        final_labels, best_threshold = auto_hierarchical_clustering(centroids,target_n=TARGET_SUPER_CLUSTERS)
+        final_labels, best_threshold = auto_hierarchical_clustering(
+            centroids, target_n=TARGET_SUPER_CLUSTERS
+        )
     else:
         # 如果 DBSCAN 本身已满足数量要求，直接映射
         final_labels = list(range(len(unique_labels)))
 
     # 构建原始簇 -> 最终超级簇的映射
-    original_to_final = {orig: final for orig, final in zip(cluster_labels, final_labels)}
+    original_to_final = {
+        orig: final for orig, final in zip(cluster_labels, final_labels)
+    }
 
     # 将每个问题映射到最终超级簇
     final_cluster_map = {}
@@ -247,33 +265,32 @@ def build_bank_with_db(keyword):
             final_cluster_map[question_ids[idx]] = original_to_final[label]
     final_cluster_map = {k: int(v) for k, v in final_cluster_map.items()}
     # 保存最终映射
-    with open('final_cluster_map.json', 'w', encoding='utf-8') as f:
+    with open(cluster_map_file, "w", encoding="utf-8") as f:
         json.dump(final_cluster_map, f, ensure_ascii=False, indent=2)
 
     print("最终聚类映射已保存！")
     print(f"最终超级簇数: {len(set(final_labels))}")
-        
-    #调用api（终于）
-    from openai import OpenAI 
+
+    # 调用api（终于）
+    from openai import OpenAI
     import os
     from dotenv import load_dotenv
     import time
     import re
 
-    load_dotenv()# 加载 .env 文件，会从 .env 文件中读取变量，并把它们加载到系统的环境变量中
+    load_dotenv()  # 加载 .env 文件，会从 .env 文件中读取变量，并把它们加载到系统的环境变量中
     # 从环境变量中获取密钥
-    key = os.getenv("API_KEY")# os.getenv() 函数会安全地读取环境变量，如果变量不存在，它会返回 None
+    key = os.getenv("API_KEY")
+    if not key:
+        raise RuntimeError("API_KEY 环境变量未设置，请检查 .env 文件")
+
     prompt1 = os.getenv("prompt1")
     prompt2 = os.getenv("prompt2")
     prompt3_text = os.getenv("prompt3")
     client = OpenAI(
-        api_key = key,
+        api_key=key,
         base_url="https://api.moonshot.cn/v1",
     )
-    if key:
-        print("成功读取到API密钥！")    
-    else:
-        print("错误：未能读取到API密钥，请检查 .env 文件。")
 
     f_final_cluster_map = {}
     for qid, cid in final_cluster_map.items():
@@ -281,7 +298,7 @@ def build_bank_with_db(keyword):
             f_final_cluster_map[cid] = []
         f_final_cluster_map[cid].append(qid)
 
-    intent_map = {}# 创建一个字典来存储每个簇的关注点分析结果 格式: {簇ID: "LLM返回的意图字符串"}
+    intent_map = {}  # 创建一个字典来存储每个簇的关注点分析结果 格式: {簇ID: "LLM返回的意图字符串"}
     analyzed_clusters = set()
     # 遍历每一个超级簇
     sorted_final_labels = sorted(final_labels)
@@ -299,26 +316,33 @@ def build_bank_with_db(keyword):
             qid_int = int(qid)
             if qid_int < len(questions):
                 question_text = questions[qid_int]
-                org_text.append(f"{len(org_text)+1}. {question_text}")
-        
+                org_text.append(f"{len(org_text) + 1}. {question_text}")
+
         #  构建发送给LLM的Prompt
-        full_user_prompt = prompt2 + "\n".join(org_text)# 我们将 .env 文件中的 prompt2 作为模板，然后把问题列表拼接到后面   
+        full_user_prompt = prompt2 + "\n".join(
+            org_text
+        )  # 我们将 .env 文件中的 prompt2 作为模板，然后把问题列表拼接到后面
         #  调用API进行关注点提取
         try:
             print(f"簇 {cluster_id} 正在请求LLM分析...")
             completion = client.chat.completions.create(
-                model="kimi-k2-0905-preview", # 使用你的模型
+                model="kimi-k2-0905-preview",  # 使用你的模型
                 messages=[
-                    {"role": "system", "content": prompt1}, # prompt1 是系统指令，定义角色和任务
-                    {"role": "user", "content": full_user_prompt} # prompt2+问题列表 是用户输入
+                    {
+                        "role": "system",
+                        "content": prompt1,
+                    },  # prompt1 是系统指令，定义角色和任务
+                    {
+                        "role": "user",
+                        "content": full_user_prompt,
+                    },  # prompt2+问题列表 是用户输入
                 ],
-                temperature=0.2, 
+                temperature=0.2,
             )
             intent_result = completion.choices[0].message.content
             intent_map[cluster_id] = intent_result
             print(f"簇 {cluster_id} 关注点分析成功！")
-            print(f"分析结果摘要: {intent_result[:50]}...") # 打印前50个字符预览
-            
+            print(f"分析结果摘要: {intent_result[:50]}...")  # 打印前50个字符预览
 
         except Exception as e:
             print(f"错误：簇 {cluster_id} 关注点分析失败: {e}")
@@ -328,7 +352,7 @@ def build_bank_with_db(keyword):
 
     # 根据上一步提取的关注点，为每个簇生成25个新的问题。
     # 创建一个字典来存储每个簇生成的新问题
-    generated_questions_map = {}# 格式: {簇ID: ["新问题1", "新问题2", ...]}
+    generated_questions_map = {}  # 格式: {簇ID: ["新问题1", "新问题2", ...]}
     print("\n开始根据关注点生成新问题...")
     print("（胜利就在眼前！hhhh）")
 
@@ -338,22 +362,20 @@ def build_bank_with_db(keyword):
         if "失败" in intent_string:
             print(f"跳过簇 {cluster_id}，因为其关注点分析失败。")
             continue
-            
+
         print(f"--- 正在为簇 {cluster_id} 生成新问题 ---")
-        
+
         # 构建问题生成的Prompt
         prompt3 = prompt3_text + intent_string
-        
+
         # b. 调用API生成问题
         try:
             print(f"正在请求LLM为簇 {cluster_id} 生成问题...")
             print("可能会比较久，大概1min，耐心等等（都到这里了doge）")
             completion = client.chat.completions.create(
                 model="kimi-k2-0711-preview",
-                messages=[
-                    {"role": "user", "content": prompt3}
-                ],
-                temperature=0.5, 
+                messages=[{"role": "user", "content": prompt3}],
+                temperature=0.5,
             )
             generated_text = completion.choices[0].message.content
             print(generated_text)
@@ -366,67 +388,73 @@ def build_bank_with_db(keyword):
                 print(f"簇 {cluster_id} 成功生成了 {len(questions_list)} 个问题")
             except json.JSONDecodeError:
                 print(f"警告：簇 {cluster_id} 的响应不是有效的 JSON 格式")
-    
+
         except Exception as e:
             print(f"错误：为簇 {cluster_id} 生成问题失败: {e}")
-            generated_questions_map[cluster_id] = [] # 失败则存入空列表
+            generated_questions_map[cluster_id] = []  # 失败则存入空列表
 
     print("\n所有簇的问题生成完成！")
     print("\n正在整理数据并保存到数据库...")
-    
-    output_rows = []# 准备一个列表，用于存储DataFrame的每一行数据
-    
+
+    output_rows = []  # 准备一个列表，用于存储DataFrame的每一行数据
+
     for cluster_id, data in generated_questions_map.items():
         intent_description = intent_map.get(cluster_id, "无意图描述")
-        questions_list = data.get("questions", [])   
+        questions_list = data.get("questions", [])
         for question in questions_list:
-            output_rows.append({
-                "cluster_id": cluster_id,
-                "main_intent": intent_description,
-                "generated_question": question,
-            })
-    
+            output_rows.append(
+                {
+                    "cluster_id": cluster_id,
+                    "main_intent": intent_description,
+                    "generated_question": question,
+                }
+            )
+
     # 保存到数据库
     save_question_bank_to_db(keyword, output_rows)
     print(f"最终问题库已成功保存到数据库，共 {len(output_rows)} 个问题")
     return output_rows
+
 
 def score_questions_with_db(keyword):
     """对问题进行评分(数据库版本)"""
     from dotenv import load_dotenv
     from openai import OpenAI
     import ast
-    
+
     load_dotenv()
     key = os.getenv("API_KEY")
+    if not key:
+        raise RuntimeError("API_KEY 环境变量未设置，请检查 .env 文件")
     prompt4 = os.getenv("prompt4")
-    
+
     try:
         # 检查评分缓存(1天)
         threshold = datetime.now() - timedelta(days=1)
         has_score_cache = QuestionScore.objects.filter(
-            keyword=keyword,
-            created_at__gte=threshold
+            keyword=keyword, created_at__gte=threshold
         ).exists()
-        
+
         if has_score_cache:
             print(f"使用评分缓存")
             return True
-        
+
         # 加载问题库
         questions = load_question_bank_from_db(keyword)
-        
+
         # 构建原始问题字典
-        org_questions = {str(i+1): q['generated_question'] for i, q in enumerate(questions)}
-        
+        org_questions = {
+            str(i + 1): q["generated_question"] for i, q in enumerate(questions)
+        }
+
         print(f"准备对 {len(org_questions)} 个问题进行评分...")
-        
+
         # 调用LLM进行评分
         client = OpenAI(api_key=key, base_url="https://api.moonshot.cn/v1")
-        
+
         # 构建评分prompt
         questions_text = "\n".join([f"{qid}. {q}" for qid, q in org_questions.items()])
-        
+
         completion = client.chat.completions.create(
             model="kimi-k2-0905-preview",
             messages=[{"role": "user", "content": prompt4 + questions_text}],
@@ -434,7 +462,7 @@ def score_questions_with_db(keyword):
         )
         result = completion.choices[0].message.content
         print(result)
-        
+
         # 解析评分结果
         try:
             cleaned_result = result.replace("```json", "").strip()
@@ -446,16 +474,16 @@ def score_questions_with_db(keyword):
         except Exception as e:
             print(f"解析评分结果时出错: {e}")
             scores_dict = {}
-        
+
         # 保存评分到数据库
         save_scores_to_db(keyword, scores_dict)
-        
+
         print(f"评分完成,共 {len(scores_dict)} 个问题")
         return True
-        
+
     except Exception as e:
         print(f"评分时出错: {str(e)}")
         import traceback
+
         traceback.print_exc()
         raise e
- 

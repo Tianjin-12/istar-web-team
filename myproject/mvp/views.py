@@ -41,11 +41,10 @@ def login_required_new_tab(
             path = request.build_absolute_uri()
             resolved_login_url = resolve_url(login_url or settings.LOGIN_URL)
 
-            # 构建带有next参数的登录URL
             query_params = {redirect_field_name: path}
             login_url_with_next = f"{resolved_login_url}?{urlencode(query_params)}"
 
-            # 返回一个包含JavaScript的响应，在新标签页中打开登录页面并监听登录状态
+            safe_login_url = json.dumps(login_url_with_next)
 
             html = f"""<!DOCTYPE html>
             <html>
@@ -54,8 +53,7 @@ def login_required_new_tab(
             </head>
             <body>
                 <script>
-                    // 打开登录页面
-                    var loginWindow = window.open('{login_url_with_next}', '_blank');
+                    var loginWindow = window.open({safe_login_url}, '_blank');
                     // 定期检查登录窗口是否关闭
                     var checkInterval = setInterval(function() {{
                         if (loginWindow.closed) {{

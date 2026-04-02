@@ -79,18 +79,16 @@ def schedule_order_processing():
 @shared_task(name="mvp.search_questions")
 def search_questions(keyword):
     """搜索知乎问题并保存到数据库"""
+    task_log = None
     try:
         from .searching import searching_with_db
 
-        # 创建任务日志
         task_log = TaskLog.objects.create(
             task_type="search_questions", status="running", started_at=timezone.now()
         )
 
-        # 执行搜索(自动检查缓存)
         questions = searching_with_db(keyword, use_cache=True)
 
-        # 更新任务日志
         task_log.status = "completed"
         task_log.completed_at = timezone.now()
         task_log.duration = int(
@@ -101,11 +99,11 @@ def search_questions(keyword):
         return {"status": "success", "count": len(questions)}
 
     except Exception as e:
-        # 记录错误
-        task_log.status = "failed"
-        task_log.error_message = str(e)
-        task_log.completed_at = timezone.now()
-        task_log.save()
+        if task_log:
+            task_log.status = "failed"
+            task_log.error_message = str(e)
+            task_log.completed_at = timezone.now()
+            task_log.save()
         raise e
 
 
@@ -117,18 +115,16 @@ def search_questions(keyword):
 @shared_task(name="mvp.build_question_bank")
 def build_question_bank(keyword):
     """构建问题库并保存到数据库"""
+    task_log = None
     try:
         from .question_bank import build_bank_with_db
 
-        # 创建任务日志
         task_log = TaskLog.objects.create(
             task_type="build_question_bank", status="running", started_at=timezone.now()
         )
 
-        # 构建问题库(自动检查缓存)
         questions = build_bank_with_db(keyword)
 
-        # 更新任务日志
         task_log.status = "completed"
         task_log.completed_at = timezone.now()
         task_log.duration = int(
@@ -139,10 +135,11 @@ def build_question_bank(keyword):
         return {"status": "success", "count": len(questions)}
 
     except Exception as e:
-        task_log.status = "failed"
-        task_log.error_message = str(e)
-        task_log.completed_at = timezone.now()
-        task_log.save()
+        if task_log:
+            task_log.status = "failed"
+            task_log.error_message = str(e)
+            task_log.completed_at = timezone.now()
+            task_log.save()
         raise e
 
 
@@ -196,18 +193,16 @@ def collect_ai_answers(keyword):
 @shared_task(name="mvp.score_questions")
 def score_questions(keyword):
     """对问题进行评分并保存到数据库"""
+    task_log = None
     try:
         from .question_bank import score_questions_with_db
 
-        # 创建任务日志
         task_log = TaskLog.objects.create(
             task_type="score_questions", status="running", started_at=timezone.now()
         )
 
-        # 评分(自动检查缓存)
         result = score_questions_with_db(keyword)
 
-        # 更新任务日志
         task_log.status = "completed"
         task_log.completed_at = timezone.now()
         task_log.duration = int(
@@ -218,10 +213,11 @@ def score_questions(keyword):
         return {"status": "success"}
 
     except Exception as e:
-        task_log.status = "failed"
-        task_log.error_message = str(e)
-        task_log.completed_at = timezone.now()
-        task_log.save()
+        if task_log:
+            task_log.status = "failed"
+            task_log.error_message = str(e)
+            task_log.completed_at = timezone.now()
+            task_log.save()
         raise e
 
 
@@ -469,7 +465,7 @@ def cleanup_backend():
             print("警告: 无法获取 Redis 客户端，跳过缓存清理")
             return f"已标记 {count} 个处理中的订单为失败"
 
-        mapping_keys = redis_client.keys("order_mapping:*")
+        mapping_keys = list(redis_client.scan_iter("order_mapping:*"))
         if mapping_keys:
             redis_client.delete(*mapping_keys)
         return f"已标记 {count} 个处理中的订单为失败，并清理任务队列"

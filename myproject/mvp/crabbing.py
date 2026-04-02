@@ -224,18 +224,17 @@ def crabbing(browser, index, question):
     button = page1.locator(button_selector)
     class_name = button.get_attribute("class")
 
-    if "selected ds-toggle-button" in class_name:
+    if class_name and "selected ds-toggle-button" in class_name:
         button.click()
         print("深度思考按钮已关闭")
     else:
         print("深度思考按钮已处于关闭状态，无需点击")
 
-    # 处理联网搜索按钮
     button_selector2 = "//div[@class='ec4f5d61']/div[2]"
     button2 = page1.locator(button_selector2)
     class_name2 = button2.get_attribute("class")
 
-    if "selected ds-toggle-button" in class_name2:
+    if class_name2 and "selected ds-toggle-button" in class_name2:
         print("联网搜索按钮已处于按下状态，无需点击")
     else:
         button2.click()
@@ -405,5 +404,3 @@ def collect_answers_with_db(keyword):
 
         traceback.print_exc()
         raise e
-
-
