@@ -1,0 +1,205 @@
+{% extends 'mvp/base.html' %}
+
+{% load static %}
+
+{% block title %}品牌AI可见度排行榜 - Istar GEO{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-lg-5 py-4">
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+      <h3 class="fw-bold text-dark mb-1">品牌AI可见度排行榜</h3>
+      <p class="text-muted mb-0 small" id="ranking-meta">加载中...</p>
+    </div>
+    <a href="/static/ranking.json" target="_blank" class="btn btn-ghost btn-sm rounded-pill px-3 text-decoration-none">
+      <i data-lucide="download" style="width: 14px; height: 14px; vertical-align: -2px; margin-right: 4px;"></i>
+      获取JSON数据
+    </a>
+  </div>
+
+  <div class="card border-0 shadow-sm" style="border-radius: 16px; overflow: hidden;">
+    <div class="card-body p-0">
+      <div class="d-flex flex-wrap align-items-center gap-3 p-3 border-bottom" style="background: rgba(15,23,42,0.03);">
+        <div class="input-group" style="max-width: 280px;">
+          <span class="input-group-text bg-white border-end-0" style="border-radius: 10px 0 0 10px;">
+            <i data-lucide="search" style="width: 16px; height: 16px;"></i>
+          </span>
+          <input type="text" id="search-input" class="form-control border-start-0 ps-0" placeholder="搜索品牌名称..." style="border-radius: 0 10px 10px 0;">
+        </div>
+        <select id="field-filter" class="form-select" style="max-width: 200px; border-radius: 10px;">
+          <option value="">全部行业</option>
+        </select>
+        <span class="text-muted small ms-auto" id="result-count"></span>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0" style="font-size: 0.9rem;">
+          <thead style="background: rgba(15,23,42,0.04);">
+            <tr>
+              <th class="ps-4 py-3" style="cursor:pointer; user-select:none;" data-sort="field_name">
+                行业 <i data-lucide="chevrons-up-down" style="width:14px;height:14px;vertical-align:-2px;opacity:0.4;"></i>
+              </th>
+              <th class="py-3" style="cursor:pointer; user-select:none;" data-sort="brand">
+                品牌 <i data-lucide="chevrons-up-down" style="width:14px;height:14px;vertical-align:-2px;opacity:0.4;"></i>
+              </th>
+              <th class="py-3" style="cursor:pointer; user-select:none;" data-sort="keyword">
+                关键词 <i data-lucide="chevrons-up-down" style="width:14px;height:14px;vertical-align:-2px;opacity:0.4;"></i>
+              </th>
+              <th class="py-3 text-center" style="cursor:pointer; user-select:none; min-width:100px;" data-sort="r_brand_amount">
+                推荐提及概率 <i data-lucide="chevrons-up-down" style="width:14px;height:14px;vertical-align:-2px;opacity:0.4;"></i>
+              </th>
+              <th class="py-3 text-center" style="cursor:pointer; user-select:none; min-width:110px;" data-sort="high_relevance_ratio">
+                高相关信源占比 <i data-lucide="chevrons-up-down" style="width:14px;height:14px;vertical-align:-2px;opacity:0.4;"></i>
+              </th>
+              <th class="py-3 text-center" style="cursor:pointer; user-select:none; min-width:100px;" data-sort="nr_brand_amount">
+                随意提及概率 <i data-lucide="chevrons-up-down" style="width:14px;height:14px;vertical-align:-2px;opacity:0.4;"></i>
+              </th>
+              <th class="pe-4 py-3 text-end text-muted" style="min-width:90px;">更新时间</th>
+            </tr>
+          </thead>
+          <tbody id="ranking-tbody">
+            <tr><td colspan="7" class="text-center text-muted py-5">加载中...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_script %}
+<script>
+(function() {
+  var allRows = [];
+  var currentSort = { key: null, asc: true };
+
+  function init() {
+    fetch('/static/ranking.json')
+      .then(function(res) {
+        if (!res.ok) throw new Error('JSON文件不存在');
+        return res.json();
+      })
+      .then(function(data) {
+        allRows = [];
+        var categories = data.categories || {};
+        for (var field in categories) {
+          categories[field].forEach(function(item) {
+            item.field_name = field;
+            allRows.push(item);
+          });
+        }
+        document.getElementById('ranking-meta').textContent =
+          '共 ' + data.total_brands + ' 个品牌 | 数据更新于 ' + data.updated_at;
+        populateFieldFilter(categories);
+        renderTable(allRows);
+        bindEvents();
+      })
+      .catch(function() {
+        document.getElementById('ranking-tbody').innerHTML =
+          '<tr><td colspan="7" class="text-center text-muted py-5">暂无数据，请稍后再试</td></tr>';
+        document.getElementById('ranking-meta').textContent = '暂无数据';
+      });
+  }
+
+  function populateFieldFilter(categories) {
+    var sel = document.getElementById('field-filter');
+    for (var field in categories) {
+      var opt = document.createElement('option');
+      opt.value = field;
+      opt.textContent = field + ' (' + categories[field].length + ')';
+      sel.appendChild(opt);
+    }
+  }
+
+  function renderTable(rows) {
+    var tbody = document.getElementById('ranking-tbody');
+    document.getElementById('result-count').textContent = rows.length + ' 条结果';
+
+    if (rows.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-5">无匹配结果</td></tr>';
+      return;
+    }
+
+    var html = '';
+    rows.forEach(function(r, idx) {
+      var rBrandClass = r.r_brand_amount >= 50 ? 'text-success fw-bold' : '';
+      var rBrandBg = r.r_brand_amount >= 50
+        ? 'background:rgba(45,212,191,0.1);border-radius:8px;display:inline-block;padding:2px 10px;'
+        : '';
+      var href = '/dashboard/brand/?brand=' + encodeURIComponent(r.brand) + '&keyword=' + encodeURIComponent(r.keyword);
+
+      html += '<tr class="ranking-row" style="cursor:pointer;" data-href="' + href + '">';
+      html += '<td class="ps-4"><span class="tag-pill">' + escHtml(r.field_name) + '</span></td>';
+      html += '<td class="fw-bold">' + escHtml(r.brand) + '</td>';
+      html += '<td class="text-muted">' + escHtml(r.keyword) + '</td>';
+      html += '<td class="text-center ' + rBrandClass + '"><span style="' + rBrandBg + '">' + r.r_brand_amount + '%</span></td>';
+      html += '<td class="text-center">' + r.high_relevance_ratio + '%</td>';
+      html += '<td class="text-center">' + r.nr_brand_amount + '%</td>';
+      html += '<td class="pe-4 text-end text-muted small">' + r.updated_at + '</td>';
+      html += '</tr>';
+    });
+    tbody.innerHTML = html;
+
+    tbody.querySelectorAll('.ranking-row').forEach(function(tr) {
+      tr.addEventListener('click', function() {
+        window.location.href = this.dataset.href;
+      });
+    });
+  }
+
+  function applyFilters() {
+    var keyword = document.getElementById('search-input').value.trim().toLowerCase();
+    var field = document.getElementById('field-filter').value;
+
+    var filtered = allRows.filter(function(r) {
+      var matchSearch = !keyword || r.brand.toLowerCase().indexOf(keyword) !== -1 || r.keyword.toLowerCase().indexOf(keyword) !== -1;
+      var matchField = !field || r.field_name === field;
+      return matchSearch && matchField;
+    });
+
+    if (currentSort.key) {
+      sortRows(filtered, currentSort.key, currentSort.asc);
+    }
+
+    renderTable(filtered);
+  }
+
+  function sortRows(rows, key, asc) {
+    rows.sort(function(a, b) {
+      var va = a[key], vb = b[key];
+      if (typeof va === 'string') va = va.toLowerCase();
+      if (typeof vb === 'string') vb = vb.toLowerCase();
+      if (va < vb) return asc ? -1 : 1;
+      if (va > vb) return asc ? 1 : -1;
+      return 0;
+    });
+  }
+
+  function escHtml(s) {
+    var d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  function bindEvents() {
+    document.getElementById('search-input').addEventListener('input', applyFilters);
+    document.getElementById('field-filter').addEventListener('change', applyFilters);
+
+    document.querySelectorAll('th[data-sort]').forEach(function(th) {
+      th.addEventListener('click', function() {
+        var key = this.dataset.sort;
+        if (currentSort.key === key) {
+          currentSort.asc = !currentSort.asc;
+        } else {
+          currentSort.key = key;
+          currentSort.asc = false;
+        }
+        applyFilters();
+      });
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', init);
+})();
+</script>
+{% endblock %}

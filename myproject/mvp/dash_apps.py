@@ -1,10 +1,8 @@
-# mvp/dash_apps.py
 from django_plotly_dash import DjangoDash
 from dash.dependencies import Output, Input, State
 import dash_bootstrap_components as dbc
 import os
 import json
-import subprocess
 import dash
 from dash import dcc, html, dash_table
 import plotly.express as px
@@ -13,9 +11,7 @@ import pandas as pd
 import numpy as np
 import requests
 from datetime import timedelta, datetime
-from django.urls import reverse
 
-# 创建DjangoDash实例，名称必须与模板中的name属性匹配
 app = DjangoDash(
     "DashboardApp",
     external_stylesheets=[
@@ -28,75 +24,6 @@ app = DjangoDash(
     serve_locally=True,
 )
 
-# --- 1. 多语言配置 ---
-TRANSLATIONS = {
-    "zh": {
-        "nav_dash": "仪表盘",
-        "nav_rank": "行业榜单",
-        "nav_wiki": "AI 知识库",
-        "nav_setting": "系统设置",
-        "login": "登录",
-        "welcome": "管理员",
-        "guest": "游客访问",
-        # 搜索区
-        "lbl_brand": "监测对象",
-        "ph_brand": "品牌名称 (如: Nike)",
-        "lbl_kw": "核心关键词",
-        "ph_kw": "关键词 (如: 蓝牙耳机)",
-        "lbl_link": "链接地址（选填）",
-        "ph_link": "请输入链接地址 (如: https://example.com)",
-        "btn_start": "开始分析",
-        # KPI & 图表
-        "kpi_vis": "核心品牌提及概率(推荐性任务)",
-        "kpi_sent": "高相关信源占比",
-        "kpi_rev": "品牌提及概率（随意性任务）",
-        "chart_trend": "流量来源趋势分析",
-        "chart_rank": "竞品可见度排行 ",
-        "chart_pie": "AI 平台推荐份额",
-        "chart_treemap": "信源分类分析",
-        "download": "导出分析报告",
-        "lang_label": "EN",
-        "btn_share": "分享",
-        # 欢迎区
-        "welcome_title": "想知道你的品牌有多大可能被AI推荐？",
-        "welcome_desc1": "这里是一个公益免费检测工具",
-        "welcome_desc2": "一群中山大学大学生的创新创业项目",
-        "welcome_cta": "何妨一试？",
-    },
-    "en": {
-        "nav_dash": "Dashboard",
-        "nav_rank": "Rankings",
-        "nav_wiki": "Wiki",
-        "nav_setting": "Settings",
-        "login": "Login",
-        "welcome": "Admin",
-        "guest": "Guest Mode",
-        # Search Section
-        "lbl_brand": "Target Brand",
-        "ph_brand": "e.g. Nike",
-        "lbl_kw": "Keywords",
-        "ph_kw": "e.g. Wireless Earbuds",
-        "lbl_link": "Link URL(optional)",
-        "ph_link": "Enter link URL (e.g., https://example.com)",
-        "btn_start": "Analyze",
-        # KPI & Charts
-        "kpi_vis": "Core Brand Mention percentage(recommend task)",
-        "kpi_sent": "High Relevance Source Ratio",
-        "kpi_rev": "Brand Mention percentage(random task)",
-        "chart_trend": "Traffic Source Trends",
-        "chart_rank": "Visibility Ranking",
-        "chart_pie": "AI Rec. Share",
-        "chart_treemap": "Source Category Analysis",
-        "download": "Export Report",
-        "lang_label": "中",
-        "btn_share": "Share",
-        # Welcome Section
-        "welcome_title": "Wondering how likely your brand is to be recommended by AI?",
-        "welcome_desc1": "Independent third-party monitoring platform with proprietary algorithms",
-        "welcome_desc2": "An innovative startup project from Sun Yat-sen University",
-        "welcome_cta": "Give it a try!",
-    },
-}
 EXPLANATIONS = {
     "kpi-1": {
         "title": "核心品牌提及概率（推荐性任务）",
@@ -182,10 +109,8 @@ EXPLANATIONS = {
 
 
 def fetch_backend_data(brand_name=None, keyword_name=None, link_name=None):
-    # API端点URL
     base_url = os.environ.get("WEBSITE_URL", "http://localhost:8000")
     api_url = f"{base_url}/api/dashboard-data/"
-    # 构建查询参数
     params = {}
     if brand_name:
         params["brand_name"] = brand_name
@@ -193,23 +118,18 @@ def fetch_backend_data(brand_name=None, keyword_name=None, link_name=None):
         params["keyword"] = keyword_name
     if link_name:
         params["link"] = link_name
-    params["days"] = 30  # 默认获取30天的数据
+    params["days"] = 30
 
     try:
-        # 发送GET请求到API
         response = requests.get(api_url, params=params, timeout=100)
 
-        # 检查响应状态
         if response.status_code == 200:
-            # 解析JSON响应
             data = response.json()
 
             if data.get("status") == "success":
-                # 获取API数据
                 api_data = data.get("data", [])
 
                 if not api_data:
-                    # 如果没有数据，返回特殊标记
                     return {
                         "no_data": True,
                         "brand_name": brand_name,
@@ -217,14 +137,9 @@ def fetch_backend_data(brand_name=None, keyword_name=None, link_name=None):
                         "link_name": link_name,
                     }
 
-                # 将API数据转换为DataFrame
                 df = pd.DataFrame(api_data)
-
-                print(type(df))
-                # 转换为网页需要的数据格式
                 return df
             elif data.get("status") == "no_data":
-                # API返回没有数据的标记
                 return {
                     "no_data": True,
                     "brand_name": data.get("brand_name", brand_name),
@@ -232,14 +147,12 @@ def fetch_backend_data(brand_name=None, keyword_name=None, link_name=None):
                     "link_name": data.get("link_name", link_name),
                 }
             elif data.get("status") == "no_order":
-                # API返回没有订单的标记
                 return {
                     "no_order": True,
                     "brand_name": data.get("brand_name", brand_name),
                     "keyword": data.get("keyword", keyword_name),
                 }
             else:
-                # API返回错误
                 print(f"API返回错误: {data.get('error', '未知错误')}")
                 return {
                     "no_data": True,
@@ -248,7 +161,6 @@ def fetch_backend_data(brand_name=None, keyword_name=None, link_name=None):
                     "link_name": link_name,
                 }
         else:
-            # HTTP错误
             print(f"HTTP错误 {response.status_code}: {response.text}")
             return {
                 "no_data": True,
@@ -258,7 +170,6 @@ def fetch_backend_data(brand_name=None, keyword_name=None, link_name=None):
             }
 
     except requests.exceptions.RequestException as e:
-        # 网络请求异常
         print(f"网络请求异常: {str(e)}")
         return {
             "no_data": True,
@@ -267,7 +178,6 @@ def fetch_backend_data(brand_name=None, keyword_name=None, link_name=None):
             "link_name": link_name,
         }
     except Exception as e:
-        # 其他异常
         print(f"处理数据时发生异常: {str(e)}")
         return {
             "no_data": True,
@@ -278,27 +188,26 @@ def fetch_backend_data(brand_name=None, keyword_name=None, link_name=None):
 
 
 def _convert_to_web_format(df, brand_name):
-    # 处理趋势图数据
     if not isinstance(df, pd.DataFrame):
         return _get_default_data()
     if "brand_name" not in df.columns or brand_name not in df["brand_name"].values:
         return _get_default_data()
     trend_data = {"Date": [], "Brand": [], "Link": []}
-    focus_df = df[df["brand_name"].str.contains(brand_name, case=False, na=False)]
-    # 按日期分组并计算平均值
+    focus_df = df[
+        df["brand_name"].str.contains(brand_name, case=False, na=False)
+    ].copy()
 
     focus_df["created_at"] = pd.to_datetime(focus_df["created_at"])
-    df["created_at"] = pd.to_datetime(df["created_at"])
-    # 获取最近的日期
+    df_copy = df.copy()
+    df_copy["created_at"] = pd.to_datetime(df_copy["created_at"])
+
     latest_date = focus_df["created_at"].max()
-    # 筛选出最近日期的数据
     latest_data = focus_df[focus_df["created_at"] == latest_date]
-    # 计算最近一天的平均值
+
     latest_r_brand_amount = latest_data["r_brand_amount"].mean()
     latest_nr_brand_amount = latest_data["nr_brand_amount"].mean()
     latest_link_amount = latest_data["link_amount"].mean()
 
-    # 计算周对比数据（7天前）
     week_ago_date = latest_date - timedelta(days=7)
     week_ago_data = focus_df[focus_df["created_at"] == week_ago_date]
 
@@ -307,7 +216,6 @@ def _convert_to_web_format(df, brand_name):
         prev_nr_brand_amount = week_ago_data["nr_brand_amount"].mean()
         prev_link_amount = week_ago_data["link_amount"].mean()
 
-        # 计算变化率
         change_r_brand = (
             ((latest_r_brand_amount - prev_r_brand_amount) / prev_r_brand_amount * 100)
             if prev_r_brand_amount != 0
@@ -338,24 +246,21 @@ def _convert_to_web_format(df, brand_name):
         .reset_index()
     )
 
-    # 按日期排序
     grouped = grouped.sort_values("created_at")
 
-    # 将日期转换为字符串格式
     trend_data["Date"] = grouped["created_at"].dt.strftime("%Y-%m-%d").tolist()
     trend_data["Brand"] = grouped["r_brand_amount"].tolist()
     trend_data["Link"] = grouped["link_amount"].tolist()
 
-    # 处理排行榜数据
     ranking_data = pd.DataFrame(columns=["Brand", "Score", "Rank"])
     brand_stats = pd.DataFrame(columns=["brand_name", "r_brand_amount", "link_amount"])
     if (
-        "brand_name" in df.columns
-        and "r_brand_amount" in df.columns
-        and "link_amount" in df.columns
+        "brand_name" in df_copy.columns
+        and "r_brand_amount" in df_copy.columns
+        and "link_amount" in df_copy.columns
     ):
         brand_stats = (
-            df.groupby("brand_name")
+            df_copy.groupby("brand_name")
             .agg({"r_brand_amount": "mean", "link_amount": "mean"})
             .reset_index()
         )
@@ -375,7 +280,7 @@ def _convert_to_web_format(df, brand_name):
         )
 
         ranking_data = ranking_data[["Brand", "Score", "Rank"]]
-    # 处理饼图数据
+
     pie_labels = (
         brand_stats["brand_name"].tolist() if not brand_stats.empty else ["暂无数据"]
     )
@@ -408,19 +313,13 @@ def _convert_to_web_format(df, brand_name):
 
 
 def _get_default_data():
-    # 生成默认日期范围
     dates = [
         (datetime.now() - timedelta(days=i)).strftime("%Y-%m-%d")
         for i in range(29, -1, -1)
     ]
 
-    # 默认趋势数据
     trend_data = {"Date": dates, "Brand": [0] * 30, "Link": [0] * 30}
-
-    # 默认排行榜数据
     rank_data = pd.DataFrame({"Brand": ["暂无数据"], "Score": [0], "Rank": [1]})
-
-    # 默认饼图数据
     BrandsP = ["暂无数据"]
     values = [100]
 
@@ -446,539 +345,89 @@ def _get_default_data():
     )
 
 
-# --- 2. 布局设计 ---
+def _make_kpi_help():
+    style = {
+        "position": "absolute",
+        "top": "10px",
+        "right": "10px",
+        "width": "28px",
+        "height": "28px",
+        "background": "#0c0ccb",
+        "color": "white",
+        "borderRadius": "50%",
+        "display": "flex",
+        "alignItems": "center",
+        "justifyContent": "center",
+        "fontSize": "16px",
+        "fontWeight": "bold",
+        "cursor": "pointer",
+        "zIndex": 100,
+    }
+    return html.Span("?", style=style)
+
+
+def _make_chart_help(help_id):
+    style = {
+        "float": "right",
+        "width": "24px",
+        "height": "24px",
+        "background": "#6c757d",
+        "color": "white",
+        "borderRadius": "50%",
+        "display": "flex",
+        "alignItems": "center",
+        "justifyContent": "center",
+        "fontSize": "14px",
+        "fontWeight": "bold",
+        "cursor": "pointer",
+    }
+    return html.Span("?", id=help_id, style=style)
+
+
 app.layout = html.Div(
     [
         dcc.Location(id="url", refresh=False),
-        dcc.Store(id="lang-store", data="zh"),
         dcc.Store(
             id="app-state",
             data={
                 "current_page": "brand",
-                "first_time": True,
                 "brand_name": "",
                 "keyword": "",
                 "link": "",
             },
         ),
-        # 浮动翻译按钮
-        html.Div(
-            [
-                dbc.Checklist(
-                    id="lang-switch-visible",
-                    options=[{"label": "EN", "value": "en"}],
-                    value=[],
-                    switch=True,
-                    inline=True,
-                    style={"cursor": "pointer"},
-                )
-            ],
-            id="lang-switch-container",
-            style={
-                "position": "fixed",
-                "top": "15px",
-                "right": "20px",
-                "zIndex": "1000",
-                "background": "rgba(255, 255, 255, 0.95)",
-                "padding": "10px 15px",
-                "borderRadius": "25px",
-                "boxShadow": "0 2px 10px rgba(0, 0, 0, 0.15)",
-            },
-        ),
-        # === C. 主要内容区域 ===
-        html.Div(id="page-content", children=[]),
+        dcc.Store(id="trigger-store", data=0),
         dbc.Container(
             [
-                # --- 欢迎区 ---
-                dbc.Card(
+                dbc.Row(
                     [
-                        dbc.CardBody(
-                            [
-                                html.H1(
-                                    "想知道你的品牌有多大可能被AI推荐？",
-                                    id="welcome-title",
-                                    className="fw-bold text-dark mb-5 fs-1",
-                                ),
-                                html.H1(
-                                    "这是一个公益免费检测工具",
-                                    id="welcome-desc-1",
-                                    className="fw-normal text-dark mb-1 fs-5",
-                                ),
-                                html.H1(
-                                    "一群中山大学大学生的创新创业项目",
-                                    id="welcome-desc-2",
-                                    className="fw-light text-dark mb-1 fs-6",
-                                ),
-                                html.H1(
-                                    "何妨一试？",
-                                    id="welcome-cta",
-                                    className="fw-noral text-dark mb-0 fs-3",
-                                ),
-                            ],
-                            className="p-4 text-center",
-                        )
-                    ],
-                    className="mb-4 shadow-sm",
-                    style={
-                        "borderRadius": "20px",
-                        "border": "none",
-                        "background": "#ffffff",
-                    },
-                ),
-                # --- 搜索控制台 ---
-                dbc.Card(
-                    [
-                        # 新手引导按钮行
-                        dbc.Row(
-                            [
-                                dbc.Col(
-                                    [
-                                        dbc.Button(
-                                            [
-                                                html.I(
-                                                    className="bi bi-question-circle me-2"
-                                                ),
-                                                "新手提示",
-                                            ],
-                                            id="btn-guide",
-                                            className="fw-bold shadow-sm",
-                                            color="outline-info",
-                                            n_clicks=0,
-                                            style={
-                                                "maxWidth": "200px",
-                                                "margin": "0 auto",
-                                            },
-                                        )
-                                    ],
-                                    width=12,
-                                    className="text-center",
-                                )
-                            ],
-                            className="mb-4",
-                        ),
-                        dbc.CardBody(
-                            [
-                                # 主区域：左列输入框 + 右列按钮
-                                dbc.Row(
-                                    [
-                                        # 左列：输入框
-                                        dbc.Col(
-                                            [
-                                                dbc.Row(
-                                                    [
-                                                        dbc.Col(
-                                                            [
-                                                                html.Label(
-                                                                    id="lbl-search-brand",
-                                                                    className="small fw-bold text-secondary mb-1",
-                                                                ),
-                                                                dbc.InputGroup(
-                                                                    [
-                                                                        dbc.InputGroupText(
-                                                                            html.I(
-                                                                                className="bi bi-building"
-                                                                            )
-                                                                        ),
-                                                                        dbc.Input(
-                                                                            id="input-search-brand",
-                                                                            className="form-control-premium",
-                                                                        ),
-                                                                    ]
-                                                                ),
-                                                            ],
-                                                            width=12,
-                                                        )
-                                                    ],
-                                                    className="mb-3",
-                                                ),
-                                                dbc.Row(
-                                                    [
-                                                        dbc.Col(
-                                                            [
-                                                                html.Label(
-                                                                    id="lbl-search-kw",
-                                                                    className="small fw-bold text-secondary mb-1",
-                                                                ),
-                                                                dbc.InputGroup(
-                                                                    [
-                                                                        dbc.InputGroupText(
-                                                                            html.I(
-                                                                                className="bi bi-search"
-                                                                            )
-                                                                        ),
-                                                                        dbc.Input(
-                                                                            id="input-search-kw",
-                                                                            className="form-control-premium",
-                                                                        ),
-                                                                    ]
-                                                                ),
-                                                            ],
-                                                            width=12,
-                                                        )
-                                                    ],
-                                                    className="mb-3",
-                                                ),
-                                                dbc.Row(
-                                                    [
-                                                        dbc.Col(
-                                                            [
-                                                                html.Label(
-                                                                    id="lbl-search-link",
-                                                                    className="small fw-bold text-secondary mb-1",
-                                                                ),
-                                                                dbc.InputGroup(
-                                                                    [
-                                                                        dbc.InputGroupText(
-                                                                            html.I(
-                                                                                className="bi bi-link-45deg"
-                                                                            )
-                                                                        ),
-                                                                        dbc.Input(
-                                                                            id="input-search-link",
-                                                                            className="form-control-premium",
-                                                                        ),
-                                                                    ]
-                                                                ),
-                                                            ],
-                                                            width=12,
-                                                        )
-                                                    ]
-                                                ),
-                                            ],
-                                            width=12,
-                                            md=7,
-                                        ),
-                                        # 右列：按钮
-                                        dbc.Col(
-                                            [
-                                                dbc.Row(
-                                                    [
-                                                        dbc.Col(
-                                                            [
-                                                                dbc.Button(
-                                                                    "开始分析",
-                                                                    id="btn-analyze",
-                                                                    className="w-100 fw-bold shadow-sm",
-                                                                    color="dark",
-                                                                    n_clicks=0,
-                                                                    style={
-                                                                        "background": "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                                                                        "border": "none",
-                                                                        "height": "48px",
-                                                                    },
-                                                                )
-                                                            ],
-                                                            width=10,
-                                                        )
-                                                    ],
-                                                    className="mb-5",
-                                                ),
-                                                dbc.Row(
-                                                    [
-                                                        dbc.Col(
-                                                            [
-                                                                dbc.Button(
-                                                                    "导出分析报告",
-                                                                    id="btn-download",
-                                                                    className="w-100 fw-bold shadow-sm",
-                                                                    color="primary",
-                                                                    n_clicks=0,
-                                                                    style={
-                                                                        "height": "48px"
-                                                                    },
-                                                                )
-                                                            ],
-                                                            width=10,
-                                                        )
-                                                    ],
-                                                    className="mb-5",
-                                                ),
-                                                dbc.Row(
-                                                    [
-                                                        dbc.Col(
-                                                            [
-                                                                dbc.Button(
-                                                                    [
-                                                                        html.I(
-                                                                            className="bi bi-share-fill me-2"
-                                                                        ),
-                                                                        html.Span(
-                                                                            "分享",
-                                                                            id="btn-share-text",
-                                                                        ),
-                                                                    ],
-                                                                    id="btn-share",
-                                                                    className="w-100 fw-bold shadow-sm",
-                                                                    color="success",
-                                                                    n_clicks=0,
-                                                                    style={
-                                                                        "height": "48px"
-                                                                    },
-                                                                )
-                                                            ],
-                                                            width=10,
-                                                        )
-                                                    ],
-                                                    className="mb-5",
-                                                ),
-                                            ],
-                                            width=10,
-                                            md=5,
-                                        ),
-                                    ],
-                                    className="align-items-start",
-                                )
-                            ],
-                            className="p-4",
-                        ),
-                    ],
-                    className="premium-card mb-4 border-0 shadow-sm",
-                ),
-                # 添加下载组件
-                dcc.Download(id="download-dataframe-csv"),
-                # --- 新手引导 Modal ---
-                dbc.Modal(
-                    [
-                        dbc.ModalHeader(
-                            dbc.ModalTitle(
-                                "🎉 欢迎使用 Istar GEO Evaluator",
-                                className="fw-bold text-primary",
-                            )
-                        ),
-                        dbc.ModalBody(
-                            [
-                                html.Div(
-                                    [
-                                        html.H4("快速上手", className="mb-3"),
-                                        html.Div(
-                                            [
-                                                html.Div(
-                                                    [
-                                                        html.Span(
-                                                            "1",
-                                                            className="badge bg-primary me-2",
-                                                            style={
-                                                                "width": "30px",
-                                                                "height": "30px",
-                                                                "borderRadius": "50%",
-                                                                "display": "inline-flex",
-                                                                "alignItems": "center",
-                                                                "justifyContent": "center",
-                                                            },
-                                                        ),
-                                                        html.Strong(
-                                                            "输入品牌和关键词",
-                                                            className="me-2",
-                                                        ),
-                                                    ],
-                                                    className="mb-3",
-                                                ),
-                                                html.P(
-                                                    "在搜索控制台输入品牌名称（如 Nike）和核心关键词（如 运动鞋）",
-                                                    className="text-muted ms-5 mb-0",
-                                                ),
-                                            ]
-                                        ),
-                                        html.Div(
-                                            [
-                                                html.Div(
-                                                    [
-                                                        html.Span(
-                                                            "2",
-                                                            className="badge bg-success me-2",
-                                                            style={
-                                                                "width": "30px",
-                                                                "height": "30px",
-                                                                "borderRadius": "50%",
-                                                                "display": "inline-flex",
-                                                                "alignItems": "center",
-                                                                "justifyContent": "center",
-                                                            },
-                                                        ),
-                                                        html.Strong(
-                                                            "点击开始分析",
-                                                            className="me-2",
-                                                        ),
-                                                    ],
-                                                    className="mb-3",
-                                                ),
-                                                html.P(
-                                                    "点击「开始分析」按钮，系统将获取您的品牌在 AI 搜索工具中的数据",
-                                                    className="text-muted ms-5 mb-0",
-                                                ),
-                                            ]
-                                        ),
-                                        html.Div(
-                                            [
-                                                html.Div(
-                                                    [
-                                                        html.Span(
-                                                            "3",
-                                                            className="badge bg-info me-2",
-                                                            style={
-                                                                "width": "30px",
-                                                                "height": "30px",
-                                                                "borderRadius": "50%",
-                                                                "display": "inline-flex",
-                                                                "alignItems": "center",
-                                                                "justifyContent": "center",
-                                                            },
-                                                        ),
-                                                        html.Strong(
-                                                            "查看分析结果",
-                                                            className="me-2",
-                                                        ),
-                                                    ],
-                                                    className="mb-3",
-                                                ),
-                                                html.P(
-                                                    "KPI 指标、趋势图表、排行榜将为您展示品牌的 AI 可见度表现",
-                                                    className="text-muted ms-5 mb-0",
-                                                ),
-                                            ]
-                                        ),
-                                        html.Div(
-                                            [
-                                                html.Div(
-                                                    [
-                                                        html.Span(
-                                                            "4",
-                                                            className="badge bg-warning me-2",
-                                                            style={
-                                                                "width": "30px",
-                                                                "height": "30px",
-                                                                "borderRadius": "50%",
-                                                                "display": "inline-flex",
-                                                                "alignItems": "center",
-                                                                "justifyContent": "center",
-                                                            },
-                                                        ),
-                                                        html.Strong(
-                                                            "导出分析报告",
-                                                            className="me-2",
-                                                        ),
-                                                    ],
-                                                    className="mb-0",
-                                                ),
-                                                html.P(
-                                                    "点击「导出分析报告」按钮，将数据导出为 CSV 文件",
-                                                    className="text-muted ms-5 mb-0",
-                                                ),
-                                            ]
-                                        ),
-                                    ],
-                                    className="px-3",
-                                ),
-                                html.Hr(className="my-4"),
-                                html.P(
-                                    [
-                                        html.I(
-                                            className="bi bi-lightbulb text-warning me-2"
-                                        ),
-                                        "点击 KPI 卡片右上角的「？」可查看指标说明",
-                                    ],
-                                    className="small text-muted mb-0",
-                                ),
-                            ],
-                            className="p-4",
-                        ),
-                        dbc.ModalFooter(
-                            [
-                                dbc.Button(
-                                    "不再显示",
-                                    id="guide-dont-show-btn",
-                                    color="outline-secondary",
-                                    className="me-2",
-                                    size="sm",
-                                ),
-                                dbc.Button(
-                                    "开始使用",
-                                    id="guide-close-btn",
-                                    color="primary",
-                                    size="sm",
-                                ),
-                            ]
-                        ),
-                    ],
-                    id="guide-modal",
-                    is_open=False,
-                    centered=True,
-                    size="lg",
-                    backdrop="static",
-                    fade=False,
-                ),
-                # --- 分享功能 Modal ---
-                dbc.Modal(
-                    [
-                        dbc.ModalHeader(
-                            dbc.ModalTitle("分享分析报告", className="fw-bold")
-                        ),
-                        dbc.ModalBody(
-                            [
-                                html.P("选择分享方式：", className="mb-4"),
-                                dbc.Row(
-                                    [
-                                        dbc.Col(
-                                            [
-                                                dbc.Button(
-                                                    html.Div(
-                                                        [
-                                                            html.I(
-                                                                className="bi bi-image d-block mb-2",
-                                                                style={
-                                                                    "fontSize": "2rem"
-                                                                },
-                                                            ),
-                                                            "下载为图片",
-                                                        ],
-                                                        className="text-center",
-                                                    ),
-                                                    id="btn-download-image",
-                                                    color="outline-primary",
-                                                    className="w-100 py-3",
-                                                )
-                                            ],
-                                            width=6,
-                                        ),
-                                        dbc.Col(
-                                            [
-                                                dbc.Button(
-                                                    html.Div(
-                                                        [
-                                                            html.I(
-                                                                className="bi bi-link-45deg d-block mb-2",
-                                                                style={
-                                                                    "fontSize": "2rem"
-                                                                },
-                                                            ),
-                                                            "复制链接",
-                                                        ],
-                                                        className="text-center",
-                                                    ),
-                                                    id="btn-copy-link",
-                                                    color="outline-success",
-                                                    className="w-100 py-3",
-                                                )
-                                            ],
-                                            width=6,
-                                        ),
-                                    ],
-                                    className="g-3",
-                                ),
-                            ]
-                        ),
-                        dbc.ModalFooter(
+                        dbc.Col(
                             dbc.Button(
-                                "关闭", id="share-modal-close", color="secondary"
-                            )
+                                [
+                                    html.I(className="bi bi-search me-1"),
+                                    "搜索",
+                                ],
+                                id="btn-open-search",
+                                className="fw-bold shadow-sm rounded-pill",
+                                color="outline-dark",
+                                size="sm",
+                                n_clicks=0,
+                            ),
+                            width="auto",
+                        ),
+                        dbc.Col(
+                            html.Span(
+                                id="brand-title",
+                                className="fw-bold text-dark",
+                                style={"fontSize": "1.2rem"},
+                            ),
+                            width="auto",
                         ),
                     ],
-                    id="share-modal",
-                    is_open=False,
-                    centered=True,
-                    size="md",
+                    className="align-items-center mb-4",
+                    style={"gap": "12px"},
                 ),
-                dcc.Loading(
+                dbc.Loading(
                     id="loading",
                     type="cube",
                     color="#cb0c9f",
@@ -996,29 +445,10 @@ app.layout = html.Div(
                                                                 id="label-kpi-1",
                                                                 className="card-label mb-2",
                                                             ),
-                                                            html.Span(
-                                                                "?",
-                                                                id="kpi-help-1",
-                                                                style={
-                                                                    "position": "absolute",
-                                                                    "top": "10px",
-                                                                    "right": "10px",
-                                                                    "width": "28px",
-                                                                    "height": "28px",
-                                                                    "background": "#0c0ccb",
-                                                                    "color": "white",
-                                                                    "borderRadius": "50%",
-                                                                    "display": "flex",
-                                                                    "alignItems": "center",
-                                                                    "justifyContent": "center",
-                                                                    "fontSize": "16px",
-                                                                    "fontWeight": "bold",
-                                                                    "cursor": "pointer",
-                                                                    "zIndex": 100,
-                                                                },
-                                                            ),
+                                                            _make_kpi_help(),
                                                         ],
                                                         style={"position": "relative"},
+                                                        id="kpi-help-1-wrap",
                                                     ),
                                                     html.Div(
                                                         id="val-1", className="mt-4"
@@ -1043,29 +473,10 @@ app.layout = html.Div(
                                                                 id="label-kpi-2",
                                                                 className="card-label mb-2",
                                                             ),
-                                                            html.Span(
-                                                                "?",
-                                                                id="kpi-help-2",
-                                                                style={
-                                                                    "position": "absolute",
-                                                                    "top": "10px",
-                                                                    "right": "10px",
-                                                                    "width": "28px",
-                                                                    "height": "28px",
-                                                                    "background": "#0c0ccb",
-                                                                    "color": "white",
-                                                                    "borderRadius": "50%",
-                                                                    "display": "flex",
-                                                                    "alignItems": "center",
-                                                                    "justifyContent": "center",
-                                                                    "fontSize": "16px",
-                                                                    "fontWeight": "bold",
-                                                                    "cursor": "pointer",
-                                                                    "zIndex": 100,
-                                                                },
-                                                            ),
+                                                            _make_kpi_help(),
                                                         ],
                                                         style={"position": "relative"},
+                                                        id="kpi-help-2-wrap",
                                                     ),
                                                     html.Div(
                                                         id="val-2", className="mt-4"
@@ -1090,29 +501,10 @@ app.layout = html.Div(
                                                                 id="label-kpi-3",
                                                                 className="card-label mb-2",
                                                             ),
-                                                            html.Span(
-                                                                "?",
-                                                                id="kpi-help-3",
-                                                                style={
-                                                                    "position": "absolute",
-                                                                    "top": "10px",
-                                                                    "right": "10px",
-                                                                    "width": "28px",
-                                                                    "height": "28px",
-                                                                    "background": "#0c0ccb",
-                                                                    "color": "white",
-                                                                    "borderRadius": "50%",
-                                                                    "display": "flex",
-                                                                    "alignItems": "center",
-                                                                    "justifyContent": "center",
-                                                                    "fontSize": "16px",
-                                                                    "fontWeight": "bold",
-                                                                    "cursor": "pointer",
-                                                                    "zIndex": 100,
-                                                                },
-                                                            ),
+                                                            _make_kpi_help(),
                                                         ],
                                                         style={"position": "relative"},
+                                                        id="kpi-help-3-wrap",
                                                     ),
                                                     html.Div(
                                                         id="val-3", className="mt-4"
@@ -1128,7 +520,6 @@ app.layout = html.Div(
                                 ),
                             ]
                         ),
-                        # 2. 图表区
                         dbc.Row(
                             [
                                 dbc.Col(
@@ -1143,23 +534,8 @@ app.layout = html.Div(
                                                             "display": "inline-block"
                                                         },
                                                     ),
-                                                    html.Span(
-                                                        "?",
-                                                        id="chart-help-trend",
-                                                        style={
-                                                            "float": "right",
-                                                            "width": "24px",
-                                                            "height": "24px",
-                                                            "background": "#6c757d",
-                                                            "color": "white",
-                                                            "borderRadius": "50%",
-                                                            "display": "flex",
-                                                            "alignItems": "center",
-                                                            "justifyContent": "center",
-                                                            "fontSize": "14px",
-                                                            "fontWeight": "bold",
-                                                            "cursor": "pointer",
-                                                        },
+                                                    _make_chart_help(
+                                                        "chart-help-trend"
                                                     ),
                                                 ],
                                                 className="bg-transparent border-0 fw-bold pt-4 ps-4",
@@ -1190,24 +566,7 @@ app.layout = html.Div(
                                                             "display": "inline-block"
                                                         },
                                                     ),
-                                                    html.Span(
-                                                        "?",
-                                                        id="chart-help-pie",
-                                                        style={
-                                                            "float": "right",
-                                                            "width": "24px",
-                                                            "height": "24px",
-                                                            "background": "#6c757d",
-                                                            "color": "white",
-                                                            "borderRadius": "50%",
-                                                            "display": "flex",
-                                                            "alignItems": "center",
-                                                            "justifyContent": "center",
-                                                            "fontSize": "14px",
-                                                            "fontWeight": "bold",
-                                                            "cursor": "pointer",
-                                                        },
-                                                    ),
+                                                    _make_chart_help("chart-help-pie"),
                                                 ],
                                                 className="bg-transparent border-0 fw-bold pt-4 ps-4",
                                             ),
@@ -1227,7 +586,6 @@ app.layout = html.Div(
                                 ),
                             ]
                         ),
-                        # 3. 排行榜
                         dbc.Row(
                             [
                                 dbc.Col(
@@ -1242,29 +600,13 @@ app.layout = html.Div(
                                                             "display": "inline-block"
                                                         },
                                                     ),
-                                                    html.Span(
-                                                        "?",
-                                                        id="chart-help-rank",
-                                                        style={
-                                                            "float": "right",
-                                                            "width": "24px",
-                                                            "height": "24px",
-                                                            "background": "#6c757d",
-                                                            "color": "white",
-                                                            "borderRadius": "50%",
-                                                            "display": "flex",
-                                                            "alignItems": "center",
-                                                            "justifyContent": "center",
-                                                            "fontSize": "14px",
-                                                            "fontWeight": "bold",
-                                                            "cursor": "pointer",
-                                                        },
-                                                    ),
+                                                    _make_chart_help("chart-help-rank"),
                                                 ],
                                                 className="bg-transparent border-0 fw-bold pt-4 ps-4",
                                             ),
                                             dbc.CardBody(
-                                                id="rank-container", className="p-4"
+                                                id="rank-container",
+                                                className="p-4",
                                             ),
                                         ],
                                         className="premium-card",
@@ -1287,23 +629,8 @@ app.layout = html.Div(
                                                             "display": "inline-block"
                                                         },
                                                     ),
-                                                    html.Span(
-                                                        "?",
-                                                        id="chart-help-treemap",
-                                                        style={
-                                                            "float": "right",
-                                                            "width": "24px",
-                                                            "height": "24px",
-                                                            "background": "#6c757d",
-                                                            "color": "white",
-                                                            "borderRadius": "50%",
-                                                            "display": "flex",
-                                                            "alignItems": "center",
-                                                            "justifyContent": "center",
-                                                            "fontSize": "14px",
-                                                            "fontWeight": "bold",
-                                                            "cursor": "pointer",
-                                                        },
+                                                    _make_chart_help(
+                                                        "chart-help-treemap"
                                                     ),
                                                 ],
                                                 className="bg-transparent border-0 fw-bold pt-4 ps-4",
@@ -1323,22 +650,135 @@ app.layout = html.Div(
                                 )
                             ]
                         ),
+                        dbc.Row(
+                            [
+                                dbc.Col(
+                                    [
+                                        dbc.Button(
+                                            [
+                                                html.I(className="bi bi-download me-2"),
+                                                "导出为文件",
+                                            ],
+                                            id="btn-export-file",
+                                            className="fw-bold rounded-pill px-4",
+                                            color="primary",
+                                            size="sm",
+                                            n_clicks=0,
+                                        ),
+                                        dbc.Button(
+                                            [
+                                                html.I(
+                                                    className="bi bi-link-45deg me-2"
+                                                ),
+                                                "以链接分享",
+                                            ],
+                                            id="btn-share-link",
+                                            className="fw-bold rounded-pill px-4 ms-2",
+                                            color="success",
+                                            size="sm",
+                                            n_clicks=0,
+                                        ),
+                                        dbc.Button(
+                                            [
+                                                html.I(className="bi bi-image me-2"),
+                                                "以图片分享",
+                                            ],
+                                            id="btn-share-image",
+                                            className="fw-bold rounded-pill px-4 ms-2",
+                                            color="outline-dark",
+                                            size="sm",
+                                            n_clicks=0,
+                                        ),
+                                    ],
+                                    className="text-center py-3",
+                                ),
+                            ]
+                        ),
                     ],
                 ),
+                dcc.Download(id="download-dataframe-csv"),
             ],
             fluid=True,
             className="px-lg-5 pb-5",
         ),
-        dcc.Interval(
-            id="interval-trigger", interval=120 * 1000, n_intervals=0
-        ),  # 一个计时器
-        html.Div(
-            dash_table.DataTable(id="hidden"), style={"display": "none"}
-        ),  # 隐藏的 DataTable 防止 Import unused 报错
-        html.Div(
-            id="logout-redirect", style={"display": "none"}
-        ),  # 用于接收退出登录JavaScript的隐藏div
-        # 指标解释弹窗
+        dbc.Modal(
+            [
+                dbc.ModalHeader(dbc.ModalTitle("搜索品牌", className="fw-bold")),
+                dbc.ModalBody(
+                    [
+                        dbc.Row(
+                            [
+                                dbc.Col(
+                                    [
+                                        html.Label(
+                                            "品牌名称",
+                                            className="small fw-bold text-secondary mb-1",
+                                        ),
+                                        dbc.Input(
+                                            id="modal-input-brand",
+                                            placeholder="如: Nike",
+                                        ),
+                                    ],
+                                    className="mb-3",
+                                ),
+                            ]
+                        ),
+                        dbc.Row(
+                            [
+                                dbc.Col(
+                                    [
+                                        html.Label(
+                                            "核心关键词",
+                                            className="small fw-bold text-secondary mb-1",
+                                        ),
+                                        dbc.Input(
+                                            id="modal-input-kw",
+                                            placeholder="如: 运动鞋",
+                                        ),
+                                    ],
+                                    className="mb-3",
+                                ),
+                            ]
+                        ),
+                        dbc.Row(
+                            [
+                                dbc.Col(
+                                    [
+                                        html.Label(
+                                            "链接地址（选填）",
+                                            className="small fw-bold text-secondary mb-1",
+                                        ),
+                                        dbc.Input(
+                                            id="modal-input-link",
+                                            placeholder="请输入链接地址",
+                                        ),
+                                    ],
+                                ),
+                            ]
+                        ),
+                    ]
+                ),
+                dbc.ModalFooter(
+                    [
+                        dbc.Button(
+                            "查询",
+                            id="modal-btn-search",
+                            color="primary",
+                            className="fw-bold px-4",
+                        ),
+                        dbc.Button(
+                            "关闭",
+                            id="modal-btn-close",
+                            color="secondary",
+                            className="ms-2",
+                        ),
+                    ]
+                ),
+            ],
+            id="search-modal",
+            is_open=False,
+            centered=True,
+        ),
         dbc.Modal(
             [
                 dbc.ModalHeader(dbc.ModalTitle("指标说明", className="fw-bold")),
@@ -1352,18 +792,22 @@ app.layout = html.Div(
             centered=True,
             size="md",
         ),
-        # 点击标识（用于识别点击的卡片）
-        html.Div(id="kpi-click-trigger", style={"display": "none"}),
-        # 无订单提示模态窗口
+        html.Div(id="toast-container", style={"display": "none"}),
+        html.Div(dash_table.DataTable(id="hidden"), style={"display": "none"}),
+        html.Div(id="no-order-message", style={"display": "none"}),
+        html.Div(id="no-order-detail", style={"display": "none"}),
+        html.A(id="create-order-link", href="#", style={"display": "none"}),
+        html.Div(id="share-image-trigger", style={"display": "none"}),
         dbc.Modal(
             [
                 dbc.ModalHeader(dbc.ModalTitle("提示", className="fw-bold")),
                 dbc.ModalBody(
                     html.Div(
                         [
-                            html.P(id="no-order-message", className="mb-3"),
+                            html.P(id="no-order-modal-message", className="mb-3"),
                             html.P(
-                                id="no-order-detail", className="text-muted small mb-3"
+                                id="no-order-modal-detail",
+                                className="text-muted small mb-3",
                             ),
                             html.A(
                                 dbc.Button(
@@ -1373,7 +817,7 @@ app.layout = html.Div(
                                     size="lg",
                                 ),
                                 href="/api/redirect-to-create-order/",
-                                id="create-order-link",
+                                id="create-order-link-btn",
                                 className="text-decoration-none",
                             ),
                         ]
@@ -1386,191 +830,67 @@ app.layout = html.Div(
             centered=True,
             size="lg",
         ),
-        # 客户端脚本：登录状态检查和按钮更新
         html.Script("""
         (function() {
-            // ========== 1. Toast 功能 ==========
-            function showToast(message, duration) {
-                const toast = document.getElementById('toast');
-                const messageElement = document.getElementById('toast-message');
-
-                messageElement.textContent = message;
-                toast.classList.add('show');
-
-                setTimeout(function() {
-                    hideToast();
-                }, duration || 5000);
-            }
-
-            function hideToast() {
-                const toast = document.getElementById('toast');
-                toast.style.animation = 'slideOut 0.3s ease-out forwards';
-                setTimeout(function() {
-                    toast.classList.remove('show');
-                    toast.style.animation = '';
-                }, 300);
-            }
-
-            // ========== 2. 新手引导功能 ==========
-            function checkFirstVisit() {
-                const hasSeenGuide = localStorage.getItem('guide_seen');
-
-                if (!hasSeenGuide) {
-                    const guideModal = document.getElementById('guide-modal');
-                    if (guideModal) {
-                        setTimeout(function() {
-                            if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
-                                const modal = new bootstrap.Modal(guideModal, {
-                                    backdrop: 'static',
-                                    keyboard: false
-                                });
-                                modal.show();
-                            } else {
-                                guideModal.style.display = 'block';
-                                guideModal.classList.add('show');
-                                const modalDialog = guideModal.querySelector('.modal-dialog');
-                                if (modalDialog) {
-                                    modalDialog.classList.add('modal-dialog-centered');
-                                }
-                            }
-                        }, 500);
+            window.addEventListener('DOMContentLoaded', function() {
+                var kpiHelps = [
+                    {wrap: 'kpi-help-1-wrap', btn: 'kpi-help-1'},
+                    {wrap: 'kpi-help-2-wrap', btn: 'kpi-help-2'},
+                    {wrap: 'kpi-help-3-wrap', btn: 'kpi-help-3'},
+                ];
+                kpiHelps.forEach(function(item) {
+                    var wrap = document.getElementById(item.wrap);
+                    var btn = document.getElementById(item.btn);
+                    if (wrap && btn) {
+                        wrap.addEventListener('click', function() {
+                            btn.click();
+                        });
                     }
-                }
-            }
-
-            function closeGuide(dontShowAgain) {
-                const guideModalEl = document.getElementById('guide-modal');
-                if (guideModalEl) {
-                    if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
-                        const modal = bootstrap.Modal.getInstance(guideModalEl);
-                        if (modal) {
-                            modal.hide();
-                        }
-                    } else {
-                        guideModalEl.style.display = 'none';
-                        guideModalEl.classList.remove('show');
-                    }
-                }
-
-                if (dontShowAgain) {
-                    localStorage.setItem('guide_seen', 'true');
-                }
-            }
-
-             // ========== 9. 初始化 ==========
-             window.addEventListener('DOMContentLoaded', function() {
-                 // 9.1 检查首次访问
-                 checkFirstVisit();
-
-                 // 9.2 绑定新手引导关闭按钮
-                 const guideCloseBtn = document.getElementById('guide-close-btn');
-                 const guideDontShowBtn = document.getElementById('guide-dont-show-btn');
-
-                 if (guideCloseBtn) {
-                     guideCloseBtn.addEventListener('click', function() {
-                         closeGuide(false);
-                     });
-                 }
-
-                 if (guideDontShowBtn) {
-                     guideDontShowBtn.addEventListener('click', function() {
-                         closeGuide(true);
-                     });
-                 }
-
-                 // 9.3 绑定 KPI 卡片点击事件（用于显示指标解释弹窗）
-                  const kpiOverlays = ['kpi-overlay-1', 'kpi-overlay-2', 'kpi-overlay-3'];
-                  const kpiButtons = ['kpi-btn-1', 'kpi-btn-2', 'kpi-btn-3'];
-                  kpiOverlays.forEach(function(overlayId, index) {
-                      const overlay = document.getElementById(overlayId);
-                      if (overlay) {
-                          overlay.addEventListener('click', function() {
-                              const kpiBtn = document.getElementById(kpiButtons[index]);
-                              if (kpiBtn) {
-                                  kpiBtn.click();
-                              }
-                          });
-                      }
-                  });
-
-                 // 9.4 绑定报告页面按钮事件
-                 const downloadImageButton = document.getElementById('btn-download-image');
-                 const copyLinkButton = document.getElementById('btn-copy-link');
-
-                 if (downloadImageButton) {
-                     downloadImageButton.addEventListener('click', function() {
-                         downloadAsImage('png');
-                     });
-                 }
-
-                 if (copyLinkButton) {
-                     copyLinkButton.addEventListener('click', function() {
-                         copyLink();
-                     });
-                 }
-             });
-
-             // ========== 10. 网页分享功能 ==========
-             function downloadAsImage(format) {
-                 showToast('正在生成图片，请稍候...');
-
-                 // 动态加载 html2canvas
-                 const script = document.createElement('script');
-                 script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-                 script.onload = function() {
-                     html2canvas(document.body).then(canvas => {
-                         const link = document.createElement('a');
-                         link.download = `brand_dashboard.${format.toLowerCase()}`;
-                         link.href = canvas.toDataURL(`image/${format}`);
-                         link.click();
-                         showToast('图片下载成功！');
-                     }).catch(err => {
-                         console.error('下载图片失败:', err);
-                         showToast('图片下载失败，请重试');
-                     });
-                 };
-                 document.head.appendChild(script);
-             }
-
-             function copyLink() {
-                 const url = window.location.href;
-                 navigator.clipboard.writeText(url).then(() => {
-                     showToast('链接已复制到剪贴板');
-                 }).catch(err => {
-                     console.error('复制链接失败:', err);
-                     showToast('复制失败，请重试');
-                 });
-          }
-      })();
-    """),
-        dcc.Download(id="download-report-csv"),
+                });
+            });
+        })();
+        """),
     ]
 )
 
 
 @app.callback(
-    Output("app-state", "data"), Input("url", "pathname"), Input("url", "search")
+    Output("app-state", "data"),
+    Input("url", "pathname"),
+    Input("url", "search"),
 )
 def update_app_state(pathname, search):
-    from urllib.parse import parse_qs
+    from urllib.parse import parse_qs, urlparse
 
-    current_page = "brand"
+    brand_name = ""
+    keyword = ""
+    link = ""
 
-    if pathname.startswith("/dashboard/brand/"):
-        current_page = "brand"
-    elif pathname.startswith("/dashboard/geo-evaluate/"):
-        current_page = "geo-evaluate"
-    elif pathname.startswith("/dashboard/ai-toxic/"):
-        current_page = "ai-toxic"
-    elif pathname.startswith("/dashboard/cgeo-wiki/"):
-        current_page = "cgeo-wiki"
-    elif pathname.startswith("/dashboard/about/"):
-        current_page = "about"
+    if search:
+        parsed = urlparse(search)
+        qs = parse_qs(parsed.query)
+        brand_name = qs.get("brand", [""])[0]
+        keyword = qs.get("keyword", [""])[0]
+        link = qs.get("link", [""])[0]
 
-    return {"current_page": current_page, "brand_name": "", "keyword": "", "link": ""}
+    return {
+        "current_page": "brand",
+        "brand_name": brand_name,
+        "keyword": keyword,
+        "link": link,
+    }
 
 
-# C. 数据图表渲染 (监听自动刷新 OR 手动点击分析)
+@app.callback(
+    Output("trigger-store", "data"),
+    Input("app-state", "data"),
+)
+def trigger_on_state_change(state):
+    if state and state.get("brand_name") and state.get("keyword"):
+        return (state.get("brand_name", "") + state.get("keyword", "")).__hash__()
+    return 0
+
+
 @app.callback(
     [
         Output("val-1", "children"),
@@ -1580,20 +900,23 @@ def update_app_state(pathname, search):
         Output("chart-pie", "figure"),
         Output("rank-container", "children"),
         Output("no-order-modal", "is_open"),
-        Output("no-order-message", "children"),
-        Output("no-order-detail", "children"),
-        Output("create-order-link", "href"),
+        Output("no-order-modal-message", "children"),
+        Output("no-order-modal-detail", "children"),
+        Output("create-order-link-btn", "href"),
         Output("chart-treemap", "figure"),
+        Output("brand-title", "children"),
     ],
-    [Input("interval-trigger", "n_intervals"), Input("btn-analyze", "n_clicks")],
+    [Input("trigger-store", "data"), Input("modal-btn-search", "n_clicks")],
     [
-        State("input-search-brand", "value"),
-        State("input-search-kw", "value"),
-        State("input-search-link", "value"),
+        State("app-state", "data"),
+        State("modal-input-brand", "value"),
+        State("modal-input-kw", "value"),
+        State("modal-input-link", "value"),
     ],
 )
-def update_metrics(n_interval, n_click, search_brand, search_keyword, search_link=None):
-    # 检查是否是点击了分析按钮
+def update_metrics(
+    trigger_val, modal_click, app_state, modal_brand, modal_kw, modal_link
+):
     ctx = dash.callback_context
     if not ctx.triggered:
         return (
@@ -1608,23 +931,47 @@ def update_metrics(n_interval, n_click, search_brand, search_keyword, search_lin
             "",
             dash.no_update,
             dash.no_update,
+            dash.no_update,
         )
 
     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
 
-    # 获取数据
+    if trigger_id == "modal-btn-search":
+        search_brand = modal_brand or ""
+        search_keyword = modal_kw or ""
+        search_link = modal_link or ""
+    else:
+        search_brand = (app_state or {}).get("brand_name", "")
+        search_keyword = (app_state or {}).get("keyword", "")
+        search_link = (app_state or {}).get("link", "")
+
+    if not search_brand or not search_keyword:
+        return (
+            dash.no_update,
+            dash.no_update,
+            dash.no_update,
+            dash.no_update,
+            dash.no_update,
+            dash.no_update,
+            False,
+            "",
+            "",
+            dash.no_update,
+            dash.no_update,
+            dash.no_update,
+        )
+
     data = fetch_backend_data(
-        brand_name=search_brand, keyword_name=search_keyword, link_name=search_link
+        brand_name=search_brand,
+        keyword_name=search_keyword,
+        link_name=search_link,
     )
 
-    # 检查是否没有订单
     if isinstance(data, dict) and data.get("no_order"):
         brand_name = data.get("brand_name", "")
         keyword_name = data.get("keyword", "")
         create_order_href = f"/api/redirect-to-create-order/?brand_name={brand_name}&keyword_name={keyword_name}"
 
-        # 打开Modal，显示无订单提示
-        # 创建默认的 KPI 显示
         def create_empty_kpi():
             return html.Div(
                 [
@@ -1646,14 +993,14 @@ def update_metrics(n_interval, n_click, search_brand, search_keyword, search_lin
             go.Figure(),
             go.Figure(),
             "",
-            True,  # 打开Modal
+            True,
             f"系统中暂无关于 '{brand_name}' 和 '{keyword_name}' 的订单数据。",
             f"品牌：{brand_name} | 关键词：{keyword_name}",
             create_order_href,
             go.Figure(),
+            f"{brand_name} - {keyword_name}",
         )
 
-    # 触发 fetch_data，传入搜索词
     (
         trend,
         rank,
@@ -1666,15 +1013,9 @@ def update_metrics(n_interval, n_click, search_brand, search_keyword, search_lin
         change_nr_brand,
         change_link,
         treemap_data,
-    ) = _convert_to_web_format(
-        fetch_backend_data(
-            brand_name=search_brand, keyword_name=search_keyword, link_name=search_link
-        ),
-        search_brand,
-    )
+    ) = _convert_to_web_format(data, search_brand)
 
     def create_trend_badge(value, change):
-        # change 是百分比变化率
         if change > 0:
             return html.Span(
                 [html.I(className="bi bi-arrow-up-short"), f" {abs(change):.1f}%"],
@@ -1692,7 +1033,6 @@ def update_metrics(n_interval, n_click, search_brand, search_keyword, search_lin
                 style={"background": "#f0f0f0", "color": "#666"},
             )
 
-    # 创建带有趋势指示器的 KPI 显示
     def create_kpi_with_trend(value, change):
         return html.Div(
             [
@@ -1703,7 +1043,6 @@ def update_metrics(n_interval, n_click, search_brand, search_keyword, search_lin
             className="mt-4",
         )
 
-    # 1. 趋势图
     fig1 = go.Figure()
     fig1.add_trace(
         go.Scatter(
@@ -1729,7 +1068,6 @@ def update_metrics(n_interval, n_click, search_brand, search_keyword, search_lin
         legend=dict(orientation="h", y=1.1),
     )
 
-    # 2. 饼图
     fig2 = go.Figure(
         data=[
             go.Pie(
@@ -1748,20 +1086,17 @@ def update_metrics(n_interval, n_click, search_brand, search_keyword, search_lin
         legend=dict(orientation="h"),
     )
 
-    # 3. 排行榜
     ranks = []
     if isinstance(rank, pd.DataFrame) and not rank.empty:
         for _, r in rank.iterrows():
             rk = r["Rank"]
             cls = f"rank-{rk}" if rk <= 3 else "rank-other"
 
-            # 如果是用户搜索的品牌(有输入)，加重显示
             extra_style = {}
             brand_n = r["Brand"]
             if brand_n == search_brand:
                 extra_style = {"color": "#cb0c9f"}
 
-            # 根据排名添加奖牌图标
             if rk == 1:
                 rank_display = html.Span(
                     [html.I(className="bi bi-trophy-fill text-warning me-1"), "1"],
@@ -1785,18 +1120,24 @@ def update_metrics(n_interval, n_click, search_brand, search_keyword, search_lin
                 dbc.Row(
                     [
                         dbc.Col(
-                            html.Div(rank_display, className=f"rank-circle {cls} ms-2"),
+                            html.Div(
+                                rank_display,
+                                className=f"rank-circle {cls} ms-2",
+                            ),
                             width="auto",
                         ),
                         dbc.Col(
                             html.Span(
-                                r["Brand"], className="fw-bold ms-3", style=extra_style
+                                r["Brand"],
+                                className="fw-bold ms-3",
+                                style=extra_style,
                             ),
                             width=True,
                         ),
                         dbc.Col(
                             html.Span(
-                                f"{r['Score']:.1f}", className="fw-bold text-dark"
+                                f"{r['Score']:.1f}",
+                                className="fw-bold text-dark",
                             ),
                             width="auto",
                         ),
@@ -1812,12 +1153,10 @@ def update_metrics(n_interval, n_click, search_brand, search_keyword, search_lin
     v2 = create_kpi_with_trend(latest_link_amount, change_link)
     v3 = create_kpi_with_trend(latest_nr_brand_amount, change_nr_brand)
 
-    # 4. Treemap 信源分类图
     fig_treemap = go.Figure()
     if treemap_data and any(v > 0 for v in treemap_data.values()):
         treemap_labels = list(treemap_data.keys())
         treemap_values = list(treemap_data.values())
-        treemap_colors = []
         color_map = {
             "官方媒体": "#e74c3c",
             "知名媒体": "#e67e22",
@@ -1826,8 +1165,6 @@ def update_metrics(n_interval, n_click, search_brand, search_keyword, search_lin
             "个人博客/自媒体": "#9b59b6",
             "其他": "#95a5a6",
         }
-        for label in treemap_labels:
-            treemap_colors.append(color_map.get(label, "#95a5a6"))
         fig_treemap = px.treemap(
             names=treemap_labels,
             values=treemap_values,
@@ -1843,133 +1180,125 @@ def update_metrics(n_interval, n_click, search_brand, search_keyword, search_lin
         margin=dict(l=10, r=10, t=10, b=10),
     )
 
-    return v1, v2, v3, fig1, fig2, ranks, False, "", "", dash.no_update, fig_treemap
+    return (
+        v1,
+        v2,
+        v3,
+        fig1,
+        fig2,
+        ranks,
+        False,
+        "",
+        "",
+        dash.no_update,
+        fig_treemap,
+        f"{search_brand} - {search_keyword}",
+    )
+
+
+@app.callback(
+    Output("search-modal", "is_open"),
+    [Input("btn-open-search", "n_clicks"), Input("modal-btn-close", "n_clicks")],
+    [State("search-modal", "is_open")],
+    prevent_initial_call=True,
+)
+def toggle_search_modal(open_click, close_click, is_open):
+    ctx = dash.callback_context
+    if not ctx.triggered:
+        return dash.no_update
+    trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
+    if trigger_id == "btn-open-search":
+        return True
+    elif trigger_id == "modal-btn-close":
+        return False
+    return is_open
 
 
 @app.callback(
     Output("download-dataframe-csv", "data"),
-    Input("btn-download", "n_clicks"),
-    [
-        State("input-search-brand", "value"),
-        State("input-search-kw", "value"),
-        State("input-search-link", "value"),
-    ],
+    Input("btn-export-file", "n_clicks"),
+    [State("app-state", "data")],
     prevent_initial_call=True,
 )
-def export_csv(n_clicks, search_brand, search_keyword, search_link):
-    # 获取真实数据
+def export_csv(n_clicks, app_state):
+    brand_name = (app_state or {}).get("brand_name", "")
+    keyword_name = (app_state or {}).get("keyword", "")
+    link_name = (app_state or {}).get("link", "")
+
     df = fetch_backend_data(
-        brand_name=search_brand, keyword_name=search_keyword, link_name=search_link
+        brand_name=brand_name,
+        keyword_name=keyword_name,
+        link_name=link_name,
     )
 
-    # 检查返回的数据类型
-    if isinstance(df, list) and len(df) > 0 and df[0] == 404:
-        # 如果返回的是错误码
-        df = pd.DataFrame({"Error": ["Data not found or API error"]})
-        # deflaut情况
-    elif isinstance(df, tuple):
-        df = pd.DataFrame({"Info": ["No data available for export"]})
-    elif df is None or df.empty:
-        # 如果数据为空
+    if isinstance(df, dict):
         df = pd.DataFrame({"Info": ["No data available for export"]})
 
-    # 确保df是DataFrame类型
     if not isinstance(df, pd.DataFrame):
         df = pd.DataFrame({"Info": ["Unexpected data format"]})
 
-    # 返回CSV数据以供下载
-    return dcc.send_data_frame(df.to_csv, "dashboard_data.csv", index=False)
+    filename = f"dashboard_{brand_name}_{keyword_name}.csv"
+    return dcc.send_data_frame(df.to_csv, filename, index=False)
 
 
-# --- 2. 多语言更新回调 ---
 @app.callback(
-    [
-        Output("lbl-search-brand", "children"),
-        Output("input-search-brand", "placeholder"),
-        Output("lbl-search-kw", "children"),
-        Output("input-search-kw", "placeholder"),
-        Output("lbl-search-link", "children"),
-        Output("input-search-link", "placeholder"),
-        Output("btn-analyze", "children"),
-        Output("btn-download", "children"),
-        Output("btn-share-text", "children"),
-        Output("label-kpi-1", "children"),
-        Output("label-kpi-2", "children"),
-        Output("label-kpi-3", "children"),
-        Output("title-trend", "children"),
-        Output("title-pie", "children"),
-        Output("title-rank", "children"),
-        Output("title-treemap", "children"),
-        Output("welcome-title", "children"),
-        Output("welcome-desc-1", "children"),
-        Output("welcome-desc-2", "children"),
-        Output("welcome-cta", "children"),
-        Output("lang-store", "data"),
-    ],
-    Input("lang-store", "data"),
-    Input("lang-switch-visible", "value"),
-    State("lang-store", "data"),
-    prevent_initial_call=False,
+    Output("toast-container", "children"),
+    Input("btn-share-link", "n_clicks"),
+    prevent_initial_call=True,
 )
-def update_language(lang, switch_value, current_lang):
-    ctx = dash.callback_context
-
-    # 判断触发源
-    if ctx.triggered:
-        trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
-
-        # 如果是开关切换，切换语言
-        if trigger_id == "lang-switch-visible":
-            if not current_lang:
-                current_lang = "zh"
-            lang = "en" if current_lang == "zh" else "zh"
-        else:
-            # 如果是 lang-store 变化，直接使用传入的语言
-            if not lang:
-                lang = "zh"
-    else:
-        lang = "zh"
-
-    t = TRANSLATIONS.get(lang, TRANSLATIONS["zh"])
-
-    return (
-        t["lbl_brand"],
-        t["ph_brand"],
-        t["lbl_kw"],
-        t["ph_kw"],
-        t["lbl_link"],
-        t["ph_link"],
-        t["btn_start"],
-        t["download"],
-        t["btn_share"],
-        t["kpi_vis"],
-        t["kpi_sent"],
-        t["kpi_rev"],
-        t["chart_trend"],
-        t["chart_pie"],
-        t["chart_rank"],
-        t["chart_treemap"],
-        t["welcome_title"],
-        t["welcome_desc1"],
-        t["welcome_desc2"],
-        t["welcome_cta"],
-        lang,
-    )
+def share_link(n_clicks):
+    return html.Script("""
+    (function() {
+        navigator.clipboard.writeText(window.location.href).then(function() {
+            var toast = document.getElementById('toast');
+            var msg = document.getElementById('toast-message');
+            if (msg) msg.textContent = '链接已复制到剪贴板';
+            if (toast) toast.classList.add('show');
+            setTimeout(function() {
+                if (toast) toast.classList.remove('show');
+            }, 3000);
+        });
+    })();
+    """)
 
 
-# 指标解释弹窗内容更新
+@app.callback(
+    Output("share-image-trigger", "children"),
+    Input("btn-share-image", "n_clicks"),
+    prevent_initial_call=True,
+)
+def share_image(n_clicks):
+    return html.Script("""
+    (function() {
+        var script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+        script.onload = function() {
+            html2canvas(document.body).then(function(canvas) {
+                var link = document.createElement('a');
+                link.download = 'brand_dashboard.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        };
+        document.head.appendChild(script);
+    })();
+    """)
+
+
 @app.callback(
     Output("kpi-modal", "is_open"),
     Output("kpi-explanation-content", "children"),
-    Input("kpi-help-1", "n_clicks"),
-    Input("kpi-help-2", "n_clicks"),
-    Input("kpi-help-3", "n_clicks"),
-    Input("chart-help-trend", "n_clicks"),
-    Input("chart-help-pie", "n_clicks"),
-    Input("chart-help-rank", "n_clicks"),
-    Input("chart-help-treemap", "n_clicks"),
-    Input("kpi-modal-close", "n_clicks"),
-    State("kpi-modal", "is_open"),
+    [
+        Input("kpi-help-1", "n_clicks"),
+        Input("kpi-help-2", "n_clicks"),
+        Input("kpi-help-3", "n_clicks"),
+        Input("chart-help-trend", "n_clicks"),
+        Input("chart-help-pie", "n_clicks"),
+        Input("chart-help-rank", "n_clicks"),
+        Input("chart-help-treemap", "n_clicks"),
+        Input("kpi-modal-close", "n_clicks"),
+    ],
+    [State("kpi-modal", "is_open")],
     prevent_initial_call=True,
 )
 def show_kpi_explanation(
@@ -1989,11 +1318,9 @@ def show_kpi_explanation(
 
     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
 
-    # 关闭按钮
     if trigger_id == "kpi-modal-close":
         return False, dash.no_update
 
-    # 根据触发按钮返回对应内容
     explanations = {
         "kpi-help-1": EXPLANATIONS["kpi-1"],
         "kpi-help-2": EXPLANATIONS["kpi-2"],
@@ -2010,51 +1337,3 @@ def show_kpi_explanation(
         return True, content
 
     return is_open, dash.no_update
-
-
-# 新手引导 Modal 打开回调
-@app.callback(
-    Output("guide-modal", "is_open"),
-    [
-        Input("btn-guide", "n_clicks"),
-        Input("guide-close-btn", "n_clicks"),
-        Input("guide-dont-show-btn", "n_clicks"),
-    ],
-    [State("guide-modal", "is_open")],
-    prevent_initial_call=True,
-)
-def toggle_guide_from_button(guide_click, close_click, dont_show_click, is_open):
-    ctx = dash.callback_context
-    if not ctx.triggered:
-        return dash.no_update
-
-    trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
-
-    if trigger_id == "btn-guide":
-        return True
-    elif trigger_id in ["guide-close-btn", "guide-dont-show-btn"]:
-        return False
-
-    return is_open
-
-
-# 分享 Modal 控制回调
-@app.callback(
-    Output("share-modal", "is_open"),
-    [Input("btn-share", "n_clicks"), Input("share-modal-close", "n_clicks")],
-    [State("share-modal", "is_open")],
-    prevent_initial_call=True,
-)
-def toggle_share_modal(share_click, close_click, is_open):
-    ctx = dash.callback_context
-    if not ctx.triggered:
-        return dash.no_update
-
-    trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
-
-    if trigger_id == "btn-share":
-        return True
-    elif trigger_id == "share-modal-close":
-        return False
-
-    return is_open

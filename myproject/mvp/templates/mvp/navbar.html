@@ -2,7 +2,7 @@
 {% load plotly_dash %}
 <nav class="navbar navbar-expand-lg navbar-glass">
   <div class="container">
-    <a class="navbar-brand d-flex align-items-center" href="/dashboard/brand/" style="text-decoration: none;">
+    <a class="navbar-brand d-flex align-items-center" href="/" style="text-decoration: none;">
       <img src="{% static 'images/logo.png' %}" alt="Logo" class="navbar-logo" style="margin-right: 12px;">
       <div style="display: flex; flex-direction: column; line-height: 1.2;">
         <strong style="font-size: 1.05rem; color: white;">Istar GEO</strong>
@@ -17,7 +17,7 @@
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav ms-auto">
         <li class="nav-item">
-          <a class="nav-link nav-link-custom" href="/dashboard/brand/" id="nav-brand">
+          <a class="nav-link nav-link-custom" href="/" id="nav-brand">
             <i data-lucide="bar-chart-2" style="width: 16px; height: 16px; vertical-align: -3px; margin-right: 6px;"></i>
             品牌可见度
           </a>
@@ -80,7 +80,9 @@
     
     navLinks.forEach(function(link) {
       var href = link.getAttribute('href');
-      if (currentPath.startsWith(href) && href !== '/') {
+      if (href === '/') {
+        if (currentPath === '/') link.classList.add('active');
+      } else if (currentPath.startsWith(href)) {
         link.classList.add('active');
       }
     });

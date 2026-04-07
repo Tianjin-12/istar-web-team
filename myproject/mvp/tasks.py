@@ -497,3 +497,72 @@ def send_notification(user_id, message, order_id=None):
         return f"订单 {order_id} 不存在"
     except Exception as e:
         return f"发送通知时出错: {str(e)}"
+
+
+# ========================================
+# 定时任务: 更新排行榜JSON
+# ========================================
+
+
+@shared_task(name="mvp.update_ranking_json")
+def update_ranking_json():
+    """每天05:00触发: 聚合Mention_percentage最新数据，生成ranking.json"""
+    import os
+    from django.conf import settings
+    from django.db.models import Max
+
+    try:
+        from .models import Mention_percentage
+
+        # 获取每个(brand_name, keyword_name)组合的最新一条记录
+        latest_ids = (
+            Mention_percentage.objects.values("brand_name", "keyword_name")
+            .annotate(latest_id=Max("id"))
+            .values_list("latest_id", flat=True)
+        )
+
+        records = Mention_percentage.objects.filter(id__in=latest_ids).order_by(
+            "field_name", "-r_brand_amount"
+        )
+
+        categories = {}
+        for r in records:
+            field = r.field_name or "未分类"
+            if field not in categories:
+                categories[field] = []
+            categories[field].append(
+                {
+                    "brand": r.brand_name,
+                    "keyword": r.keyword_name,
+                    "r_brand_amount": round(r.r_brand_amount, 2),
+                    "high_relevance_ratio": round(r.high_relevance_ratio, 2),
+                    "nr_brand_amount": round(r.nr_brand_amount, 2),
+                    "link_amount": round(r.link_amount, 2),
+                    "updated_at": r.created_at.strftime("%Y-%m-%d %H:%M"),
+                }
+            )
+
+        data = {
+            "updated_at": timezone.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "total_brands": len(records),
+            "categories": categories,
+        }
+
+        json_path = os.path.join(
+            os.path.join(settings.BASE_DIR, "mvp", "static"), "ranking.json"
+        )
+        with open(json_path, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+
+        logger.info(
+            f"排行榜JSON更新完成: {len(records)} 个品牌, {len(categories)} 个行业"
+        )
+        return {
+            "status": "success",
+            "total_brands": len(records),
+            "categories": len(categories),
+        }
+
+    except Exception as e:
+        logger.error(f"更新排行榜JSON失败: {str(e)}")
+        return {"status": "failed", "error": str(e)}
