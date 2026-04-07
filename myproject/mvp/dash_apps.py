@@ -453,34 +453,50 @@ app.layout = html.Div(
                                             dbc.Col(
                                                 [
                                                     html.Label(
-                                                        "品牌名称",
+                                                        "监测对象",
                                                         id="lbl-search-brand",
-                                                        className="small fw-bold text-secondary mb-1",
+                                                        className="small fw-bold text-secondary mb-2 d-flex align-items-center",
                                                     ),
-                                                    dbc.Input(
-                                                        id="modal-input-brand",
-                                                        placeholder="如: Nike",
+                                                    dbc.InputGroup(
+                                                        [
+                                                            dbc.InputGroupText(
+                                                                html.I(className="bi bi-building text-primary"),
+                                                                className="bg-light border-end-0",
+                                                            ),
+                                                            dbc.Input(
+                                                                id="modal-input-brand",
+                                                                placeholder="品牌名称 (如: Nike)",
+                                                                className="border-start-0 ps-0",
+                                                                style={"background": "#fafafa"},
+                                                            ),
+                                                        ],
+                                                        className="mb-3",
                                                     ),
                                                 ],
-                                                className="mb-3",
                                             ),
-                                        ]
-                                    ),
-                                    dbc.Row(
-                                        [
                                             dbc.Col(
                                                 [
                                                     html.Label(
                                                         "核心关键词",
                                                         id="lbl-search-kw",
-                                                        className="small fw-bold text-secondary mb-1",
+                                                        className="small fw-bold text-secondary mb-2 d-flex align-items-center",
                                                     ),
-                                                    dbc.Input(
-                                                        id="modal-input-kw",
-                                                        placeholder="如: 运动鞋",
+                                                    dbc.InputGroup(
+                                                        [
+                                                            dbc.InputGroupText(
+                                                                html.I(className="bi bi-key text-primary"),
+                                                                className="bg-light border-end-0",
+                                                            ),
+                                                            dbc.Input(
+                                                                id="modal-input-kw",
+                                                                placeholder="关键词 (如: 运动鞋)",
+                                                                className="border-start-0 ps-0",
+                                                                style={"background": "#fafafa"},
+                                                            ),
+                                                        ],
+                                                        className="mb-3",
                                                     ),
                                                 ],
-                                                className="mb-3",
                                             ),
                                         ]
                                     ),
@@ -491,11 +507,21 @@ app.layout = html.Div(
                                                     html.Label(
                                                         "链接地址（选填）",
                                                         id="lbl-search-link",
-                                                        className="small fw-bold text-secondary mb-1",
+                                                        className="small fw-bold text-secondary mb-2 d-flex align-items-center",
                                                     ),
-                                                    dbc.Input(
-                                                        id="modal-input-link",
-                                                        placeholder="请输入链接地址",
+                                                    dbc.InputGroup(
+                                                        [
+                                                            dbc.InputGroupText(
+                                                                html.I(className="bi bi-link-45deg text-primary"),
+                                                                className="bg-light border-end-0",
+                                                            ),
+                                                            dbc.Input(
+                                                                id="modal-input-link",
+                                                                placeholder="https://example.com",
+                                                                className="border-start-0 ps-0",
+                                                                style={"background": "#fafafa"},
+                                                            ),
+                                                        ],
                                                     ),
                                                 ],
                                             ),
@@ -505,14 +531,18 @@ app.layout = html.Div(
                                         [
                                             dbc.Col(
                                                 dbc.Button(
-                                                    "开始分析",
+                                                    [
+                                                        html.I(className="bi bi-graph-up me-2"),
+                                                        "开始分析",
+                                                    ],
                                                     id="modal-btn-search",
-                                                    color="primary",
-                                                    className="fw-bold px-4 w-100",
+                                                    className="fw-bold w-100 shadow-lg",
                                                     style={
                                                         "background": "linear-gradient(135deg, #3B82F6 0%, #2DD4BF 100%)",
                                                         "border": "none",
-                                                        "height": "48px",
+                                                        "height": "50px",
+                                                        "fontSize": "16px",
+                                                        "letterSpacing": "1px",
                                                     },
                                                 ),
                                                 width=12,
@@ -523,7 +553,8 @@ app.layout = html.Div(
                                 ],
                             ),
                         ],
-                        className="mb-4",
+                        className="mb-4 border-0 shadow-premium",
+                        style={"borderRadius": "16px", "background": "white"},
                     ),
                     id="search-form-collapse",
                     is_open=False,
@@ -709,18 +740,31 @@ app.layout = html.Div(
                                                 [
                                                     html.Div(
                                                         [
-                                                            html.Div("品牌", className="fw-bold text-secondary", style={"flex": "1"}),
-                                                            html.Div("核心提及概率", className="fw-bold text-secondary text-center", style={"width": "150px"}),
-                                                            html.Div("高相关信源", className="fw-bold text-secondary text-center", style={"width": "150px"}),
-                                                            html.Div("随意性提及", className="fw-bold text-secondary text-center", style={"width": "150px"}),
+                                                            html.Div(
+                                                                [
+                                                                    html.I(className="bi bi-bar-chart-fill me-2 text-primary"),
+                                                                    "热门品牌排行",
+                                                                ],
+                                                                className="d-flex align-items-center mb-3",
+                                                                style={"fontSize": "18px", "fontWeight": "700", "color": "#1E293B"},
+                                                            ),
+                                                            html.Div(
+                                                                [
+                                                                    html.Div("品牌", className="fw-bold text-white", style={"flex": "1", "fontSize": "13px", "letterSpacing": "0.5px"}),
+                                                                    html.Div("核心提及概率", className="fw-bold text-white text-center", style={"width": "130px", "fontSize": "13px", "letterSpacing": "0.5px"}),
+                                                                    html.Div("高相关信源", className="fw-bold text-white text-center", style={"width": "130px", "fontSize": "13px", "letterSpacing": "0.5px"}),
+                                                                    html.Div("随意性提及", className="fw-bold text-white text-center", style={"width": "130px", "fontSize": "13px", "letterSpacing": "0.5px"}),
+                                                                ],
+                                                                className="d-flex justify-content-between align-items-center px-3 py-2 rounded-top",
+                                                                style={"background": "linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)", "boxShadow": "0 4px 15px rgba(59, 130, 246, 0.3)"},
+                                                            ),
                                                         ],
-                                                        className="d-flex justify-content-between align-items-center px-3 py-2 bg-light rounded mb-2",
-                                                        style={"borderBottom": "2px solid #e2e8f0"},
+                                                        className="mb-2",
                                                     ),
                                                     html.Div(id="rank-table-container"),
                                                 ],
-                                                className="p-4",
-                                                style={"maxHeight": "400px", "overflowY": "auto"},
+                                                className="p-3",
+                                                style={"maxHeight": "480px", "overflowY": "auto"},
                                             ),
                                         ],
                                         className="premium-card",
@@ -946,27 +990,110 @@ app.layout = html.Div(
         ),
         dbc.Offcanvas(
             [
-                html.H5(id="detail-brand-name", className="mb-4 fw-bold"),
-                html.Hr(),
-                html.H6("流量来源趋势分析", className="mb-3 text-secondary"),
-                dcc.Graph(
-                    id="detail-chart-trend",
-                    config={"displayModeBar": False},
-                    style={"height": "250px"},
+                html.Div(
+                    [
+                        html.Div(
+                            id="detail-brand-name",
+                            className="fw-bold",
+                            style={"fontSize": "20px", "color": "white"},
+                        ),
+                        html.Span(
+                            "品牌详情分析",
+                            className="small",
+                            style={"color": "rgba(255,255,255,0.8)"},
+                        ),
+                    ],
+                    className="mb-4",
                 ),
-                html.Hr(className="my-4"),
-                html.H6("AI平台推荐份额", className="mb-3 text-secondary"),
-                dcc.Graph(
-                    id="detail-chart-pie",
-                    config={"displayModeBar": False},
-                    style={"height": "250px"},
+                html.Div(
+                    [
+                        html.Div(
+                            id="detail-stats-container",
+                            className="row g-3 mb-4",
+                            children=[
+                                html.Div(
+                                    className="col-4",
+                                    children=[
+                                        html.Div(
+                                            [
+                                                html.Div("85.2%", className="fw-bold fs-5", style={"color": "#3B82F6"}),
+                                                html.Div("核心提及", className="small text-muted"),
+                                            ],
+                                            className="text-center p-3 rounded bg-light",
+                                        ),
+                                    ],
+                                ),
+                                html.Div(
+                                    className="col-4",
+                                    children=[
+                                        html.Div(
+                                            [
+                                                html.Div("72.8%", className="fw-bold fs-5", style={"color": "#2DD4BF"}),
+                                                html.Div("高相关信源", className="small text-muted"),
+                                            ],
+                                            className="text-center p-3 rounded bg-light",
+                                        ),
+                                    ],
+                                ),
+                                html.Div(
+                                    className="col-4",
+                                    children=[
+                                        html.Div(
+                                            [
+                                                html.Div("58.1%", className="fw-bold fs-5", style={"color": "#8B5CF6"}),
+                                                html.Div("随意性提及", className="small text-muted"),
+                                            ],
+                                            className="text-center p-3 rounded bg-light",
+                                        ),
+                                    ],
+                                ),
+                            ],
+                        ),
+                    ],
+                    className="mb-4",
+                    style={"background": "linear-gradient(135deg, #1E3A5F 0%, #0F172A 100%)", "borderRadius": "12px", "padding": "16px", "marginTop": "-16px", "marginLeft": "-16px", "marginRight": "-16px"},
+                ),
+                html.Div(
+                    [
+                        html.H6(
+                            [
+                                html.I(className="bi bi-graph-up-arrow me-2", style={"color": "#3B82F6"}),
+                                "流量来源趋势",
+                            ],
+                            className="mb-3 text-secondary",
+                        ),
+                        dcc.Graph(
+                            id="detail-chart-trend",
+                            config={"displayModeBar": False},
+                            style={"height": "220px"},
+                        ),
+                    ],
+                    className="mb-4",
+                ),
+                html.Div(
+                    [
+                        html.H6(
+                            [
+                                html.I(className="bi bi-pie-chart-fill me-2", style={"color": "#2DD4BF"}),
+                                "AI平台推荐份额",
+                            ],
+                            className="mb-3 text-secondary",
+                        ),
+                        dcc.Graph(
+                            id="detail-chart-pie",
+                            config={"displayModeBar": False},
+                            style={"height": "220px"},
+                        ),
+                    ],
                 ),
             ],
             id="detail-offcanvas",
             is_open=False,
             title="品牌详情分析",
             placement="end",
-            style={"maxWidth": "500px"},
+            style={"maxWidth": "480px", "paddingTop": "0"},
+            header_style={"background": "linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)", "color": "white", "border": "none"},
+            body_style={"padding": "24px 16px"},
         ),
         html.Script("""
         (function() {
@@ -1235,13 +1362,17 @@ def update_metrics(
             is_highlighted = brand_n == search_brand
             
             if rk == 1:
-                rank_style = {"background": "linear-gradient(135deg, #FFD700, #F59E0B)", "color": "white"}
+                rank_style = {"background": "linear-gradient(135deg, #FFD700, #F59E0B)", "color": "white", "boxShadow": "0 2px 8px rgba(255, 215, 0, 0.4)"}
+                trophy_icon = html.I(className="bi bi-trophy-fill me-1", style={"fontSize": "12px"})
             elif rk == 2:
-                rank_style = {"background": "linear-gradient(135deg, #C0C0C0, #9CA3AF)", "color": "white"}
+                rank_style = {"background": "linear-gradient(135deg, #C0C0C0, #9CA3AF)", "color": "white", "boxShadow": "0 2px 8px rgba(192, 192, 192, 0.4)"}
+                trophy_icon = html.I(className="bi bi-trophy-fill me-1", style={"fontSize": "12px"})
             elif rk == 3:
-                rank_style = {"background": "linear-gradient(135deg, #CD7F32, #B45309)", "color": "white"}
+                rank_style = {"background": "linear-gradient(135deg, #CD7F32, #B45309)", "color": "white", "boxShadow": "0 2px 8px rgba(205, 127, 50, 0.4)"}
+                trophy_icon = html.I(className="bi bi-trophy-fill me-1", style={"fontSize": "12px"})
             else:
-                rank_style = {"background": "#e2e8f0", "color": "#64748b"}
+                rank_style = {"background": "#f1f5f9", "color": "#64748b", "boxShadow": "none"}
+                trophy_icon = None
             
             ranks.append(
                 html.Div(
@@ -1249,19 +1380,65 @@ def update_metrics(
                         dcc.Interval(id=f"rank-trigger-{i}", n_intervals=0),
                         html.Div(
                             [
-                                html.Span(f"#{rk}", className="rank-badge", style=rank_style),
+                                html.Span(
+                                    [trophy_icon, f"#{rk}"] if trophy_icon else f"#{rk}",
+                                    className="rank-badge",
+                                    style=rank_style,
+                                ),
                                 html.Span(
                                     brand_n,
                                     className="fw-bold",
-                                    style={"flex": "1", "marginLeft": "12px", "color": "#0F172A" if not is_highlighted else "#3B82F6"},
+                                    style={"flex": "1", "marginLeft": "12px", "color": "#0F172A" if not is_highlighted else "#3B82F6", "fontSize": "15px"},
                                 ),
-                                html.Span(f"{r_brand:.1f}%", className="text-center", style={"width": "150px", "fontWeight": "600", "color": "#3B82F6"}),
-                                html.Span(f"{nr_brand:.1f}%", className="text-center", style={"width": "150px", "fontWeight": "600", "color": "#2DD4BF"}),
-                                html.Span(f"{score:.1f}%", className="text-center", style={"width": "150px", "fontWeight": "600", "color": "#64748B"}),
+                                html.Div(
+                                    [
+                                        html.Div(
+                                            f"{r_brand:.1f}%",
+                                            className="fw-bold",
+                                            style={"fontSize": "13px", "color": "#3B82F6", "marginBottom": "4px"},
+                                        ),
+                                        html.Div(
+                                            className="progress-bar-mini",
+                                            style={"width": f"{min(r_brand, 100)}%", "background": "linear-gradient(90deg, #3B82F6, #60A5FA)"}
+                                        ),
+                                    ],
+                                    className="text-center",
+                                    style={"width": "130px"},
+                                ),
+                                html.Div(
+                                    [
+                                        html.Div(
+                                            f"{nr_brand:.1f}%",
+                                            className="fw-bold",
+                                            style={"fontSize": "13px", "color": "#2DD4BF", "marginBottom": "4px"},
+                                        ),
+                                        html.Div(
+                                            className="progress-bar-mini",
+                                            style={"width": f"{min(nr_brand, 100)}%", "background": "linear-gradient(90deg, #2DD4BF, #5EEAD4)"}
+                                        ),
+                                    ],
+                                    className="text-center",
+                                    style={"width": "130px"},
+                                ),
+                                html.Div(
+                                    [
+                                        html.Div(
+                                            f"{score:.1f}%",
+                                            className="fw-bold",
+                                            style={"fontSize": "13px", "color": "#8B5CF6", "marginBottom": "4px"},
+                                        ),
+                                        html.Div(
+                                            className="progress-bar-mini",
+                                            style={"width": f"{min(score, 100)}%", "background": "linear-gradient(90deg, #8B5CF6, #A78BFA)"}
+                                        ),
+                                    ],
+                                    className="text-center",
+                                    style={"width": "130px"},
+                                ),
                                 html.I(className="bi bi-chevron-right ms-2", style={"color": "#94A3B8", "fontSize": "14px"}),
                             ],
-                            className="d-flex align-items-center px-3 py-3 rounded mb-2",
-                            style={"cursor": "pointer", "background": "#F8FAFC" if i % 2 == 0 else "white", "transition": "all 0.2s ease"},
+                            className="d-flex align-items-center px-3 py-3 rounded rank-row",
+                            style={"cursor": "pointer", "background": "white", "border": "1px solid #f1f5f9"},
                             id={"type": "rank-row", "index": i},
                             n_clicks=0,
                         ),
@@ -1269,7 +1446,16 @@ def update_metrics(
                 )
             )
     else:
-        ranks = [html.Div("暂无排行榜数据，点击分析按钮获取数据", className="text-center text-muted py-5")]
+        ranks = [
+            html.Div(
+                [
+                    html.I(className="bi bi-inbox text-muted", style={"fontSize": "48px"}),
+                    html.P("暂无排行榜数据", className="text-muted mt-3 mb-1"),
+                    html.P("输入品牌和关键词，点击分析获取数据", className="text-muted small"),
+                ],
+                className="text-center py-5",
+            )
+        ]
 
     v1 = create_kpi_with_trend(latest_r_brand_amount, change_r_brand)
     v2 = create_kpi_with_trend(latest_link_amount, change_link)
