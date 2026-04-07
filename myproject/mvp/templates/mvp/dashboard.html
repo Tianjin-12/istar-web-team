@@ -1,75 +1,109 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>AI 可见度评估系统</title>
+  <title>AI 可见度评估系统 - Istar GEO</title>
   {% load plotly_dash %}
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <style>
+    * {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    
     html, body {
-      height:100%;
-      margin:0;
-      padding:0;
+      height: 100%;
+      margin: 0;
+      padding: 0;
       overflow: hidden;
+      background: #0A0A0A;
     }
+    
     #dashboard-container {
-      width:100%;
-      height:100vh;
+      width: 100%;
+      height: 100vh;
       overflow: hidden;
     }
+    
     #dashboard-container iframe {
-      width:100%;
-      height:100vh;
+      width: 100%;
+      height: 100vh;
       border: none;
       overflow-y: auto;
     }
-    /* Toast 提示样式 */
+    
+    /* Toast 提示 - 新配色 */
     .toast {
       position: fixed;
-      bottom: 20px;
+      bottom: 30px;
       right: 20px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: #0F172A;
       color: white;
-      padding: 16px 24px;
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      padding: 14px 20px;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
       z-index: 10000;
       display: none;
-      animation: slideIn 0.3s ease-out;
-      min-width: 300px;
+      animation: toastIn 0.3s ease-out;
+      min-width: 280px;
+      border: 1px solid rgba(45, 212, 191, 0.2);
     }
+    
     .toast.show {
-      display: block;
+      display: flex;
     }
+    
     .toast.success {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-color: rgba(45, 212, 191, 0.3);
     }
+    
     .toast-content {
       display: flex;
       align-items: center;
       gap: 12px;
+      flex: 1;
     }
+    
     .toast-icon {
-      font-size: 20px;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(45, 212, 191, 0.2);
+      border-radius: 50%;
+      color: #2DD4BF;
     }
+    
+    .toast-icon svg {
+      width: 14px;
+      height: 14px;
+    }
+    
     .toast-message {
-      flex:1;
       font-weight: 500;
+      font-size: 0.95rem;
     }
+    
     .toast-close {
-      background: rgba(255,255,255,0.2);
+      background: rgba(255, 255, 255, 0.1);
       border: none;
       color: white;
       cursor: pointer;
-      padding: 4px 8px;
-      border-radius: 4px;
+      padding: 4px 10px;
+      border-radius: 6px;
       font-size: 14px;
       transition: background 0.2s;
     }
+    
     .toast-close:hover {
-      background: rgba(255,255,255,0.3);
+      background: rgba(255, 255, 255, 0.2);
     }
-    @keyframes slideIn {
+    
+    @keyframes toastIn {
       from {
         transform: translateX(400px);
         opacity: 0;
@@ -79,7 +113,8 @@
         opacity: 1;
       }
     }
-    @keyframes slideOut {
+    
+    @keyframes toastOut {
       from {
         transform: translateX(0);
         opacity: 1;
@@ -92,7 +127,7 @@
   </style>
 </head>
 <body>
-   <div id="dashboard-container">
+  <div id="dashboard-container">
     {% load plotly_dash %}
     {% plotly_app_bootstrap name="DashboardApp" %}
   </div>
@@ -100,49 +135,53 @@
   <!-- Toast 提示 -->
   <div id="toast" class="toast success">
     <div class="toast-content">
-      <span class="toast-icon">✓</span>
+      <span class="toast-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      </span>
       <span class="toast-message" id="toast-message"></span>
-      <button class="toast-close" onclick="hideToast()">✕</button>
     </div>
+    <button class="toast-close" onclick="hideToast()">✕</button>
   </div>
 
   <script>
     function showToast(message, duration = 5000) {
-      const toast = document.getElementById('toast');
-      const messageElement = document.getElementById('toast-message');
+      var toast = document.getElementById('toast');
+      var messageElement = document.getElementById('toast-message');
 
       messageElement.textContent = message;
       toast.classList.add('show');
 
-      setTimeout(() => {
+      setTimeout(function() {
         hideToast();
       }, duration);
     }
 
     function hideToast() {
-      const toast = document.getElementById('toast');
-      toast.style.animation = 'slideOut 0.3s ease-out forwards';
-      setTimeout(() => {
+      var toast = document.getElementById('toast');
+      toast.style.animation = 'toastOut 0.3s ease-out forwards';
+      setTimeout(function() {
         toast.classList.remove('show');
         toast.style.animation = '';
       }, 300);
     }
 
     function checkUrlParams() {
-      const params = new URLSearchParams(window.location.search);
-      const loginSuccess = params.get('login_success');
-      const registerSuccess = params.get('register_success');
-      const username = params.get('username');
+      var params = new URLSearchParams(window.location.search);
+      var loginSuccess = params.get('login_success');
+      var registerSuccess = params.get('register_success');
+      var username = params.get('username');
 
       if (loginSuccess === 'true' && username) {
-        showToast(`欢迎回来，${username}！`);
+        showToast('欢迎回来，' + username + '！');
         localStorage.setItem('authState', JSON.stringify({
           authenticated: true,
           username: username
         }));
         window.history.replaceState({}, document.title, window.location.pathname);
       } else if (registerSuccess === 'true' && username) {
-        showToast(`注册成功，欢迎 ${username}！`);
+        showToast('注册成功，欢迎 ' + username + '！');
         localStorage.setItem('authState', JSON.stringify({
           authenticated: true,
           username: username
@@ -152,28 +191,22 @@
     }
 
     function updateAuthButtons(authenticated, username) {
-      const iframe = document.querySelector('#dashboard-container iframe');
+      var iframe = document.querySelector('#dashboard-container iframe');
       if (!iframe || !iframe.contentWindow) {
         console.log('无法找到iframe');
         return;
       }
 
       try {
-        const loginButton = iframe.contentWindow.document.getElementById('login-button');
-        const userContainer = iframe.contentWindow.document.getElementById('user-info-container');
+        var loginButton = iframe.contentWindow.document.getElementById('login-button');
+        var userContainer = iframe.contentWindow.document.getElementById('user-info-container');
 
         if (authenticated && username) {
           if (loginButton) {
             loginButton.style.display = 'none';
           }
           if (userContainer) {
-            userContainer.innerHTML = `
-              <a href="/accounts/profile/" class="text-decoration-none">
-                <button class="btn btn-outline-dark btn-sm rounded-pill fw-bold px-4">
-                  ${username}
-                </button>
-              </a>
-            `;
+            userContainer.innerHTML = '<a href="/accounts/profile/" class="text-decoration-none"><button class="btn btn-sm rounded-pill fw-bold px-4" style="background: #3B82F6; color: white; border: none;">' + username + '</button></a>';
           }
         } else {
           if (loginButton) {
@@ -190,9 +223,9 @@
 
     function loadAuthState() {
       try {
-        const authState = localStorage.getItem('authState');
+        var authState = localStorage.getItem('authState');
         if (authState) {
-          const data = JSON.parse(authState);
+          var data = JSON.parse(authState);
           if (data.authenticated && data.username) {
             updateAuthButtons(true, data.username);
           }
@@ -204,8 +237,8 @@
 
     async function checkServerAuthStatus() {
       try {
-        const response = await fetch('/accounts/api/auth-check/');
-        const data = await response.json();
+        var response = await fetch('/accounts/api/auth-check/');
+        var data = await response.json();
 
         if (data.authenticated && data.username) {
           localStorage.setItem('authState', JSON.stringify({

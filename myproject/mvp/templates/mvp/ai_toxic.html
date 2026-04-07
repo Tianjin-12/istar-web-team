@@ -2,15 +2,255 @@
 
 {% load static %}
 
-{% block title %}AI投毒检测 - {% endblock %}
+{% block title %}AI投毒监测 - {% endblock %}
 
 {% block content %}
-<div class="container-fluid px-4 py-4" style="max-width: 1400px;">
+<style>
+  /* 页面容器 */
+  .ai-toxic-page {
+    padding: 32px 24px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
   
-  <div class="card shadow-lg mb-4" style="border-radius: 24px; border: none; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-    <div class="card-body p-5 text-white">
-      <h1 class="fw-bold mb-3" style="font-size: 2.5rem;">什么是AI投毒</h1>
-      <p class="mb-0" style="font-size: 1.1rem; line-height: 1.8; opacity: 0.95;">
+  /* Sticky 定义区域 */
+  .sticky-definition-wrapper {
+    position: relative;
+  }
+  
+  .definition-card {
+    background: white;
+    border-radius: 24px;
+    padding: 32px;
+    margin-bottom: 24px;
+    transition: all 0.4s ease;
+    overflow: hidden;
+    position: relative;
+  }
+  
+  /* 引言式排版 - 左侧渐变装饰线 */
+  .definition-card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 6px;
+    background: linear-gradient(180deg, #3B82F6 0%, #2DD4BF 100%);
+  }
+  
+  .definition-card.sticky {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    padding: 20px 32px;
+    background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+    margin-bottom: 32px;
+  }
+  
+  .definition-card.sticky::before {
+    background: linear-gradient(180deg, #3B82F6 0%, #2DD4BF 100%);
+    width: 4px;
+  }
+  
+  .definition-card.sticky .definition-full {
+    display: none;
+  }
+  
+  .definition-card.sticky .definition-title {
+    font-size: 1.2rem;
+    color: white;
+    margin: 0;
+  }
+  
+  .definition-card.sticky .definition-subtitle {
+    display: none;
+  }
+  
+  .definition-title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #0F172A;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .definition-title i {
+    color: #2DD4BF;
+  }
+  
+  .definition-subtitle {
+    color: #64748B;
+    line-height: 1.8;
+    font-size: 1rem;
+  }
+  
+  .definition-keyword {
+    color: #2DD4BF;
+    font-weight: 600;
+  }
+  
+  /* 统计卡片 */
+  .stats-card {
+    background: white;
+    border-radius: 20px;
+    padding: 24px;
+    margin-bottom: 24px;
+    transition: all 0.3s ease;
+  }
+  
+  .stats-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+  }
+  
+  .stats-number {
+    font-size: 2.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #3B82F6 0%, #2DD4BF 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .stats-label {
+    color: #64748B;
+    font-size: 0.9rem;
+  }
+  
+  /* 内容卡片 */
+  .content-card {
+    background: white;
+    border-radius: 20px;
+    padding: 28px;
+    margin-bottom: 24px;
+    transition: all 0.3s ease;
+  }
+  
+  .content-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+  }
+  
+  .section-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #0F172A;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .section-title i {
+    color: #3B82F6;
+  }
+  
+  /* 词云容器 */
+  .wordcloud-container {
+    height: 400px;
+    width: 100%;
+    position: relative;
+  }
+  
+  /* 统计口径 */
+  .stats-note {
+    background: rgba(45, 212, 191, 0.08);
+    border-left: 3px solid #2DD4BF;
+    padding: 16px 20px;
+    border-radius: 0 12px 12px 0;
+    margin-top: 20px;
+  }
+  
+  .stats-note p {
+    color: #64748B;
+    font-size: 0.85rem;
+    margin-bottom: 4px;
+    line-height: 1.6;
+  }
+  
+  .stats-note strong {
+    color: #0F172A;
+  }
+  
+  /* 图表容器 */
+  .chart-container {
+    height: 500px;
+    width: 100%;
+  }
+  
+  /* CTA 卡片 */
+  .cta-card {
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.03), rgba(45, 212, 191, 0.05));
+    border: 1px solid rgba(45, 212, 191, 0.2);
+    border-radius: 20px;
+    padding: 40px;
+    text-align: center;
+  }
+  
+  .cta-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #0F172A;
+    margin-bottom: 12px;
+  }
+  
+  .cta-text {
+    color: #64748B;
+    margin-bottom: 24px;
+  }
+  
+  .cta-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #3B82F6;
+    font-weight: 600;
+    text-decoration: none;
+    padding: 12px 24px;
+    border: 2px solid #3B82F6;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+  }
+  
+  .cta-link:hover {
+    background: #3B82F6;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+  }
+  
+  /* 入场动画 */
+  .fade-in-up {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.6s ease-out forwards;
+  }
+  
+  .delay-1 { animation-delay: 0.1s; }
+  .delay-2 { animation-delay: 0.2s; }
+  .delay-3 { animation-delay: 0.3s; }
+  .delay-4 { animation-delay: 0.4s; }
+  
+  @keyframes fadeInUp {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
+
+<div class="ai-toxic-page">
+  <!-- Sticky 定义区域 -->
+  <div class="sticky-definition-wrapper">
+    <div class="definition-card fade-in-up" id="definitionCard">
+      <h1 class="definition-title">
+        <i data-lucide="shield-alert" style="width: 32px; height: 32px;"></i>
+        什么是AI投毒
+      </h1>
+      <p class="definition-subtitle">
         AI投毒是指通过精心设计的数据或提示词，诱导AI模型生成虚假、误导性或有害的内容。
         这种攻击手段可能污染各类信息领域，影响用户决策，甚至造成社会危害。我们通过分析大量信息，
         识别出受AI投毒影响最严重的领域，帮助用户提高警惕。
@@ -18,100 +258,92 @@
     </div>
   </div>
 
-  <div class="card shadow mb-4" style="border-radius: 24px; border: none;">
-    <div class="card-body p-4">
-      <div class="d-flex justify-content-end align-items-end flex-wrap gap-4">
-        <div class="text-end">
-          <p class="fw-bold mb-1" style="font-size: 1.3rem;">
-            已分析<span class="mx-1" style="font-size: 2.2rem; color: #cb0c9f; font-weight: 800;">1908</span>条信息，
-            收录<span class="mx-1" style="font-size: 2.2rem; color: #cb0c9f; font-weight: 800;">20</span>个领域
-          </p>
-          <p class="text-muted mb-0" style="font-size: 0.9rem;">
-            <i class="bi bi-clock-history"></i> 上次更新于2026年2月13日
-          </p>
+  <!-- 统计数据 -->
+  <div class="stats-card fade-in-up delay-1">
+    <div class="row align-items-center">
+      <div class="col-md-8">
+        <p class="stats-label mb-1">已分析信息</p>
+        <div class="d-flex align-items-baseline gap-2">
+          <span class="stats-number" id="info-count">1908</span>
+          <span class="stats-label">条</span>
+        </div>
+      </div>
+      <div class="col-md-4 text-end">
+        <p class="stats-label mb-1">收录领域</p>
+        <div class="d-flex align-items-baseline gap-2 justify-content-md-end">
+          <span class="stats-number" id="domain-count">20</span>
+          <span class="stats-label">个</span>
         </div>
       </div>
     </div>
+    <p class="text-muted mt-3 mb-0" style="font-size: 0.85rem;">
+      <i data-lucide="clock" style="width: 14px; height: 14px; vertical-align: -2px;"></i>
+      数据每周更新 · 上次更新于2026年2月13日
+    </p>
   </div>
 
-  <div class="card shadow mb-4" style="border-radius: 24px; border: none;">
-    <div class="card-body p-4">
-      <h3 class="fw-bold mb-4" style="color: #2d3748;">
-        <i class="bi bi-cloud-fog2 text-primary"></i> 领域污染程度词云
-      </h3>
-      <div id="wordcloud-container" style="height: 450px; width: 100%;"></div>
-      <!-- 统计口径注释 -->
-      <div class="mt-4 p-3 bg-light rounded" style="border-left: 4px solid #667eea;">
-        <p class="mb-0" style="font-size: 0.85rem; color: #718096;">
-          <i class="bi bi-info-circle"></i>
-          <strong>统计口径：</strong>污染程度 = (AI生成虚假信息数 / 该领域总信息数) × 100%；
-          <strong>数据来源：</strong>公开平台信息、用户举报、AI检测模型分析；
-          <strong>更新频率：</strong>每周更新一次；
-          <strong>计算方法：</strong>使用多模型交叉验证，取平均值作为最终结果。
-        </p>
-      </div>
+  <!-- 词云 -->
+  <div class="content-card fade-in-up delay-2">
+    <h3 class="section-title">
+      <i data-lucide="cloud" style="width: 24px; height: 24px;"></i>
+      领域污染程度词云
+    </h3>
+    <div class="wordcloud-container" id="wordcloud-container"></div>
+    
+    <div class="stats-note">
+      <p><strong>统计口径：</strong>污染程度 = (AI生成虚假信息数 / 该领域总信息数) × 100%</p>
+      <p><strong>数据来源：</strong>公开平台信息、用户举报、AI检测模型分析</p>
+      <p><strong>更新频率：</strong>每周更新一次 · 使用多模型交叉验证</p>
     </div>
   </div>
 
-  <div class="card shadow mb-4" style="border-radius: 24px; border: none;">
-    <div class="card-body p-4">
-      <h3 class="fw-bold mb-4" style="color: #2d3748;">
-        <i class="bi bi-bar-chart-fill text-primary"></i> 领域污染程度对比
-      </h3>
-      <div style="height: 600px; width: 100%;">
-        <canvas id="barChart"></canvas>
-      </div>
+  <!-- 柱状图 -->
+  <div class="content-card fade-in-up delay-3">
+    <h3 class="section-title">
+      <i data-lucide="bar-chart-3" style="width: 24px; height: 24px;"></i>
+      领域污染程度对比
+    </h3>
+    <div class="chart-container">
+      <canvas id="barChart"></canvas>
     </div>
   </div>
 
-  <div class="card shadow" style="border-radius: 24px; border: none;">
-    <div class="card-body p-5 text-center">
-      <h3 class="mb-4" style="color: #2d3748;">
-        <i class="bi bi-question-circle text-primary"></i> 希望鉴别？
-      </h3>
-      <a href="#" class="text-decoration-none d-inline-block">
-        <span class="fw-bold" style="font-size: 1.5rem; color: #667eea; border-bottom: 3px solid #667eea; transition: all 0.3s ease;">
-          点击此处进行AI内容鉴别
-        </span>
-      </a>
-      <p class="mt-3 text-muted">
-        使用我们的AI检测工具，快速识别内容是否由AI生成
-      </p>
-    </div>
+  <!-- CTA -->
+  <div class="cta-card fade-in-up delay-4">
+    <h3 class="cta-title">希望进行内容鉴别？</h3>
+    <p class="cta-text">使用AI检测工具，快速识别内容是否由AI生成</p>
+    <a href="#" class="cta-link">
+      <i data-lucide="scan" style="width: 20px; height: 20px;"></i>
+      开始AI内容鉴别
+    </a>
   </div>
-
 </div>
-
-<style>
-.wordcloud-item {
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.wordcloud-item:hover {
-  transform: scale(1.1);
-  filter: brightness(1.2);
-}
-
-.card {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15) !important;
-}
-
-canvas {
-  max-height: 100%;
-}
-</style>
 
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts-wordcloud@2.1.0/dist/echarts-wordcloud.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-
 <script>
+lucide.createIcons();
+
+// Sticky Scroll 效果
+(function() {
+  const definitionCard = document.getElementById('definitionCard');
+  let lastScrollY = 0;
+  
+  window.addEventListener('scroll', function() {
+    const scrollY = window.scrollY;
+    
+    if (scrollY > 200) {
+      definitionCard.classList.add('sticky');
+    } else {
+      definitionCard.classList.remove('sticky');
+    }
+    
+    lastScrollY = scrollY;
+  });
+})();
+
+// 领域数据
 const domainData = [
   { name: '社交媒体', value: 95, count: 320 },
   { name: '健康医疗', value: 88, count: 285 },
@@ -135,31 +367,16 @@ const domainData = [
   { name: '宗教文化', value: 28, count: 23 }
 ];
 
-function getColor(value) {
+// 词云颜色 - 蓝青紫邻近色系
+function getWordCloudColor(value) {
   const colors = [
-    '#fcd34d',
-    '#fbbf24',
-    '#f59e0b',
-    '#f97316',
-    '#ef4444',
-    '#dc2626',
-    '#be185d',
-    '#9333ea',
-    '#7c3aed',
-    '#6366f1',
-    '#3b82f6',
-    '#0ea5e9',
-    '#06b6d4',
-    '#14b8a6',
-    '#10b981',
-    '#059669',
-    '#047857',
-    '#0d9488',
-    '#0891b2',
-    '#0284c7'
+    '#3B82F6', '#60A5FA', '#93C5FD', // 蓝
+    '#2DD4BF', '#5EEAD4', '#99F6E4', // 青
+    '#8B5CF6', '#A78BFA', '#C4B5FD', // 紫
+    '#0F172A', '#1E3A5F', '#334155'  // 深灰
   ];
-  const index = Math.floor((100 - value) / 5);
-  return colors[Math.min(index, colors.length - 1)];
+  const index = Math.floor((value - 28) / 5);
+  return colors[Math.min(Math.max(index, 0), colors.length - 1)];
 }
 
 function initWordCloud() {
@@ -168,37 +385,46 @@ function initWordCloud() {
   const option = {
     tooltip: {
       show: true,
+      backgroundColor: 'rgba(15, 23, 42, 0.95)',
+      borderColor: 'rgba(45, 212, 191, 0.3)',
+      borderWidth: 1,
+      padding: 12,
+      textStyle: {
+        color: 'white',
+        fontFamily: 'SF Mono, Monaco, monospace'
+      },
       formatter: function(params) {
         const domain = domainData.find(d => d.name === params.name);
-        return `${params.name}<br/>污染程度：${domain ? domain.value : params.value}%<br/>信息数量：${domain ? domain.count : 0}条`;
+        return `<strong>${params.name}</strong><br/>
+                污染程度：<span style="color: #2DD4BF">${domain ? domain.value : params.value}%</span><br/>
+                信息数量：${domain ? domain.count : 0} 条`;
       }
     },
     series: [{
       type: 'wordCloud',
       shape: 'ellipse',
-      sizeRange: [24, 80],
-      rotationRange: [0, 0],
-      rotationStep: 0,
-      gridSize: 8,
+      sizeRange: [18, 72],
+      rotationRange: [-15, 15],
+      rotationStep: 5,
+      gridSize: 10,
       drawOutOfBound: false,
       textStyle: {
-        fontFamily: 'Microsoft YaHei, sans-serif',
-        fontWeight: 'bold',
+        fontFamily: 'Inter, -apple-system, sans-serif',
+        fontWeight: '600',
         color: function(params) {
-          const value = params.data.value / 15;
-          return getColor(value);
+          return getWordCloudColor(params.data.value);
         }
       },
       emphasis: {
         focus: 'self',
         textStyle: {
-          textShadowBlur: 20,
-          textShadowColor: '#333'
+          textShadowBlur: 15,
+          textShadowColor: 'rgba(45, 212, 191, 0.5)'
         }
       },
       data: domainData.map(item => ({
         name: item.name,
-        value: item.value * 15
+        value: item.value * 12
       }))
     }]
   };
@@ -217,18 +443,19 @@ function initBarChart() {
   const labels = sortedData.map(d => d.name);
   const values = sortedData.map(d => d.value);
   
+  // 统一使用蓝青渐变色系
   const backgroundColors = values.map(v => {
-    if (v >= 80) return 'rgba(203, 12, 159, 0.8)';
-    if (v >= 60) return 'rgba(118, 75, 162, 0.8)';
-    if (v >= 40) return 'rgba(102, 126, 234, 0.8)';
-    return 'rgba(160, 174, 192, 0.8)';
+    if (v >= 80) return 'rgba(59, 130, 246, 0.8)';
+    if (v >= 60) return 'rgba(45, 212, 191, 0.7)';
+    if (v >= 40) return 'rgba(139, 92, 246, 0.6)';
+    return 'rgba(100, 116, 139, 0.5)';
   });
   
   const borderColors = values.map(v => {
-    if (v >= 80) return 'rgba(203, 12, 159, 1)';
-    if (v >= 60) return 'rgba(118, 75, 162, 1)';
-    if (v >= 40) return 'rgba(102, 126, 234, 1)';
-    return 'rgba(160, 174, 192, 1)';
+    if (v >= 80) return '#3B82F6';
+    if (v >= 60) return '#2DD4BF';
+    if (v >= 40) return '#8B5CF6';
+    return '#64748B';
   });
   
   new Chart(ctx, {
@@ -241,10 +468,8 @@ function initBarChart() {
         backgroundColor: backgroundColors,
         borderColor: borderColors,
         borderWidth: 2,
-        borderRadius: 8,
-        borderSkipped: false,
-        barThickness: 'flex',
-        maxBarThickness: 40
+        borderRadius: 6,
+        borderSkipped: false
       }]
     },
     options: {
@@ -256,7 +481,7 @@ function initBarChart() {
           beginAtZero: true,
           max: 100,
           grid: {
-            color: 'rgba(0, 0, 0, 0.05)'
+            color: 'rgba(15, 23, 42, 0.06)'
           },
           ticks: {
             callback: function(value) {
@@ -266,7 +491,7 @@ function initBarChart() {
               size: 12,
               weight: '500'
             },
-            color: '#718096'
+            color: '#64748B'
           }
         },
         y: {
@@ -276,9 +501,10 @@ function initBarChart() {
           ticks: {
             font: {
               size: 13,
-              weight: '600'
+              weight: '600',
+              family: 'Inter'
             },
-            color: '#2d3748'
+            color: '#1E293B'
           }
         }
       },
@@ -287,26 +513,29 @@ function initBarChart() {
           display: false
         },
         tooltip: {
-          backgroundColor: 'rgba(0, 0, 0, 0.8)',
-          padding: 12,
+          backgroundColor: 'rgba(15, 23, 42, 0.95)',
+          padding: 14,
           titleFont: {
             size: 14,
-            weight: 'bold'
+            weight: '700'
           },
           bodyFont: {
-            size: 13
+            size: 13,
+            family: 'SF Mono, Monaco, monospace'
           },
+          borderColor: 'rgba(45, 212, 191, 0.3)',
+          borderWidth: 1,
           callbacks: {
             label: function(context) {
               const item = sortedData[context.dataIndex];
-              return `污染程度：${context.raw}% | 信息数量：${item.count}条`;
+              return '污染: ' + context.raw + '% | ' + item.count + ' 条';
             }
           }
         }
       },
       animation: {
-        duration: 1500,
-        easing: 'easeInOutQuart'
+        duration: 1200,
+        easing: 'easeOutQuart'
       }
     }
   });

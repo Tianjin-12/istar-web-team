@@ -5,6 +5,33 @@
 {% block title %}CGEO知识库 - {% endblock %}
 
 {% block content %}
+<style>
+  /* 知识库页面配色覆盖 */
+  .text-primary { color: #3B82F6 !important; }
+  .bg-primary { background-color: #3B82F6 !important; }
+  .bg-primary.bg-opacity-10 { background-color: rgba(59, 130, 246, 0.1) !important; }
+  .text-success { color: #2DD4BF !important; }
+  .bg-success { background-color: #2DD4BF !important; }
+  .bg-success.bg-opacity-10 { background-color: rgba(45, 212, 191, 0.1) !important; }
+  .text-warning { color: #F59E0B !important; }
+  .bg-warning { background-color: #F59E0B !important; }
+  .bg-warning.bg-opacity-10 { background-color: rgba(245, 158, 11, 0.1) !important; }
+  .text-danger { color: #EF4444 !important; }
+  .bg-danger { background-color: #EF4444 !important; }
+  .bg-danger.bg-opacity-10 { background-color: rgba(239, 68, 68, 0.1) !important; }
+  .bg-secondary { background-color: #64748B !important; }
+  .bg-secondary.bg-opacity-10 { background-color: rgba(100, 116, 139, 0.1) !important; }
+  .bg-info { background-color: #0EA5E9 !important; }
+  .bg-info.bg-opacity-10 { background-color: rgba(14, 165, 233, 0.1) !important; }
+  
+  /* 渐变按钮和背景 */
+  .btn-gradient-wiki {
+    background: linear-gradient(135deg, #3B82F6 0%, #2DD4BF 100%);
+    color: white;
+    border: none;
+  }
+</style>
+
 <div class="container-fluid px-4 py-4" style="max-width: 1600px;">
   <div class="row">
     <div class="col-lg-3 mb-4">
@@ -110,7 +137,7 @@
         </ol>
       </nav>
 
-      <div class="card shadow-lg mb-4" style="border-radius: 24px; border: none; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+      <div class="card shadow-lg mb-4" style="border-radius: 24px; border: none; background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);">
         <div class="card-body p-5 text-white">
           <h1 class="fw-bold mb-3" style="font-size: 2.5rem;">
             🚀 CGEO知识库
@@ -215,7 +242,7 @@
           <div class="table-responsive">
             <table class="table table-hover align-middle">
               <thead>
-                <tr style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <tr style="background: linear-gradient(135deg, #3B82F6 0%, #2DD4BF 100%);">
                   <th class="text-white border-0 py-3 px-4" style="border-radius: 12px 0 0 0;">课程</th>
                   <th class="text-white border-0 py-3 px-4">内容</th>
                   <th class="text-white border-0 py-3 px-4" style="border-radius: 0 12px 0 0;">时长</th>
@@ -432,7 +459,7 @@
                 开始你的GEO学习之旅，掌握AI时代的搜索新玩法
               </p>
             </div>
-            <a href="#section-1-1" class="btn btn-lg fw-bold text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px; padding: 12px 32px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
+            <a href="#section-1-1" class="btn btn-lg fw-bold text-white" style="background: linear-gradient(135deg, #3B82F6 0%, #2DD4BF 100%); border-radius: 16px; padding: 12px 32px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
               开始第一课 <i class="bi bi-arrow-right ms-2"></i>
             </a>
           </div>
@@ -736,25 +763,25 @@
             <h4 class="fw-bold mb-3" style="color: #2d3748;">📊 数据洞察</h4>
             <div class="row g-4 mb-4">
               <div class="col-md-3">
-                <div class="bg-gradient-primary p-4 rounded text-center text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px;">
+                <div class="bg-gradient-primary p-4 rounded text-center text-white" style="background: linear-gradient(135deg, #3B82F6 0%, #2DD4BF 100%); border-radius: 16px;">
                   <div class="display-5 fw-bold mb-1">85%</div>
                   <small>用户尝试使用AI搜索</small>
                 </div>
               </div>
               <div class="col-md-3">
-                <div class="bg-gradient-primary p-4 rounded text-center text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px;">
+                <div class="bg-gradient-primary p-4 rounded text-center text-white" style="background: linear-gradient(135deg, #3B82F6 0%, #2DD4BF 100%); border-radius: 16px;">
                   <div class="display-5 fw-bold mb-1">60%</div>
                   <small>从AI直接获取答案</small>
                 </div>
               </div>
               <div class="col-md-3">
-                <div class="bg-gradient-primary p-4 rounded text-center text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px;">
+                <div class="bg-gradient-primary p-4 rounded text-center text-white" style="background: linear-gradient(135deg, #3B82F6 0%, #2DD4BF 100%); border-radius: 16px;">
                   <div class="display-5 fw-bold mb-1">3x</div>
                   <small>AI搜索年增长率</small>
                 </div>
               </div>
               <div class="col-md-3">
-                <div class="bg-gradient-primary p-4 rounded text-center text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px;">
+                <div class="bg-gradient-primary p-4 rounded text-center text-white" style="background: linear-gradient(135deg, #3B82F6 0%, #2DD4BF 100%); border-radius: 16px;">
                   <div class="display-5 fw-bold mb-1">40%</div>
                   <small>传统搜索流量下降</small>
                 </div>
@@ -1908,7 +1935,7 @@
               <strong>成功要素：</strong>GEO是一个持续的过程，需要不断监测、分析和优化。
             </div>
 
-            <div class="card shadow mt-5" style="border-radius: 24px; border: none; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <div class="card shadow mt-5" style="border-radius: 24px; border: none; background: linear-gradient(135deg, #3B82F6 0%, #2DD4BF 100%);">
               <div class="card-body p-5 text-white text-center">
                 <h2 class="fw-bold mb-3" style="font-size: 2rem;">
                   🎉 恭喜你完成了CGEO知识库的所有课程！
@@ -1940,7 +1967,7 @@
               <a href="#" class="btn btn-outline-secondary" style="border-radius: 12px; padding: 10px 24px;" disabled>
                 <i class="bi bi-arrow-left me-2"></i>上一页
               </a>
-              <a href="#section-1-1" class="btn btn-primary" style="border-radius: 12px; padding: 10px 24px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+              <a href="#section-1-1" class="btn btn-primary" style="border-radius: 12px; padding: 10px 24px; background: linear-gradient(135deg, #3B82F6 0%, #2DD4BF 100%);">
                 下一课：1.1 什么是GEO<i class="bi bi-arrow-right ms-2"></i>
               </a>
             </div>
@@ -1982,7 +2009,7 @@
 }
 
 .nav-pills .nav-link.active {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #3B82F6 0%, #2DD4BF 100%);
   color: white;
   border-color: transparent;
 }
