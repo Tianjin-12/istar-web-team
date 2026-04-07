@@ -324,7 +324,8 @@ sudo -u www-data /var/www/myproject/venv/bin/python manage.py migrate --noinput
 ```bash
 sudo -u www-data /var/www/myproject/venv/bin/python manage.py collectstatic --noinput
 ```
-
+sudo -u www-data /var/www/myproject/venv/bin/python /var/www/myproject/manage.py collectstatic --noinput
+考虑这样
 ### 12. 配置 Supervisor（如果有配置变化）
 
 ```bash

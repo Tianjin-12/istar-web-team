@@ -57,6 +57,9 @@ class UserProfile(models.Model):
     class Meta:
         verbose_name = '用户档案'
         verbose_name_plural = '用户档案'
+        indexes = [
+            models.Index(fields=['remember_me_token'], name='idx_remember_token'),
+        ]
 
     def __str__(self):
         return f'{self.user.username} 的档案'

@@ -12,7 +12,7 @@ while true; do
   TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
 
   # 检查 Celery Worker 状态
-  if ! $CELERY_CMD inspect ping &> /dev/null; then
+  if ! $CELERY_CMD inspect ping --timeout=10 &> /dev/null; then
     echo "[$TIMESTAMP] [ALERT] Celery Worker is not responding!" >> $LOG_DIR/monitor.log
   fi
 

@@ -312,16 +312,16 @@
   <div class="cta-card fade-in-up delay-4">
     <h3 class="cta-title">希望进行内容鉴别？</h3>
     <p class="cta-text">使用AI检测工具，快速识别内容是否由AI生成</p>
-    <a href="#" class="cta-link">
+    <a href="https://matrix.tencent.com/ai-detect/ai_gen" target="_blank" class="cta-link">
       <i data-lucide="scan" style="width: 20px; height: 20px;"></i>
       开始AI内容鉴别
     </a>
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/echarts-wordcloud@2.1.0/dist/echarts-wordcloud.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="{% static 'vendor/echarts/echarts.min.js' %}"></script>
+<script src="{% static 'vendor/echarts/echarts-wordcloud.min.js' %}"></script>
+<script src="{% static 'vendor/chartjs/chart.umd.min.js' %}"></script>
 <script>
 lucide.createIcons();
 

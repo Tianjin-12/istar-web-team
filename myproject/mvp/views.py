@@ -2,13 +2,15 @@ from django_plotly_dash.models import StatelessApp
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
 from .models import Mention_percentage
 from .serializers import Mention_percentageSerializer
 import json
 import os
 import logging
 from django.conf import settings
-from datetime import datetime, timedelta
+from datetime import timedelta
+from django.utils import timezone
 from django.core.cache import cache
 from django.shortcuts import render, redirect
 from .models import Order
@@ -138,17 +140,17 @@ class Mention_percentageViewSet(viewsets.ModelViewSet):
 
     queryset = Mention_percentage.objects.all()
     serializer_class = Mention_percentageSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         queryset = super().get_queryset()
         name = self.request.query_params.get("name", None)
         if name:
-            queryset = queryset.filter(name__icontains=name)
+            queryset = queryset.filter(brand_name__icontains=name)
         return queryset
 
 
 # API端点，用于获取仪表盘数据
-@csrf_exempt
 def dashboard_data_api(request):
     if request.method == "GET":
         try:
@@ -157,14 +159,11 @@ def dashboard_data_api(request):
             link = request.GET.get("link", "")
 
             days = int(request.GET.get("days", 30))
-            # 默认获取30天的数据
-            cache_key = f"dashboard_data_{keyword}_{days}"
-            # 尝试从缓存中获取数据
+            cache_key = f"dashboard_data_{brand_name}_{keyword}_{days}"
             cached_data = cache.get(cache_key)
             if cached_data:
                 return JsonResponse({"data": cached_data, "from_cache": True})
-            # 计算日期范围
-            end_date = datetime.now()
+            end_date = timezone.now()
             start_date = end_date - timedelta(days=days)
             # 检查Order表中是否有该(brand, keyword)组合
             has_order = Order.objects.filter(
@@ -187,27 +186,27 @@ def dashboard_data_api(request):
             )
             # 限制数据量，避免返回过多数据
             mention_query = mention_query[:1000]
+            rows = list(
+                mention_query.values(
+                    "r_brand_amount",
+                    "nr_brand_amount",
+                    "link_amount",
+                    "high_relevance_ratio",
+                    "source_stats",
+                    "keyword_name",
+                    "brand_name",
+                    "created_at",
+                )
+            )
             data = {
-                "r_brand_amount": list(
-                    mention_query.values_list("r_brand_amount", flat=True)
-                ),
-                "nr_brand_amount": list(
-                    mention_query.values_list("nr_brand_amount", flat=True)
-                ),
-                "link_amount": list(
-                    mention_query.values_list("link_amount", flat=True)
-                ),
-                "high_relevance_ratio": list(
-                    mention_query.values_list("high_relevance_ratio", flat=True)
-                ),
-                "source_stats": list(
-                    mention_query.values_list("source_stats", flat=True)
-                ),
-                "keyword_name": list(
-                    mention_query.values_list("keyword_name", flat=True)
-                ),
-                "brand_name": list(mention_query.values_list("brand_name", flat=True)),
-                "created_at": list(mention_query.values_list("created_at", flat=True)),
+                "r_brand_amount": [r["r_brand_amount"] for r in rows],
+                "nr_brand_amount": [r["nr_brand_amount"] for r in rows],
+                "link_amount": [r["link_amount"] for r in rows],
+                "high_relevance_ratio": [r["high_relevance_ratio"] for r in rows],
+                "source_stats": [r["source_stats"] for r in rows],
+                "keyword_name": [r["keyword_name"] for r in rows],
+                "brand_name": [r["brand_name"] for r in rows],
+                "created_at": [str(r["created_at"]) for r in rows],
             }
             # 设置缓存
             cache.set(cache_key, data, timeout=3600)
@@ -278,7 +277,21 @@ def unread_notification_count(request):
     return JsonResponse({"count": count})
 
 
-@login_required_new_tab
+def _json_login_required(view_func):
+    """JSON API 专用登录检查装饰器，未登录返回 401 JSON"""
+
+    @wraps(view_func)
+    def _wrapper(request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return view_func(request, *args, **kwargs)
+        return JsonResponse(
+            {"error": "Unauthorized", "authenticated": False}, status=401
+        )
+
+    return _wrapper
+
+
+@_json_login_required
 def mark_notification_read(request, notification_id):
     """
     标记通知为已读

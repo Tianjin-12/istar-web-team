@@ -26,7 +26,13 @@ logger = logging.getLogger(__name__)
 # ========================================
 
 
-@shared_task(name="mvp.schedule_order_processing")
+@shared_task(
+    name="mvp.schedule_order_processing",
+    autoretry_for=(Exception,),
+    retry_backoff=60,
+    retry_backoff_max=600,
+    max_retries=3,
+)
 def schedule_order_processing():
     try:
         pending_orders = Order.objects.filter(status="pending")
@@ -76,7 +82,15 @@ def schedule_order_processing():
 # ========================================
 
 
-@shared_task(name="mvp.search_questions")
+@shared_task(
+    name="mvp.search_questions",
+    autoretry_for=(Exception,),
+    retry_backoff=120,
+    retry_backoff_max=600,
+    max_retries=2,
+    time_limit=600,
+    soft_time_limit=540,
+)
 def search_questions(keyword):
     """搜索知乎问题并保存到数据库"""
     task_log = None
@@ -112,7 +126,15 @@ def search_questions(keyword):
 # ========================================
 
 
-@shared_task(name="mvp.build_question_bank")
+@shared_task(
+    name="mvp.build_question_bank",
+    autoretry_for=(Exception,),
+    retry_backoff=120,
+    retry_backoff_max=600,
+    max_retries=2,
+    time_limit=1800,
+    soft_time_limit=1740,
+)
 def build_question_bank(keyword):
     """构建问题库并保存到数据库"""
     task_log = None
@@ -148,7 +170,15 @@ def build_question_bank(keyword):
 # ========================================
 
 
-@shared_task(name="mvp.collect_ai_answers")
+@shared_task(
+    name="mvp.collect_ai_answers",
+    autoretry_for=(Exception,),
+    retry_backoff=120,
+    retry_backoff_max=600,
+    max_retries=2,
+    time_limit=3600,
+    soft_time_limit=3540,
+)
 def collect_ai_answers(keyword):
     """收集AI回答并保存到数据库（多账号并行版本）"""
     import asyncio
@@ -171,9 +201,14 @@ def collect_ai_answers(keyword):
         task_log.duration = int(
             (task_log.completed_at - task_log.started_at).total_seconds()
         )
-        if result == True:
+        if result is True:
             task_log.status = "completed"
             task_log.save()
+        else:
+            task_log.status = "failed"
+            task_log.error_message = f"任务返回异常结果: {result}"
+            task_log.save()
+            raise ValueError(f"collect_answers_parallel_async 返回异常结果: {result}")
         return {"status": "success"}
 
     except Exception as e:
@@ -190,7 +225,15 @@ def collect_ai_answers(keyword):
 # ========================================
 
 
-@shared_task(name="mvp.score_questions")
+@shared_task(
+    name="mvp.score_questions",
+    autoretry_for=(Exception,),
+    retry_backoff=120,
+    retry_backoff_max=600,
+    max_retries=2,
+    time_limit=1800,
+    soft_time_limit=1740,
+)
 def score_questions(keyword):
     """对问题进行评分并保存到数据库"""
     task_log = None
@@ -226,8 +269,15 @@ def score_questions(keyword):
 # ========================================
 
 
-@shared_task(name="mvp.analyze_orders_by_keyword")
-@transaction.atomic
+@shared_task(
+    name="mvp.analyze_orders_by_keyword",
+    autoretry_for=(Exception,),
+    retry_backoff=60,
+    retry_backoff_max=600,
+    max_retries=3,
+    time_limit=1800,
+    soft_time_limit=1740,
+)
 def analyze_orders_by_keyword(keyword, order_ids):
     """批量分析关键词关联的所有订单"""
     from .summary import analyze_summary
@@ -290,11 +340,13 @@ def analyze_orders_by_keyword(keyword, order_ids):
             order.is_cached = is_cached
             order.save()
 
-            # 发送通知
-            send_notification.delay(
-                user_id=order.user.id,
-                message=f"订单 {order.id} 分析完成",
-                order_id=order.id,
+            # 发送通知（在事务提交后执行）
+            transaction.on_commit(
+                lambda o=order: send_notification.delay(
+                    user_id=o.user.id,
+                    message=f"订单 {o.id} 分析完成",
+                    order_id=o.id,
+                )
             )
 
             results.append(
@@ -446,7 +498,7 @@ def archive_old_data():
     return {"archived": count, "filename": filename}
 
 
-@shared_task
+@shared_task(name="mvp.cleanup_backend")
 def cleanup_backend():
     """凌晨4点触发: 清理未完成任务和缓存"""
     try:
@@ -459,7 +511,9 @@ def cleanup_backend():
         if active_tasks:
             for worker_name, tasks in active_tasks.items():
                 for task in tasks:
-                    AsyncResult(task["id"]).revoke(terminate=False)
+                    task_name = task.get("name", "")
+                    if task_name.startswith("mvp."):
+                        AsyncResult(task["id"]).revoke(terminate=False)
         redis_client = get_redis_client()
         if redis_client is None:
             print("警告: 无法获取 Redis 客户端，跳过缓存清理")

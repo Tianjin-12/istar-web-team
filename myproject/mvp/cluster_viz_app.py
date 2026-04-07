@@ -3,7 +3,7 @@ import sys
 import plotly.graph_objects as go
 import dash_bootstrap_components as dbc
 from dash import dcc, html
-from dash.dependencies import Output, Input
+from dash.dependencies import Output, Input, State
 from django_plotly_dash import DjangoDash
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -224,6 +224,7 @@ app.layout = html.Div(
             ]
         ),
         dcc.Download(id="download-png"),
+        dcc.Store(id="cluster-figure-store"),
     ]
 )
 
@@ -238,7 +239,11 @@ def init_keywords(_):
 
 
 @app.callback(
-    [Output("scatter-3d", "figure"), Output("cluster-stats", "children")],
+    [
+        Output("scatter-3d", "figure"),
+        Output("cluster-stats", "children"),
+        Output("cluster-figure-store", "data"),
+    ],
     [
         Input("keyword-dropdown", "value"),
         Input("dim-method-dropdown", "value"),
@@ -284,24 +289,27 @@ def update_visualization(keyword, dim_method, dimension):
             ]
         )
 
-        return fig, stats_card
+        return fig, stats_card, fig.to_dict()
     except Exception as e:
         print(f"Error: {e}")
-        return go.Figure(), html.Div("加载失败")
+        return go.Figure(), html.Div("加载失败"), None
 
 
 @app.callback(
     Output("download-png", "data"),
     [Input("btn-export", "n_clicks")],
+    [State("cluster-figure-store", "data")],
     prevent_initial_call=True,
 )
-def export_png(n_clicks):
-    if not n_clicks:
+def export_png(n_clicks, figure_data):
+    if not n_clicks or not figure_data:
         from dash.exceptions import PreventUpdate
 
         raise PreventUpdate
     from datetime import datetime
+    import json
 
     return dcc.send_bytes(
-        lambda x: b"", f"cluster_viz_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png"
+        lambda x: json.dumps(figure_data, ensure_ascii=False).encode("utf-8"),
+        f"cluster_viz_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json",
     )

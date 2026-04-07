@@ -121,7 +121,7 @@ def fetch_backend_data(brand_name=None, keyword_name=None, link_name=None):
     params["days"] = 30
 
     try:
-        response = requests.get(api_url, params=params, timeout=100)
+        response = requests.get(api_url, params=params, timeout=15)
 
         if response.status_code == 200:
             data = response.json()
@@ -345,7 +345,7 @@ def _get_default_data():
     )
 
 
-def _make_kpi_help():
+def _make_kpi_help(index):
     style = {
         "position": "absolute",
         "top": "10px",
@@ -363,7 +363,7 @@ def _make_kpi_help():
         "cursor": "pointer",
         "zIndex": 100,
     }
-    return html.Span("?", style=style)
+    return html.Span("?", id=f"kpi-help-{index}", style=style)
 
 
 def _make_chart_help(help_id):
@@ -460,14 +460,18 @@ app.layout = html.Div(
                                                     dbc.InputGroup(
                                                         [
                                                             dbc.InputGroupText(
-                                                                html.I(className="bi bi-building text-primary"),
+                                                                html.I(
+                                                                    className="bi bi-building text-primary"
+                                                                ),
                                                                 className="bg-light border-end-0",
                                                             ),
                                                             dbc.Input(
-                                                                id="modal-input-brand",
+                                                                id="collapse-input-brand",
                                                                 placeholder="品牌名称 (如: Nike)",
                                                                 className="border-start-0 ps-0",
-                                                                style={"background": "#fafafa"},
+                                                                style={
+                                                                    "background": "#fafafa"
+                                                                },
                                                             ),
                                                         ],
                                                         className="mb-3",
@@ -484,14 +488,18 @@ app.layout = html.Div(
                                                     dbc.InputGroup(
                                                         [
                                                             dbc.InputGroupText(
-                                                                html.I(className="bi bi-key text-primary"),
+                                                                html.I(
+                                                                    className="bi bi-key text-primary"
+                                                                ),
                                                                 className="bg-light border-end-0",
                                                             ),
                                                             dbc.Input(
-                                                                id="modal-input-kw",
+                                                                id="collapse-input-kw",
                                                                 placeholder="关键词 (如: 运动鞋)",
                                                                 className="border-start-0 ps-0",
-                                                                style={"background": "#fafafa"},
+                                                                style={
+                                                                    "background": "#fafafa"
+                                                                },
                                                             ),
                                                         ],
                                                         className="mb-3",
@@ -512,14 +520,18 @@ app.layout = html.Div(
                                                     dbc.InputGroup(
                                                         [
                                                             dbc.InputGroupText(
-                                                                html.I(className="bi bi-link-45deg text-primary"),
+                                                                html.I(
+                                                                    className="bi bi-link-45deg text-primary"
+                                                                ),
                                                                 className="bg-light border-end-0",
                                                             ),
                                                             dbc.Input(
-                                                                id="modal-input-link",
+                                                                id="collapse-input-link",
                                                                 placeholder="https://example.com",
                                                                 className="border-start-0 ps-0",
-                                                                style={"background": "#fafafa"},
+                                                                style={
+                                                                    "background": "#fafafa"
+                                                                },
                                                             ),
                                                         ],
                                                     ),
@@ -532,11 +544,13 @@ app.layout = html.Div(
                                             dbc.Col(
                                                 dbc.Button(
                                                     [
-                                                        html.I(className="bi bi-graph-up me-2"),
+                                                        html.I(
+                                                            className="bi bi-graph-up me-2"
+                                                        ),
                                                         "开始分析",
                                                     ],
-                                                    id="modal-btn-search",
-                                                    className="fw-bold w-100 shadow-lg",
+                                                    id="collapse-btn-search",
+                                                    className="w-100 fw-bold",
                                                     style={
                                                         "background": "linear-gradient(135deg, #3B82F6 0%, #2DD4BF 100%)",
                                                         "border": "none",
@@ -559,7 +573,7 @@ app.layout = html.Div(
                     id="search-form-collapse",
                     is_open=False,
                 ),
-                dbc.Loading(
+                dcc.Loading(
                     id="loading",
                     type="cube",
                     color="#cb0c9f",
@@ -577,7 +591,7 @@ app.layout = html.Div(
                                                                 id="label-kpi-1",
                                                                 className="card-label mb-2",
                                                             ),
-                                                            _make_kpi_help(),
+                                                            _make_kpi_help(1),
                                                         ],
                                                         style={"position": "relative"},
                                                         id="kpi-help-1-wrap",
@@ -605,7 +619,7 @@ app.layout = html.Div(
                                                                 id="label-kpi-2",
                                                                 className="card-label mb-2",
                                                             ),
-                                                            _make_kpi_help(),
+                                                            _make_kpi_help(2),
                                                         ],
                                                         style={"position": "relative"},
                                                         id="kpi-help-2-wrap",
@@ -633,7 +647,7 @@ app.layout = html.Div(
                                                                 id="label-kpi-3",
                                                                 className="card-label mb-2",
                                                             ),
-                                                            _make_kpi_help(),
+                                                            _make_kpi_help(3),
                                                         ],
                                                         style={"position": "relative"},
                                                         id="kpi-help-3-wrap",
@@ -742,21 +756,62 @@ app.layout = html.Div(
                                                         [
                                                             html.Div(
                                                                 [
-                                                                    html.I(className="bi bi-bar-chart-fill me-2 text-primary"),
+                                                                    html.I(
+                                                                        className="bi bi-bar-chart-fill me-2 text-primary"
+                                                                    ),
                                                                     "热门品牌排行",
                                                                 ],
                                                                 className="d-flex align-items-center mb-3",
-                                                                style={"fontSize": "18px", "fontWeight": "700", "color": "#1E293B"},
+                                                                style={
+                                                                    "fontSize": "18px",
+                                                                    "fontWeight": "700",
+                                                                    "color": "#1E293B",
+                                                                },
                                                             ),
                                                             html.Div(
                                                                 [
-                                                                    html.Div("品牌", className="fw-bold text-white", style={"flex": "1", "fontSize": "13px", "letterSpacing": "0.5px"}),
-                                                                    html.Div("核心提及概率", className="fw-bold text-white text-center", style={"width": "130px", "fontSize": "13px", "letterSpacing": "0.5px"}),
-                                                                    html.Div("高相关信源", className="fw-bold text-white text-center", style={"width": "130px", "fontSize": "13px", "letterSpacing": "0.5px"}),
-                                                                    html.Div("随意性提及", className="fw-bold text-white text-center", style={"width": "130px", "fontSize": "13px", "letterSpacing": "0.5px"}),
+                                                                    html.Div(
+                                                                        "品牌",
+                                                                        className="fw-bold text-white",
+                                                                        style={
+                                                                            "flex": "1",
+                                                                            "fontSize": "13px",
+                                                                            "letterSpacing": "0.5px",
+                                                                        },
+                                                                    ),
+                                                                    html.Div(
+                                                                        "核心提及概率",
+                                                                        className="fw-bold text-white text-center",
+                                                                        style={
+                                                                            "width": "130px",
+                                                                            "fontSize": "13px",
+                                                                            "letterSpacing": "0.5px",
+                                                                        },
+                                                                    ),
+                                                                    html.Div(
+                                                                        "高相关信源",
+                                                                        className="fw-bold text-white text-center",
+                                                                        style={
+                                                                            "width": "130px",
+                                                                            "fontSize": "13px",
+                                                                            "letterSpacing": "0.5px",
+                                                                        },
+                                                                    ),
+                                                                    html.Div(
+                                                                        "随意性提及",
+                                                                        className="fw-bold text-white text-center",
+                                                                        style={
+                                                                            "width": "130px",
+                                                                            "fontSize": "13px",
+                                                                            "letterSpacing": "0.5px",
+                                                                        },
+                                                                    ),
                                                                 ],
                                                                 className="d-flex justify-content-between align-items-center px-3 py-2 rounded-top",
-                                                                style={"background": "linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)", "boxShadow": "0 4px 15px rgba(59, 130, 246, 0.3)"},
+                                                                style={
+                                                                    "background": "linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)",
+                                                                    "boxShadow": "0 4px 15px rgba(59, 130, 246, 0.3)",
+                                                                },
                                                             ),
                                                         ],
                                                         className="mb-2",
@@ -764,7 +819,10 @@ app.layout = html.Div(
                                                     html.Div(id="rank-table-container"),
                                                 ],
                                                 className="p-3",
-                                                style={"maxHeight": "480px", "overflowY": "auto"},
+                                                style={
+                                                    "maxHeight": "480px",
+                                                    "overflowY": "auto",
+                                                },
                                             ),
                                         ],
                                         className="premium-card",
@@ -1006,58 +1064,76 @@ app.layout = html.Div(
                     className="mb-4",
                 ),
                 html.Div(
-                    [
+                    id="detail-stats-container",
+                    className="row g-3 mb-4",
+                    children=[
                         html.Div(
-                            id="detail-stats-container",
-                            className="row g-3 mb-4",
+                            className="col-4",
                             children=[
                                 html.Div(
-                                    className="col-4",
-                                    children=[
+                                    [
                                         html.Div(
-                                            [
-                                                html.Div("85.2%", className="fw-bold fs-5", style={"color": "#3B82F6"}),
-                                                html.Div("核心提及", className="small text-muted"),
-                                            ],
-                                            className="text-center p-3 rounded bg-light",
+                                            id="detail-stat-r-brand",
+                                            className="fw-bold fs-5",
+                                            style={"color": "#3B82F6"},
+                                        ),
+                                        html.Div(
+                                            "核心提及",
+                                            className="small text-muted",
                                         ),
                                     ],
+                                    className="text-center p-3 rounded bg-light",
                                 ),
+                            ],
+                        ),
+                        html.Div(
+                            className="col-4",
+                            children=[
                                 html.Div(
-                                    className="col-4",
-                                    children=[
+                                    [
                                         html.Div(
-                                            [
-                                                html.Div("72.8%", className="fw-bold fs-5", style={"color": "#2DD4BF"}),
-                                                html.Div("高相关信源", className="small text-muted"),
-                                            ],
-                                            className="text-center p-3 rounded bg-light",
+                                            id="detail-stat-source",
+                                            className="fw-bold fs-5",
+                                            style={"color": "#2DD4BF"},
+                                        ),
+                                        html.Div(
+                                            "高相关信源",
+                                            className="small text-muted",
                                         ),
                                     ],
+                                    className="text-center p-3 rounded bg-light",
                                 ),
+                            ],
+                        ),
+                        html.Div(
+                            className="col-4",
+                            children=[
                                 html.Div(
-                                    className="col-4",
-                                    children=[
+                                    [
                                         html.Div(
-                                            [
-                                                html.Div("58.1%", className="fw-bold fs-5", style={"color": "#8B5CF6"}),
-                                                html.Div("随意性提及", className="small text-muted"),
-                                            ],
-                                            className="text-center p-3 rounded bg-light",
+                                            id="detail-stat-nr-brand",
+                                            className="fw-bold fs-5",
+                                            style={"color": "#8B5CF6"},
+                                        ),
+                                        html.Div(
+                                            "随意性提及",
+                                            className="small text-muted",
                                         ),
                                     ],
+                                    className="text-center p-3 rounded bg-light",
                                 ),
                             ],
                         ),
                     ],
-                    className="mb-4",
-                    style={"background": "linear-gradient(135deg, #1E3A5F 0%, #0F172A 100%)", "borderRadius": "12px", "padding": "16px", "marginTop": "-16px", "marginLeft": "-16px", "marginRight": "-16px"},
                 ),
                 html.Div(
                     [
                         html.H6(
                             [
-                                html.I(className="bi bi-graph-up-arrow me-2", style={"color": "#3B82F6"}),
+                                html.I(
+                                    className="bi bi-graph-up-arrow me-2",
+                                    style={"color": "#3B82F6"},
+                                ),
                                 "流量来源趋势",
                             ],
                             className="mb-3 text-secondary",
@@ -1074,7 +1150,10 @@ app.layout = html.Div(
                     [
                         html.H6(
                             [
-                                html.I(className="bi bi-pie-chart-fill me-2", style={"color": "#2DD4BF"}),
+                                html.I(
+                                    className="bi bi-pie-chart-fill me-2",
+                                    style={"color": "#2DD4BF"},
+                                ),
                                 "AI平台推荐份额",
                             ],
                             className="mb-3 text-secondary",
@@ -1091,9 +1170,12 @@ app.layout = html.Div(
             is_open=False,
             title="品牌详情分析",
             placement="end",
-            style={"maxWidth": "480px", "paddingTop": "0"},
-            header_style={"background": "linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)", "color": "white", "border": "none"},
-            body_style={"padding": "24px 16px"},
+            style={
+                "maxWidth": "480px",
+                "padding": "0 16px 24px 16px",
+                "background": "linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)",
+                "color": "white",
+            },
         ),
         html.Script("""
         (function() {
@@ -1171,16 +1253,32 @@ def trigger_on_state_change(state):
         Output("chart-treemap", "figure"),
         Output("brand-title", "children"),
     ],
-    [Input("trigger-store", "data"), Input("modal-btn-search", "n_clicks")],
+    [
+        Input("trigger-store", "data"),
+        Input("modal-btn-search", "n_clicks"),
+        Input("collapse-btn-search", "n_clicks"),
+    ],
     [
         State("app-state", "data"),
         State("modal-input-brand", "value"),
         State("modal-input-kw", "value"),
         State("modal-input-link", "value"),
+        State("collapse-input-brand", "value"),
+        State("collapse-input-kw", "value"),
+        State("collapse-input-link", "value"),
     ],
 )
 def update_metrics(
-    trigger_val, modal_click, app_state, modal_brand, modal_kw, modal_link
+    trigger_val,
+    modal_click,
+    collapse_click,
+    app_state,
+    modal_brand,
+    modal_kw,
+    modal_link,
+    collapse_brand,
+    collapse_kw,
+    collapse_link,
 ):
     ctx = dash.callback_context
     if not ctx.triggered:
@@ -1201,7 +1299,11 @@ def update_metrics(
 
     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0]
 
-    if trigger_id == "modal-btn-search":
+    if trigger_id == "collapse-btn-search":
+        search_brand = collapse_brand or ""
+        search_keyword = collapse_kw or ""
+        search_link = collapse_link or ""
+    elif trigger_id == "modal-btn-search":
         search_brand = modal_brand or ""
         search_keyword = modal_kw or ""
         search_link = modal_link or ""
@@ -1356,24 +1458,46 @@ def update_metrics(
         for i, (_, r) in enumerate(rank.iterrows()):
             rk = r["Rank"]
             brand_n = r["Brand"]
-            score = r.get('Score', 0)
+            score = r.get("Score", 0)
             r_brand = score * 0.8 if score else 0
             nr_brand = score * 0.6 if score else 0
             is_highlighted = brand_n == search_brand
-            
+
             if rk == 1:
-                rank_style = {"background": "linear-gradient(135deg, #FFD700, #F59E0B)", "color": "white", "boxShadow": "0 2px 8px rgba(255, 215, 0, 0.4)"}
-                trophy_icon = html.I(className="bi bi-trophy-fill me-1", style={"fontSize": "12px"})
+                rank_style = {
+                    "background": "linear-gradient(135deg, #FFD700, #F59E0B)",
+                    "color": "white",
+                    "boxShadow": "0 2px 8px rgba(255, 215, 0, 0.4)",
+                }
+                trophy_icon = html.I(
+                    className="bi bi-trophy-fill me-1", style={"fontSize": "12px"}
+                )
             elif rk == 2:
-                rank_style = {"background": "linear-gradient(135deg, #C0C0C0, #9CA3AF)", "color": "white", "boxShadow": "0 2px 8px rgba(192, 192, 192, 0.4)"}
-                trophy_icon = html.I(className="bi bi-trophy-fill me-1", style={"fontSize": "12px"})
+                rank_style = {
+                    "background": "linear-gradient(135deg, #C0C0C0, #9CA3AF)",
+                    "color": "white",
+                    "boxShadow": "0 2px 8px rgba(192, 192, 192, 0.4)",
+                }
+                trophy_icon = html.I(
+                    className="bi bi-trophy-fill me-1", style={"fontSize": "12px"}
+                )
             elif rk == 3:
-                rank_style = {"background": "linear-gradient(135deg, #CD7F32, #B45309)", "color": "white", "boxShadow": "0 2px 8px rgba(205, 127, 50, 0.4)"}
-                trophy_icon = html.I(className="bi bi-trophy-fill me-1", style={"fontSize": "12px"})
+                rank_style = {
+                    "background": "linear-gradient(135deg, #CD7F32, #B45309)",
+                    "color": "white",
+                    "boxShadow": "0 2px 8px rgba(205, 127, 50, 0.4)",
+                }
+                trophy_icon = html.I(
+                    className="bi bi-trophy-fill me-1", style={"fontSize": "12px"}
+                )
             else:
-                rank_style = {"background": "#f1f5f9", "color": "#64748b", "boxShadow": "none"}
+                rank_style = {
+                    "background": "#f1f5f9",
+                    "color": "#64748b",
+                    "boxShadow": "none",
+                }
                 trophy_icon = None
-            
+
             ranks.append(
                 html.Div(
                     [
@@ -1381,25 +1505,41 @@ def update_metrics(
                         html.Div(
                             [
                                 html.Span(
-                                    [trophy_icon, f"#{rk}"] if trophy_icon else f"#{rk}",
+                                    [trophy_icon, f"#{rk}"]
+                                    if trophy_icon
+                                    else f"#{rk}",
                                     className="rank-badge",
                                     style=rank_style,
                                 ),
                                 html.Span(
                                     brand_n,
                                     className="fw-bold",
-                                    style={"flex": "1", "marginLeft": "12px", "color": "#0F172A" if not is_highlighted else "#3B82F6", "fontSize": "15px"},
+                                    style={
+                                        "flex": "1",
+                                        "marginLeft": "12px",
+                                        "color": "#0F172A"
+                                        if not is_highlighted
+                                        else "#3B82F6",
+                                        "fontSize": "15px",
+                                    },
                                 ),
                                 html.Div(
                                     [
                                         html.Div(
                                             f"{r_brand:.1f}%",
                                             className="fw-bold",
-                                            style={"fontSize": "13px", "color": "#3B82F6", "marginBottom": "4px"},
+                                            style={
+                                                "fontSize": "13px",
+                                                "color": "#3B82F6",
+                                                "marginBottom": "4px",
+                                            },
                                         ),
                                         html.Div(
                                             className="progress-bar-mini",
-                                            style={"width": f"{min(r_brand, 100)}%", "background": "linear-gradient(90deg, #3B82F6, #60A5FA)"}
+                                            style={
+                                                "width": f"{min(r_brand, 100)}%",
+                                                "background": "linear-gradient(90deg, #3B82F6, #60A5FA)",
+                                            },
                                         ),
                                     ],
                                     className="text-center",
@@ -1410,11 +1550,18 @@ def update_metrics(
                                         html.Div(
                                             f"{nr_brand:.1f}%",
                                             className="fw-bold",
-                                            style={"fontSize": "13px", "color": "#2DD4BF", "marginBottom": "4px"},
+                                            style={
+                                                "fontSize": "13px",
+                                                "color": "#2DD4BF",
+                                                "marginBottom": "4px",
+                                            },
                                         ),
                                         html.Div(
                                             className="progress-bar-mini",
-                                            style={"width": f"{min(nr_brand, 100)}%", "background": "linear-gradient(90deg, #2DD4BF, #5EEAD4)"}
+                                            style={
+                                                "width": f"{min(nr_brand, 100)}%",
+                                                "background": "linear-gradient(90deg, #2DD4BF, #5EEAD4)",
+                                            },
                                         ),
                                     ],
                                     className="text-center",
@@ -1425,20 +1572,34 @@ def update_metrics(
                                         html.Div(
                                             f"{score:.1f}%",
                                             className="fw-bold",
-                                            style={"fontSize": "13px", "color": "#8B5CF6", "marginBottom": "4px"},
+                                            style={
+                                                "fontSize": "13px",
+                                                "color": "#8B5CF6",
+                                                "marginBottom": "4px",
+                                            },
                                         ),
                                         html.Div(
                                             className="progress-bar-mini",
-                                            style={"width": f"{min(score, 100)}%", "background": "linear-gradient(90deg, #8B5CF6, #A78BFA)"}
+                                            style={
+                                                "width": f"{min(score, 100)}%",
+                                                "background": "linear-gradient(90deg, #8B5CF6, #A78BFA)",
+                                            },
                                         ),
                                     ],
                                     className="text-center",
                                     style={"width": "130px"},
                                 ),
-                                html.I(className="bi bi-chevron-right ms-2", style={"color": "#94A3B8", "fontSize": "14px"}),
+                                html.I(
+                                    className="bi bi-chevron-right ms-2",
+                                    style={"color": "#94A3B8", "fontSize": "14px"},
+                                ),
                             ],
                             className="d-flex align-items-center px-3 py-3 rounded rank-row",
-                            style={"cursor": "pointer", "background": "white", "border": "1px solid #f1f5f9"},
+                            style={
+                                "cursor": "pointer",
+                                "background": "white",
+                                "border": "1px solid #f1f5f9",
+                            },
                             id={"type": "rank-row", "index": i},
                             n_clicks=0,
                         ),
@@ -1449,9 +1610,14 @@ def update_metrics(
         ranks = [
             html.Div(
                 [
-                    html.I(className="bi bi-inbox text-muted", style={"fontSize": "48px"}),
+                    html.I(
+                        className="bi bi-inbox text-muted", style={"fontSize": "48px"}
+                    ),
                     html.P("暂无排行榜数据", className="text-muted mt-3 mb-1"),
-                    html.P("输入品牌和关键词，点击分析获取数据", className="text-muted small"),
+                    html.P(
+                        "输入品牌和关键词，点击分析获取数据",
+                        className="text-muted small",
+                    ),
                 ],
                 className="text-center py-5",
             )
@@ -1517,7 +1683,15 @@ def toggle_search_form(toggle_click, is_open):
 
 
 @app.callback(
-    [Output("detail-offcanvas", "is_open"), Output("detail-brand-name", "children"), Output("detail-chart-trend", "figure"), Output("detail-chart-pie", "figure")],
+    [
+        Output("detail-offcanvas", "is_open"),
+        Output("detail-brand-name", "children"),
+        Output("detail-stat-r-brand", "children"),
+        Output("detail-stat-source", "children"),
+        Output("detail-stat-nr-brand", "children"),
+        Output("detail-chart-trend", "figure"),
+        Output("detail-chart-pie", "figure"),
+    ],
     [Input({"type": "rank-row", "index": ALL}, "n_clicks")],
     [State("app-state", "data")],
     prevent_initial_call=True,
@@ -1525,35 +1699,43 @@ def toggle_search_form(toggle_click, is_open):
 def show_brand_detail(n_clicks_list, app_state):
     ctx = dash.callback_context
     if not ctx.triggered:
-        return False, "", go.Figure(), go.Figure()
-    
+        return False, "", "", "", "", go.Figure(), go.Figure()
+
     triggered = ctx.triggered[0]
     prop_id = triggered["prop_id"]
-    
+
     try:
         import json
+
         idx = json.loads(prop_id.replace("'", '"'))["index"]
     except:
-        return False, "", go.Figure(), go.Figure()
-    
+        return False, "", "", "", "", go.Figure(), go.Figure()
+
     brand_name = (app_state or {}).get("brand_name", "") or f"品牌 {idx + 1}"
-    
-    dates = [(datetime.now() - timedelta(days=i)).strftime("%Y-%m-%d") for i in range(14, -1, -1)]
-    
+
+    dates = [
+        (datetime.now() - timedelta(days=i)).strftime("%Y-%m-%d")
+        for i in range(14, -1, -1)
+    ]
+
     fig_trend = go.Figure()
-    fig_trend.add_trace(go.Scatter(
-        x=dates,
-        y=[20 + idx * 5 + i * (3 - idx * 0.5) for i in range(15)],
-        name="品牌流量",
-        fill="tozeroy",
-        line=dict(color="#3B82F6", width=2),
-    ))
-    fig_trend.add_trace(go.Scatter(
-        x=dates,
-        y=[15 + idx * 3 + i * (2 - idx * 0.3) for i in range(15)],
-        name="链接流量",
-        line=dict(color="#2DD4BF", width=2),
-    ))
+    fig_trend.add_trace(
+        go.Scatter(
+            x=dates,
+            y=[20 + idx * 5 + i * (3 - idx * 0.5) for i in range(15)],
+            name="品牌流量",
+            fill="tozeroy",
+            line=dict(color="#3B82F6", width=2),
+        )
+    )
+    fig_trend.add_trace(
+        go.Scatter(
+            x=dates,
+            y=[15 + idx * 3 + i * (2 - idx * 0.3) for i in range(15)],
+            name="链接流量",
+            line=dict(color="#2DD4BF", width=2),
+        )
+    )
     fig_trend.update_layout(
         template="plotly_white",
         margin=dict(l=20, r=20, t=10, b=20),
@@ -1561,19 +1743,33 @@ def show_brand_detail(n_clicks_list, app_state):
         showlegend=True,
         legend=dict(orientation="h", y=1.1),
     )
-    
-    fig_pie = go.Figure(go.Pie(
-        labels=["ChatGPT", "Claude", "Perplexity", "Bing AI", "其他"],
-        values=[35 - idx * 5, 25, 20, 12 + idx * 3, 8],
-        hole=0.6,
-    ))
+
+    fig_pie = go.Figure(
+        go.Pie(
+            labels=["ChatGPT", "Claude", "Perplexity", "Bing AI", "其他"],
+            values=[35 - idx * 5, 25, 20, 12 + idx * 3, 8],
+            hole=0.6,
+        )
+    )
     fig_pie.update_layout(
         template="plotly_white",
         margin=dict(l=20, r=20, t=10, b=20),
         height=250,
     )
-    
-    return True, f"品牌详情 - {brand_name}", fig_trend, fig_pie
+
+    r_brand_val = max(0, 85 - idx * 12 + 3)
+    source_val = max(0, 72 - idx * 10 + 5)
+    nr_brand_val = max(0, 58 - idx * 8 + 2)
+
+    return (
+        True,
+        f"品牌详情 - {brand_name}",
+        f"{r_brand_val:.1f}%",
+        f"{source_val:.1f}%",
+        f"{nr_brand_val:.1f}%",
+        fig_trend,
+        fig_pie,
+    )
 
 
 @app.callback(
@@ -1609,19 +1805,21 @@ def export_csv(n_clicks, app_state):
     prevent_initial_call=True,
 )
 def share_link(n_clicks):
-    return html.Script("""
-    (function() {
-        navigator.clipboard.writeText(window.location.href).then(function() {
-            var toast = document.getElementById('toast');
-            var msg = document.getElementById('toast-message');
-            if (msg) msg.textContent = '链接已复制到剪贴板';
-            if (toast) toast.classList.add('show');
-            setTimeout(function() {
-                if (toast) toast.classList.remove('show');
-            }, 3000);
-        });
-    })();
-    """)
+    return html.Div(
+        "请使用浏览器的分享功能复制当前页面链接",
+        className="toast-message",
+        style={
+            "position": "fixed",
+            "bottom": "20px",
+            "right": "20px",
+            "background": "#0F172A",
+            "color": "white",
+            "padding": "12px 24px",
+            "borderRadius": "8px",
+            "zIndex": "9999",
+            "boxShadow": "0 4px 12px rgba(0,0,0,0.3)",
+        },
+    )
 
 
 @app.callback(
@@ -1630,21 +1828,7 @@ def share_link(n_clicks):
     prevent_initial_call=True,
 )
 def share_image(n_clicks):
-    return html.Script("""
-    (function() {
-        var script = document.createElement('script');
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-        script.onload = function() {
-            html2canvas(document.body).then(function(canvas) {
-                var link = document.createElement('a');
-                link.download = 'brand_dashboard.png';
-                link.href = canvas.toDataURL('image/png');
-                link.click();
-            });
-        };
-        document.head.appendChild(script);
-    })();
-    """)
+    return ""
 
 
 @app.callback(

@@ -42,10 +42,14 @@ async def load_stealth_js() -> str:
     return ""
 
 
-async def wait_for_response(page: Page) -> None:
+async def wait_for_response(page: Page, total_timeout: int = 120) -> None:
     last_text = ""
     same_count = 0
+    start_time = time.time()
     while same_count < WAIT_STABLE_SECONDS:
+        if time.time() - start_time > total_timeout:
+            print("  等待响应超时，强制结束")
+            break
         messages = await page.query_selector_all('[class*="message"]')
         if messages:
             current_text = await messages[-1].inner_text()
@@ -55,6 +59,8 @@ async def wait_for_response(page: Page) -> None:
                 same_count = 0
                 last_text = current_text
                 print(f"  生成中... ")
+        else:
+            same_count += 1
         await asyncio.sleep(1)
 
 
@@ -155,40 +161,70 @@ async def process_single_question(
         )
 
         await page.goto("https://chat.deepseek.com", timeout=30000)
-        await page.wait_for_timeout(3000)
+        await page.wait_for_selector("textarea", state="visible", timeout=10000)
 
         try:
             clear_button = page.locator("//button[contains(@class, 'clear')]")
             if await clear_button.count() > 0 and await clear_button.is_visible():
                 await clear_button.click()
-                await page.wait_for_timeout(3000)
+                await page.wait_for_selector("textarea", state="visible", timeout=10000)
         except Exception:
             await page.reload()
-            await page.wait_for_timeout(3000)
-
-        await page.wait_for_timeout(3000)
+            await page.wait_for_selector("textarea", state="visible", timeout=10000)
 
         textarea = page.locator("//textarea")
         await textarea.fill("")
         await textarea.fill(question["question"])
 
         button_selector = "//div[@class='ec4f5d61']/div[1]"
-        button = page.locator(button_selector)
-        class_name = await button.get_attribute("class")
+        button_fallbacks = [
+            "button:has-text('深度思考')",
+            "[data-testid='toggle-deep-think']",
+            "//button[contains(text(), '深度思考')]",
+        ]
+        button = None
+        for sel in [button_selector] + button_fallbacks:
+            try:
+                btn = page.locator(sel)
+                if await btn.count() > 0:
+                    button = btn
+                    break
+            except Exception:
+                continue
 
-        if class_name and "selected ds-toggle-button" in class_name:
-            await button.click()
-            print("  深度思考按钮已关闭")
+        if button is None:
+            print("  未找到深度思考按钮，跳过")
+        else:
+            class_name = await button.get_attribute("class")
+            if class_name and "selected" in class_name:
+                await button.click()
+                print("  深度思考按钮已关闭")
 
         button_selector2 = "//div[@class='ec4f5d61']/div[2]"
-        button2 = page.locator(button_selector2)
-        class_name2 = await button2.get_attribute("class")
+        button_fallbacks2 = [
+            "button:has-text('联网搜索')",
+            "[data-testid='toggle-search']",
+            "//button[contains(text(), '联网搜索')]",
+        ]
+        button2 = None
+        for sel in [button_selector2] + button_fallbacks2:
+            try:
+                btn = page.locator(sel)
+                if await btn.count() > 0:
+                    button2 = btn
+                    break
+            except Exception:
+                continue
 
-        if class_name2 and "selected ds-toggle-button" in class_name2:
-            print("  联网搜索按钮已处于按下状态")
+        if button2 is None:
+            print("  未找到联网搜索按钮，跳过")
         else:
-            await button2.click()
-            print("  联网搜索按钮已点击")
+            class_name2 = await button2.get_attribute("class")
+            if class_name2 and "selected" in class_name2:
+                print("  联网搜索按钮已处于按下状态")
+            else:
+                await button2.click()
+                print("  联网搜索按钮已点击")
 
         await page.click(SEND_DS)
 
@@ -197,6 +233,16 @@ async def process_single_question(
         result_list = await page.locator(
             "//div[@class='ds-message _63c77b1']/div[@class='ds-markdown']"
         ).all()
+
+        if not result_list:
+            result_list = await page.locator(
+                ".ds-markdown--user, [class*='ds-markdown']"
+            ).all()
+
+        if not result_list:
+            result_list = await page.locator(
+                "//div[contains(@class, 'ds-message')]//div[contains(@class, 'markdown')]"
+            ).all()
 
         answer_text = ""
         for res in result_list:
@@ -210,22 +256,50 @@ async def process_single_question(
 
         for i in range(num_extra):
             try:
-                continue_button = page.locator(
-                    "//div[@class='ds-icon-button db183363'][2]"
-                )
-                if (
-                    await continue_button.count() > 0
-                    and await continue_button.is_visible()
-                ):
+                continue_selectors = [
+                    "//div[@class='ds-icon-button db183363'][2]",
+                    "button:has-text('继续生成')",
+                    "//div[contains(@class, 'ds-icon-button')][2]",
+                ]
+                continue_button = None
+                for sel in continue_selectors:
+                    try:
+                        btn = page.locator(sel)
+                        if await btn.count() > 0 and await btn.is_visible():
+                            continue_button = btn
+                            break
+                    except Exception:
+                        continue
+
+                if continue_button:
                     await continue_button.click()
                 else:
-                    await page.click("//div[@class='_5a8ac7a a084f19e']")
+                    retry_selectors = [
+                        "//div[@class='_5a8ac7a a084f19e']",
+                        "button:has-text('重新生成')",
+                        "//div[contains(@class, 'a084f19e')]",
+                    ]
+                    retry_button = None
+                    for sel in retry_selectors:
+                        try:
+                            btn = page.locator(sel)
+                            if await btn.count() > 0:
+                                retry_button = btn
+                                break
+                        except Exception:
+                            continue
+                    if retry_button:
+                        await retry_button.click()
                 await page.fill("//textarea", question["question"])
                 await page.click(SEND_DS)
                 await wait_for_response(page)
                 result_list = await page.locator(
                     "//div[@class='ds-message _63c77b1']/div[@class='ds-markdown']"
                 ).all()
+                if not result_list:
+                    result_list = await page.locator(
+                        "//div[contains(@class, 'ds-message')]//div[contains(@class, 'markdown')]"
+                    ).all()
                 for res in result_list:
                     text = await res.inner_text()
                     answer_text += text + "\n\n"
@@ -246,11 +320,13 @@ async def process_single_question(
 
 async def process_with_retry(
     context: BrowserContext,
+    browser,
     account_name: str,
     question: dict,
     question_index: int,
     total_questions: int,
     stealth_js: str,
+    storage_state_path: str,
 ) -> tuple[str, str, list[str]]:
     for attempt in range(MAX_RETRIES):
         try:
@@ -268,6 +344,30 @@ async def process_with_retry(
                     f"[{account_name}] 问题 {question_index} 第{attempt + 1}次失败，重试... 错误: {e}"
                 )
                 await asyncio.sleep(5 * (attempt + 1))
+                try:
+                    test_page = await context.new_page()
+                    await test_page.goto("https://chat.deepseek.com", timeout=10000)
+                    await test_page.close()
+                    print(f"[{account_name}] context 正常，继续重试")
+                except Exception:
+                    print(f"[{account_name}] context 已损坏，重建 context")
+                    try:
+                        await context.close()
+                    except Exception:
+                        pass
+                    new_ctx = await browser.new_context(
+                        storage_state=storage_state_path
+                    )
+                    return await process_with_retry(
+                        new_ctx,
+                        browser,
+                        account_name,
+                        question,
+                        question_index,
+                        total_questions,
+                        stealth_js,
+                        storage_state_path,
+                    )
             else:
                 print(f"[{account_name}] 问题 {question_index} 最终失败: {e}")
                 raise
@@ -372,10 +472,18 @@ async def collect_answers_parallel_async(
                     for i, q in enumerate(batch):
                         real_index = batch_start + i + 1
                         ctx = contexts[i % len(contexts)]
-                        acc_name = accounts[i % len(accounts)]["name"]
+                        acc = accounts[i % len(accounts)]
+                        acc_name = acc["name"]
                         tasks.append(
                             process_with_retry(
-                                ctx, acc_name, q, real_index, total_count, stealth_js
+                                ctx,
+                                browser,
+                                acc_name,
+                                q,
+                                real_index,
+                                total_count,
+                                stealth_js,
+                                acc["auth_file_path"],
                             )
                         )
 

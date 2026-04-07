@@ -46,18 +46,20 @@ def load_question_bank_from_db(keyword):
 
 def save_question_bank_to_db(keyword, question_data):
     """保存问题库到数据库"""
-    QuestionBank.objects.filter(keyword=keyword).delete()
+    from django.db import transaction
 
-    question_objs = [
-        QuestionBank(
-            keyword=keyword,
-            cluster_id=q["cluster_id"],
-            main_intent=q["main_intent"],
-            generated_question=q["generated_question"],
-        )
-        for q in question_data
-    ]
-    QuestionBank.objects.bulk_create(question_objs, batch_size=100)
+    with transaction.atomic():
+        QuestionBank.objects.filter(keyword=keyword).delete()
+        question_objs = [
+            QuestionBank(
+                keyword=keyword,
+                cluster_id=q["cluster_id"],
+                main_intent=q["main_intent"],
+                generated_question=q["generated_question"],
+            )
+            for q in question_data
+        ]
+        QuestionBank.objects.bulk_create(question_objs, batch_size=100)
 
 
 def load_questions_from_db(keyword):
@@ -72,14 +74,18 @@ def load_questions_from_db(keyword):
 
 def save_scores_to_db(keyword, scores):
     """保存问题评分到数据库"""
-    QuestionScore.objects.filter(keyword=keyword).delete()
+    from django.db import transaction
 
-    today = datetime.now().date()
-    score_objs = [
-        QuestionScore(keyword=keyword, question_id=qid, score=score, answer_date=today)
-        for qid, score in scores.items()
-    ]
-    QuestionScore.objects.bulk_create(score_objs, batch_size=100)
+    with transaction.atomic():
+        QuestionScore.objects.filter(keyword=keyword).delete()
+        today = datetime.now().date()
+        score_objs = [
+            QuestionScore(
+                keyword=keyword, question_id=qid, score=score, answer_date=today
+            )
+            for qid, score in scores.items()
+        ]
+        QuestionScore.objects.bulk_create(score_objs, batch_size=100)
 
 
 def build_bank_with_db(keyword):
