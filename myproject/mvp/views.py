@@ -348,10 +348,8 @@ def disclaimer_view(request):
 
 def cluster_viz_view(request):
     """聚类可视化页面视图"""
-    # 导入 Dash 应用以确保它被注册
     from . import cluster_viz_app
 
-    # 确保 Dash 应用已注册
     try:
         dash_app = StatelessApp.objects.get(slug="ClusterVizApp")
     except StatelessApp.DoesNotExist:
@@ -360,3 +358,8 @@ def cluster_viz_view(request):
         )
 
     return render(request, "mvp/cluster_viz.html")
+
+
+def ranking_view(request):
+    """排行榜主页"""
+    return render(request, "mvp/ranking.html")

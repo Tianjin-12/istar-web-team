@@ -25,6 +25,7 @@ from mvp.views import (
   terms_view,
   disclaimer_view,
   cluster_viz_view,
+  ranking_view,
 )
 from mvp import views
 
@@ -32,7 +33,7 @@ urlpatterns = [
   path('admin/', admin.site.urls),
   path('api/', include('mvp.urls')),
   path('accounts/', include('accounts.urls')),
-  path('', dashboard_view, name='dashboard'),
+  path('', ranking_view, name='ranking'),
   path('dashboard/brand/', dashboard_view, name='dashboard_brand'),
   path('dashboard/geo-evaluate/', geo_evaluate_view, name='dashboard_geo_evaluate'),
   path('dashboard/ai-toxic/', ai_toxic_view, name='dashboard_ai_toxic'),

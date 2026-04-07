@@ -8,6 +8,15 @@
       "enabled": true,
       "last_verified": null,
       "created_at": "2026-04-02T20:19:16.817929"
+    },
+    {
+      "name": "A2-hr",
+      "auth_file": "A2-hr.json",
+      "login_method": "phone",
+      "phone": "14749759851",
+      "enabled": true,
+      "last_verified": null,
+      "created_at": "2026-04-07T12:44:10.882814"
     }
   ]
 }
