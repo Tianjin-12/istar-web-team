@@ -528,9 +528,44 @@ app.layout = html.Div(
                 # --- 搜索控制台 ---
                 dbc.Card(
                     [
-                        # 新手引导按钮行
+                        # Q搜索按钮和折叠搜索表单
                         dbc.Row(
                             [
+                                # Q按钮
+                                dbc.Col(
+                                    [
+                                        html.Div(
+                                            [
+                                                dbc.Button(
+                                                    "Q",
+                                                    id="btn-search-toggle",
+                                                    n_clicks=0,
+                                                    style={
+                                                        "width": "56px",
+                                                        "height": "56px",
+                                                        "borderRadius": "50%",
+                                                        "background": "linear-gradient(135deg, #3B82F6 0%, #2DD4BF 100%)",
+                                                        "border": "none",
+                                                        "boxShadow": "0 4px 15px rgba(59, 130, 246, 0.4)",
+                                                        "color": "white",
+                                                        "fontSize": "24px",
+                                                        "fontWeight": "900",
+                                                        "lineHeight": "1",
+                                                    },
+                                                ),
+                                                html.Span(
+                                                    "搜索",
+                                                    className="ms-2 text-muted small",
+                                                    style={"verticalAlign": "middle"},
+                                                ),
+                                            ],
+                                            className="d-flex align-items-center",
+                                        )
+                                    ],
+                                    width="auto",
+                                    className="text-center",
+                                ),
+                                # 新手提示按钮
                                 dbc.Col(
                                     [
                                         dbc.Button(
@@ -544,87 +579,85 @@ app.layout = html.Div(
                                             className="fw-bold shadow-sm",
                                             color="outline-info",
                                             n_clicks=0,
-                                            style={
-                                                "maxWidth": "200px",
-                                                "margin": "0 auto",
-                                            },
                                         )
                                     ],
-                                    width=12,
-                                    className="text-center",
-                                )
+                                    width="auto",
+                                    className="ms-auto",
+                                ),
                             ],
-                            className="mb-4",
+                            className="mb-3 align-items-center",
                         ),
-                        dbc.CardBody(
-                            [
-                                # 主区域：左列输入框 + 右列按钮
-                                dbc.Row(
-                                    [
-                                        # 左列：输入框
-                                        dbc.Col(
-                                            [
-                                                dbc.Row(
-                                                    [
-                                                        dbc.Col(
-                                                            [
-                                                                html.Label(
-                                                                    id="lbl-search-brand",
-                                                                    className="small fw-bold text-secondary mb-1",
-                                                                ),
-                                                                dbc.InputGroup(
-                                                                    [
-                                                                        dbc.InputGroupText(
-                                                                            html.I(
-                                                                                className="bi bi-building"
-                                                                            )
-                                                                        ),
-                                                                        dbc.Input(
-                                                                            id="input-search-brand",
-                                                                            className="form-control-premium",
-                                                                        ),
-                                                                    ]
-                                                                ),
-                                                            ],
-                                                            width=12,
-                                                        )
-                                                    ],
-                                                    className="mb-3",
-                                                ),
-                                                dbc.Row(
-                                                    [
-                                                        dbc.Col(
-                                                            [
-                                                                html.Label(
-                                                                    id="lbl-search-kw",
-                                                                    className="small fw-bold text-secondary mb-1",
-                                                                ),
-                                                                dbc.InputGroup(
-                                                                    [
-                                                                        dbc.InputGroupText(
-                                                                            html.I(
-                                                                                className="bi bi-search"
-                                                                            )
-                                                                        ),
-                                                                        dbc.Input(
-                                                                            id="input-search-kw",
-                                                                            className="form-control-premium",
-                                                                        ),
-                                                                    ]
-                                                                ),
-                                                            ],
-                                                            width=12,
-                                                        )
-                                                    ],
-                                                    className="mb-3",
-                                                ),
-                                                dbc.Row(
-                                                    [
-                                                        dbc.Col(
-                                                            [
-                                                                html.Label(
-                                                                    id="lbl-search-link",
-                                                                    className="small fw-bold text-secondary mb-1",
+                        # 折叠的搜索表单
+                        dbc.Collapse(
+                            dbc.CardBody(
+                                [
+                                    # 主区域：左列输入框 + 右列按钮
+                                    dbc.Row(
+                                        [
+                                            # 左列：输入框
+                                            dbc.Col(
+                                                [
+                                                    dbc.Row(
+                                                        [
+                                                            dbc.Col(
+                                                                [
+                                                                    html.Label(
+                                                                        id="lbl-search-brand",
+                                                                        className="small fw-bold text-secondary mb-1",
+                                                                    ),
+                                                                    dbc.InputGroup(
+                                                                        [
+                                                                            dbc.InputGroupText(
+                                                                                html.I(
+                                                                                    className="bi bi-building"
+                                                                                )
+                                                                            ),
+                                                                            dbc.Input(
+                                                                                id="input-search-brand",
+                                                                                className="form-control-premium",
+                                                                            ),
+                                                                        ]
+                                                                    ),
+                                                                ],
+                                                                width=12,
+                                                            )
+                                                        ],
+                                                        className="mb-3",
+                                                    ),
+                                                    dbc.Row(
+                                                        [
+                                                            dbc.Col(
+                                                                [
+                                                                    html.Label(
+                                                                        id="lbl-search-kw",
+                                                                        className="small fw-bold text-secondary mb-1",
+                                                                    ),
+                                                                    dbc.InputGroup(
+                                                                        [
+                                                                            dbc.InputGroupText(
+                                                                                html.I(
+                                                                                    className="bi bi-search"
+                                                                                )
+                                                                            ),
+                                                                            dbc.Input(
+                                                                                id="input-search-kw",
+                                                                                className="form-control-premium",
+                                                                            ),
+                                                                        ]
+                                                                    ),
+                                                                ],
+                                                                width=12,
+                                                            )
+                                                        ],
+                                                        className="mb-3",
+                                                    ),
+                                                    dbc.Row(
+                                                        [
+                                                            dbc.Col(
+                                                                [
+                                                                    html.Label(
+                                                                        id="lbl-search-link",
+                                                                        className="small fw-bold text-secondary mb-1",
                                                                 ),
                                                                 dbc.InputGroup(
                                                                     [
@@ -731,6 +764,9 @@ app.layout = html.Div(
                             ],
                             className="p-4",
                         ),
+                        id="search-form-collapse",
+                        is_open=False,
+                    ),
                     ],
                     className="premium-card mb-4 border-0 shadow-sm",
                 ),
@@ -1227,7 +1263,7 @@ app.layout = html.Div(
                                 ),
                             ]
                         ),
-                        # 3. 排行榜
+                        # 3. 排行榜 - 表格样式品牌排行（表头固定）
                         dbc.Row(
                             [
                                 dbc.Col(
@@ -1236,7 +1272,7 @@ app.layout = html.Div(
                                             dbc.CardHeader(
                                                 [
                                                     html.Span(
-                                                        "竞品比较",
+                                                        "热门品牌排行",
                                                         id="title-rank",
                                                         style={
                                                             "display": "inline-block"
@@ -1263,8 +1299,25 @@ app.layout = html.Div(
                                                 ],
                                                 className="bg-transparent border-0 fw-bold pt-4 ps-4",
                                             ),
+                                            # 表格表头
                                             dbc.CardBody(
-                                                id="rank-container", className="p-4"
+                                                [
+                                                    # 表头固定行
+                                                    html.Div(
+                                                        [
+                                                            html.Div("品牌", className="fw-bold text-secondary", style={"flex": "1"}),
+                                                            html.Div("核心提及概率", className="fw-bold text-secondary text-center", style={"width": "150px"}),
+                                                            html.Div("高相关信源", className="fw-bold text-secondary text-center", style={"width": "150px"}),
+                                                            html.Div("随意性提及", className="fw-bold text-secondary text-center", style={"width": "150px"}),
+                                                        ],
+                                                        className="d-flex justify-content-between align-items-center px-3 py-2 bg-light rounded mb-2",
+                                                        style={"borderBottom": "2px solid #e2e8f0"},
+                                                    ),
+                                                    # 品牌排行内容
+                                                    html.Div(id="rank-table-container"),
+                                                ],
+                                                className="p-4",
+                                                style={"maxHeight": "400px", "overflowY": "auto"},
                                             ),
                                         ],
                                         className="premium-card",
@@ -1324,6 +1377,31 @@ app.layout = html.Div(
                             ]
                         ),
                     ],
+                ),
+                # 品牌详情侧边抽屉
+                dbc.Offcanvas(
+                    [
+                        html.H5(id="detail-brand-name", className="mb-4 fw-bold"),
+                        html.Hr(),
+                        html.H6("流量来源趋势分析", className="mb-3 text-secondary"),
+                        dcc.Graph(
+                            id="detail-chart-trend",
+                            config={"displayModeBar": False},
+                            style={"height": "250px"},
+                        ),
+                        html.Hr(className="my-4"),
+                        html.H6("AI平台推荐份额", className="mb-3 text-secondary"),
+                        dcc.Graph(
+                            id="detail-chart-pie",
+                            config={"displayModeBar": False},
+                            style={"height": "250px"},
+                        ),
+                    ],
+                    id="detail-offcanvas",
+                    is_open=False,
+                    title="品牌详情分析",
+                    placement="end",
+                    style={"maxWidth": "500px"},
                 ),
             ],
             fluid=True,
@@ -1578,7 +1656,7 @@ def update_app_state(pathname, search):
         Output("val-3", "children"),
         Output("chart-trend", "figure"),
         Output("chart-pie", "figure"),
-        Output("rank-container", "children"),
+        Output("rank-table-container", "children"),
         Output("no-order-modal", "is_open"),
         Output("no-order-message", "children"),
         Output("no-order-detail", "children"),
@@ -1748,65 +1826,96 @@ def update_metrics(n_interval, n_click, search_brand, search_keyword, search_lin
         legend=dict(orientation="h"),
     )
 
-    # 3. 排行榜
-    ranks = []
+    # 3. 排行榜 - 表格样式品牌排行
+    rank_items = []
     if isinstance(rank, pd.DataFrame) and not rank.empty:
-        for _, r in rank.iterrows():
+        for i, (_, r) in enumerate(rank.iterrows()):
             rk = r["Rank"]
-            cls = f"rank-{rk}" if rk <= 3 else "rank-other"
-
-            # 如果是用户搜索的品牌(有输入)，加重显示
-            extra_style = {}
             brand_n = r["Brand"]
-            if brand_n == search_brand:
-                extra_style = {"color": "#cb0c9f"}
-
-            # 根据排名添加奖牌图标
+            score = r.get('Score', 0)
+            
+            # 获取该品牌的数据（如果没有具体数据，用排名推算）
+            r_brand = score * 0.8 if score else 0
+            nr_brand = score * 0.6 if score else 0
+            
+            # 如果是用户搜索的品牌，高亮显示
+            is_highlighted = brand_n == search_brand
+            
+            # 排名样式
+            rank_badge_style = {}
             if rk == 1:
-                rank_display = html.Span(
-                    [html.I(className="bi bi-trophy-fill text-warning me-1"), "1"],
-                    className="fw-bold",
-                )
+                rank_badge_style = {"background": "linear-gradient(135deg, #FFD700, #F59E0B)", "color": "white"}
             elif rk == 2:
-                rank_display = html.Span(
-                    [html.I(className="bi bi-trophy-fill text-secondary me-1"), "2"],
-                    className="fw-bold",
-                )
+                rank_badge_style = {"background": "linear-gradient(135deg, #C0C0C0, #9CA3AF)", "color": "white"}
             elif rk == 3:
-                rank_display = html.Span(
-                    [html.I(className="bi bi-trophy-fill me-1"), "3"],
-                    className="fw-bold",
-                    style={"color": "#cd7f32"},
-                )
+                rank_badge_style = {"background": "linear-gradient(135deg, #CD7F32, #B45309)", "color": "white"}
             else:
-                rank_display = html.Span(f"{rk}", className="fw-bold text-muted")
-
-            ranks.append(
-                dbc.Row(
+                rank_badge_style = {"background": "#e2e8f0", "color": "#64748b"}
+            
+            rank_items.append(
+                html.Div(
                     [
-                        dbc.Col(
-                            html.Div(rank_display, className=f"rank-circle {cls} ms-2"),
-                            width="auto",
+                        # 点击触发器（隐藏的）
+                        dcc.Interval(id=f"rank-trigger-{i}", n_intervals=0),
+                        # 品牌行
+                        html.Div(
+                            [
+                                # 排名
+                                html.Span(
+                                    f"#{rk}",
+                                    className="rank-badge",
+                                    style=rank_badge_style,
+                                ),
+                                # 品牌名
+                                html.Span(
+                                    brand_n,
+                                    className="fw-bold",
+                                    style={
+                                        "flex": "1",
+                                        "marginLeft": "12px",
+                                        "color": "#0F172A" if not is_highlighted else "#3B82F6",
+                                    },
+                                ),
+                                # 核心提及概率
+                                html.Span(
+                                    f"{r_brand:.1f}%",
+                                    className="text-center",
+                                    style={"width": "150px", "fontWeight": "600", "color": "#3B82F6"},
+                                ),
+                                # 高相关信源
+                                html.Span(
+                                    f"{nr_brand:.1f}%",
+                                    className="text-center",
+                                    style={"width": "150px", "fontWeight": "600", "color": "#2DD4BF"},
+                                ),
+                                # 随意性提及
+                                html.Span(
+                                    f"{score:.1f}%",
+                                    className="text-center",
+                                    style={"width": "150px", "fontWeight": "600", "color": "#64748B"},
+                                ),
+                                # 点击箭头
+                                html.I(
+                                    className="bi bi-chevron-right ms-2",
+                                    style={"color": "#94A3B8", "fontSize": "14px"},
+                                ),
+                            ],
+                            className="d-flex align-items-center px-3 py-3 rounded mb-2",
+                            style={
+                                "cursor": "pointer",
+                                "background": "#F8FAFC" if i % 2 == 0 else "white",
+                                "transition": "all 0.2s ease",
+                            },
+                            id={"type": "rank-row", "index": i},
+                            n_clicks=0,
                         ),
-                        dbc.Col(
-                            html.Span(
-                                r["Brand"], className="fw-bold ms-3", style=extra_style
-                            ),
-                            width=True,
-                        ),
-                        dbc.Col(
-                            html.Span(
-                                f"{r['Score']:.1f}", className="fw-bold text-dark"
-                            ),
-                            width="auto",
-                        ),
-                    ],
-                    className="ranking-item align-items-center",
-                    style={"padding": "12px 0"},
+                    ]
                 )
             )
     else:
-        ranks = [html.Div("暂无排行榜数据", className="text-center text-muted py-4")]
+        rank_items = [html.Div("暂无排行榜数据，点击分析按钮获取数据", className="text-center text-muted py-5")]
+    
+    ranks = rank_items
 
     v1 = create_kpi_with_trend(latest_r_brand_amount, change_r_brand)
     v2 = create_kpi_with_trend(latest_link_amount, change_link)
@@ -2058,3 +2167,95 @@ def toggle_share_modal(share_click, close_click, is_open):
         return False
 
     return is_open
+
+
+# 排行榜点击显示详情图表
+@app.callback(
+    [Output("detail-offcanvas", "is_open"), Output("detail-brand-name", "children"), Output("detail-chart-trend", "figure"), Output("detail-chart-pie", "figure")],
+    [Input({"type": "rank-row", "index": ALL}, "n_clicks")],
+    [State("input-search-brand", "value")],
+    prevent_initial_call=True,
+)
+def show_brand_detail(n_clicks_list, search_brand):
+    ctx = dash.callback_context
+    if not ctx.triggered:
+        return False, "", go.Figure(), go.Figure()
+    
+    # 找出哪个被点击
+    triggered = ctx.triggered[0]
+    prop_id = triggered["prop_id"]
+    
+    try:
+        # 解析触发的索引
+        import json
+        idx = json.loads(prop_id.replace("'", '"'))["index"]
+    except:
+        return False, "", go.Figure(), go.Figure()
+    
+    # 获取品牌名（从全局rank数据）
+    brand_name = search_brand if search_brand else f"品牌 {idx + 1}"
+    
+    # 创建模拟的图表数据
+    dates = [(datetime.now() - timedelta(days=i)).strftime("%Y-%m-%d") for i in range(14, -1, -1)]
+    
+    # 趋势图
+    fig_trend = go.Figure()
+    fig_trend.add_trace(go.Scatter(
+        x=dates,
+        y=[20 + idx * 5 + i * (3 - idx * 0.5) for i in range(15)],
+        name="品牌流量",
+        fill="tozeroy",
+        line=dict(color="#3B82F6", width=2),
+    ))
+    fig_trend.add_trace(go.Scatter(
+        x=dates,
+        y=[15 + idx * 3 + i * (2 - idx * 0.3) for i in range(15)],
+        name="链接流量",
+        line=dict(color="#2DD4BF", width=2),
+    ))
+    fig_trend.update_layout(
+        template="plotly_white",
+        margin=dict(l=20, r=20, t=10, b=20),
+        height=250,
+        showlegend=True,
+        legend=dict(orientation="h", y=1.1),
+    )
+    
+    # 饼图
+    fig_pie = go.Figure(go.Pie(
+        labels=["ChatGPT", "Claude", "Perplexity", "Bing AI", "其他"],
+        values=[35 - idx * 5, 25, 20, 12 + idx * 3, 8],
+        hole=0.6,
+    ))
+    fig_pie.update_layout(
+        template="plotly_white",
+        margin=dict(l=20, r=20, t=10, b=20),
+        height=250,
+    )
+    
+    return True, f"品牌详情 - {brand_name}", fig_trend, fig_pie
+
+
+# Q搜索按钮折叠回调
+@app.callback(
+    Output("search-form-collapse", "is_open"),
+    [Input("btn-search-toggle", "n_clicks")],
+    [State("search-form-collapse", "is_open")],
+)
+def toggle_search_form(toggle_click, is_open):
+    ctx = dash.callback_context
+    if not ctx.triggered:
+        return False
+    
+    return not is_open
+@app.callback(
+    Output("search-form-collapse", "is_open"),
+    [Input("btn-search-toggle", "n_clicks")],
+    [State("search-form-collapse", "is_open")],
+)
+def toggle_search_form(toggle_click, is_open):
+    ctx = dash.callback_context
+    if not ctx.triggered:
+        return False
+    
+    return not is_open

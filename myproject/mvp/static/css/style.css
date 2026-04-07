@@ -42,6 +42,19 @@ body {
   letter-spacing: 0.02em;
 }
 
+/* --- 2.1 ISTAR 艺术字 Logo --- */
+.istar-art-text {
+  font-family: 'Inter', sans-serif;
+  font-weight: 900;
+  font-size: 1.25rem;
+  letter-spacing: 0.12em;
+  background: linear-gradient(135deg, #3B82F6 0%, #2DD4BF 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 0 30px rgba(45, 212, 191, 0.3);
+}
+
 /* --- 3. 导航栏 (深邃科技蓝) --- */
 .navbar-glass {
   background: var(--primary) !important;

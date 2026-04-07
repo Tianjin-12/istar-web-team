@@ -190,19 +190,30 @@
     // 初始化 Lucide 图标
     lucide.createIcons();
     
-    // 加载动画
-    window.addEventListener('load', function() {
-      setTimeout(function() {
-        var logo = document.getElementById('loadingLogo');
-        var screen = document.getElementById('loadingScreen');
+    // 加载动画 - 只在首次打开网页时出现
+    (function() {
+      var screen = document.getElementById('loadingScreen');
+      var logo = document.getElementById('loadingLogo');
+      
+      // 检查是否是首次加载（转换选项卡时不出现）
+      if (!sessionStorage.getItem('istarLoadingShown')) {
+        sessionStorage.setItem('istarLoadingShown', 'true');
         
-        logo.classList.add('explode');
-        
-        setTimeout(function() {
-          screen.classList.add('fade-out');
-        }, 500);
-      }, 1800);
-    });
+        window.addEventListener('load', function() {
+          // 1.5s 后开始消失动画
+          setTimeout(function() {
+            logo.classList.add('explode');
+            
+            setTimeout(function() {
+              screen.classList.add('fade-out');
+            }, 500);
+          }, 1500);
+        });
+      } else {
+        // 已有记录，直接隐藏
+        screen.style.display = 'none';
+      }
+    })();
     
     // Toast 函数
     function showToast(message, duration = 5000) {
