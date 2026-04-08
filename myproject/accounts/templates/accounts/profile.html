@@ -114,6 +114,15 @@
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
   }
+  .btn-warning {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(245, 87, 108, 0.3);
+  }
+  .btn-warning:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(245, 87, 108, 0.4);
+  }
   @media (max-width: 480px) {
     .profile-container {
       padding: 1.5rem;
@@ -183,6 +192,9 @@
       {% csrf_token %}
       <button type="submit" class="btn btn-danger">退出登录</button>
     </form>
+    <button type="button" onclick="window.location.href='{% url 'order_list' %}'" class="btn btn-warning">
+      我的催促
+    </button>
     <button type="button" onclick="window.location.href='/dashboard/brand/'" class="btn btn-primary">
       返回首页
     </button>

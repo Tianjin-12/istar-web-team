@@ -33,7 +33,10 @@ def loginView(request):
             login(request, user)
             logger.info(f"用户登录成功: username={user.username}, user_id={user.id}")
 
-            nextUrl = request.GET.get("next", "dashboard/brand/")
+            nextUrl = request.GET.get("next")
+            if nextUrl:
+                return redirect(nextUrl)
+
             import time
 
             return redirect(

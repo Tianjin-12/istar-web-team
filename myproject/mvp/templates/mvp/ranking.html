@@ -6,15 +6,23 @@
 
 {% block content %}
 <div class="container-fluid px-lg-5 py-4">
-  <div class="d-flex align-items-center justify-content-between mb-4">
-    <div>
-      <h3 class="fw-bold text-dark mb-1">品牌AI可见度排行榜</h3>
-      <p class="text-muted mb-0 small" id="ranking-meta">加载中...</p>
+  <div class="text-center mb-2">
+    <h3 class="fw-bold text-dark mb-0" style="font-size: 1.6rem;">品牌AI可见度排行榜</h3>
+    <p class="text-muted mb-1" style="font-size: 0.85rem; letter-spacing: 2px;">Istar Benchmark</p>
+  </div>
+  <div class="d-flex align-items-center justify-content-center gap-4 mb-4">
+    <div class="d-flex align-items-center gap-2">
+      <span class="text-muted" style="font-size: 0.9rem;">收录品牌</span>
+      <span id="total-brands-number" style="font-size: 2.5rem; font-weight: 900; line-height: 1; background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3, #54a0ff, #5f27cd); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">--</span>
+      <span class="text-muted" style="font-size: 0.9rem;">个</span>
     </div>
     <a href="/static/ranking.json" target="_blank" class="btn btn-ghost btn-sm rounded-pill px-3 text-decoration-none">
       <i data-lucide="download" style="width: 14px; height: 14px; vertical-align: -2px; margin-right: 4px;"></i>
       获取JSON数据
     </a>
+  </div>
+  <div class="text-center mb-3">
+    <p class="text-muted mb-0 small" id="ranking-meta">加载中...</p>
   </div>
 
   <div class="card border-0 shadow-sm" style="border-radius: 16px; overflow: hidden;">
@@ -64,6 +72,12 @@
       </div>
     </div>
   </div>
+
+  <div class="text-center mt-4 mb-3">
+    <a href="{% url 'create_order' %}" class="text-decoration-none" style="color: #64748b; font-size: 0.9rem;">
+      找不到您想要的品牌？<span style="color: #3B82F6; font-weight: 600; text-decoration: underline;">点这里下个订单就好了</span>
+    </a>
+  </div>
 </div>
 {% endblock %}
 
@@ -89,7 +103,8 @@
           });
         }
         document.getElementById('ranking-meta').textContent =
-          '共 ' + data.total_brands + ' 个品牌 | 数据更新于 ' + data.updated_at;
+          '数据更新于 ' + data.updated_at;
+        document.getElementById('total-brands-number').textContent = data.total_brands;
         populateFieldFilter(categories);
         renderTable(allRows);
         bindEvents();
